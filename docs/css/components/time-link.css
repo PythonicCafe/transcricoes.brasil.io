@@ -1,0 +1,19 @@
+/* Marca de tempo clicável (link nos resultados, botão na transcrição). Área mínima de 24px, como pede a WCAG 2.2. */
+.time-link {
+  display: inline-block;
+  min-height: 1.5rem;
+  padding: 0 var(--space-xs);
+  background: none;
+  border: 0;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-sm);
+  color: var(--color-link);
+  text-decoration: underline;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.time-link:hover {
+  color: var(--color-link-hover);
+}

@@ -1,0 +1,2728 @@
+{
+  "config": {
+    "repositorio": "https://github.com/PythonicCafe/transcricoes.brasil.io"
+  },
+  "sessoes": [
+    {
+      "id": "avnyFfxKq-o",
+      "miniatura": "miniaturas/avnyFfxKq-o.jpg",
+      "legenda": "legendas/avnyFfxKq-o.vtt",
+      "titulo": "SESSÃO ORDINÁRIA 17/11/2026",
+      "canal": "Assembleia Legislativa do ES",
+      "casa": "Assembleia Legislativa do ES",
+      "uf": "ES",
+      "data": "2026-11-18",
+      "duracao": 2408.0,
+      "resumo": "Sessão ordinária e extraordinária da Assembleia Legislativa do Espírito Santo, presidida pelo deputado Marcelo Santos. A sessão teve leitura de versículo, despachos de itens (justificativas de ausência, veto parcial ao PL 247/2026 sobre o programa Mão Amiga Alimentar ES, retirada de requerimento, licenças), aprovação de urgência e pareceres na Comissão de Justiça para dois projetos que declaram de utilidade pública entidades esportivas (PL 554/2026 e PL 448/2026). Na ordem do dia, esses projetos foram aprovados em discussão única com tramitação terminativa. Deputados usaram a tribuna para cobrar celeridade em nomeações de concursos da segurança pública, asfaltamento da rodovia ES-379, abono salarial e reajuste para militares da reserva, além de denunciar problemas de creche e abastecimento de água em Fazenda Guandu, Afonso Cláudio. A sessão foi encerrada com convocação para a próxima.",
+      "tipo": "Plenário - sessão deliberativa",
+      "temas": [
+        "Processo Legislativo e Atuação Parlamentar",
+        "Trabalho e Emprego",
+        "Meio Ambiente e Desenvolvimento Sustentável"
+      ],
+      "palavras_chave": [
+        "Mão Amiga Alimentar ES",
+        "Instituto Social e Esportivo Gelobol",
+        "Associação Pontões Capixabas de Esporte, Cultura e Lazer",
+        "PL 554/2026",
+        "PL 448/2026",
+        "rodovia ES-379",
+        "Fazenda Guandu",
+        "concursos da segurança pública"
+      ],
+      "participantes": [
+        {
+          "nome": "Marcelo Santos",
+          "papel": "presidente da Assembleia Legislativa e autor dos PLs 554/2026 e 448/2026"
+        },
+        {
+          "nome": "Capitão Assunção",
+          "papel": "deputado, leu versículo bíblico"
+        },
+        {
+          "nome": "Dari Pagum",
+          "papel": "presidente da Comissão de Justiça"
+        },
+        {
+          "nome": "Bruno Bispo Alves",
+          "papel": "deputado autor do PL 247/2026"
+        },
+        {
+          "nome": "Fábio Duarte",
+          "papel": "deputado"
+        },
+        {
+          "nome": "João Coser",
+          "papel": "correlator na Comissão de Justiça"
+        },
+        {
+          "nome": "Lucas Polese",
+          "papel": "deputado"
+        },
+        {
+          "nome": "Alain Ferreira",
+          "papel": "deputado relator"
+        },
+        {
+          "nome": "Coronel Welito",
+          "papel": "deputado relator"
+        },
+        {
+          "nome": "Mazinho dos Anjos",
+          "papel": "deputado relator"
+        },
+        {
+          "nome": "Deninho Silva",
+          "papel": "deputado autor do PL 757/2025"
+        },
+        {
+          "nome": "Gandini",
+          "papel": "deputado autor do PL 791/2025"
+        }
+      ],
+      "decisoes": [
+        "Aprovada a leitura da sessão anterior.",
+        "Justificada ausência dos parlamentares nos itens 1 e 2.",
+        "Mensagem 23/2026 do governador com veto parcial ao PL 247/2026 encaminhada à Comissão de Justiça.",
+        "Retirado o requerimento de decreto legislativo 120/2016, que concedia título de cidadão espírito-santense a Carlos Eduardo Borges.",
+        "Deferida licença para tratamento de saúde do deputado Daninho Silva por um dia.",
+        "Aprovada urgência para o PL 554/2026 (Instituto Social e Esportivo Gelobol, Cariacica).",
+        "Aprovada urgência para o PL 448/2026 (Associação Pontões Capixabas de Esporte, Cultura e Lazer, Pancas).",
+        "Aprovada a indicação do deputado Dr. Bruno Rezende (item 10).”,] ,',', 'Os projetos de lei 554/2026 e 448/2026 foram aprovados em discussão única com tramitação terminativa na Comissão de Justiça, sem recurso para plenário.', 'Três projetos em terceira sessão de discussão especial (PL 757/2025, PL 791/2025 e PL 515/2026) foram encaminhados às comissões temáticas.'] ,',', 'Convocada sessão extraordinária para as 15h11 do mesmo dia.', 'Convocada sessão ordinária híbrida para o dia seguinte às 9h.'] ,',', '', "
+      ],
+      "modelo": "S5-nano"
+    },
+    {
+      "id": "0FoDVSoAAXg",
+      "miniatura": "miniaturas/0FoDVSoAAXg.jpg",
+      "legenda": "legendas/0FoDVSoAAXg.vtt",
+      "titulo": "Sessão Plenária  - 17/11/2026",
+      "canal": "Assembleia Legislativa de MS",
+      "casa": "Assembleia Legislativa de MS",
+      "uf": "MS",
+      "data": "2026-11-17",
+      "duracao": 2343.0,
+      "resumo": "Sessão ordinária da Assembleia Legislativa de Mato Grosso do Sul realizada em 12 de novembro de 2026, presidida pelo deputado Júlio Maia, com participação dos deputados Zeca do PT, professor Rinaldo Caravina, Lia Nogueira, Renato Câmara, Pedro Kemp, Gerson Claro, Gleice Jane, Lucas de Lima, João César Mato Grosso, Mara Caseiro, Júnior Mock e Paulo Duarte. Foram aprovados quatro projetos: o Projeto de Lei Complementar 004/2026, que altera a lei orgânica da Polícia Civil para exigir três anos de experiência jurídica ou policial e prova oral no concurso de delegado; o Projeto de Lei 154/2026, que isenta Defensoria Pública e Ministério Público do pagamento de certidões na Junta Comercial; o Projeto de Lei 115/2026, que declara de utilidade pública a Associação Pantanal Esporte Clube Futebol de Amputados; e o Projeto de Lei 145/2026, que institui o Dia Estadual do Atleta Paralímpico. Também foram aprovadas moções de pesar e congratulação e lidos expedientes.",
+      "tipo": "Plenário - sessão deliberativa",
+      "temas": [
+        "Defesa e Segurança",
+        "Educação",
+        "Esporte e Lazer"
+      ],
+      "palavras_chave": [
+        "Polícia Civil de Mato Grosso do Sul",
+        "delegado de polícia",
+        "prova oral",
+        "Junta Comercial do Estado de Mato Grosso do Sul",
+        "Defensoria Pública",
+        "Ministério Público",
+        "Associação Pantanal Esporte Clube Futebol de Amputados",
+        "Dia Estadual do Atleta Paralímpico"
+      ],
+      "participantes": [
+        {
+          "nome": "Júlio Maia",
+          "papel": "presidente da sessão"
+        },
+        {
+          "nome": "Paulo Correia",
+          "papel": "presidente anterior da sessão"
+        },
+        {
+          "nome": "Renato Câmara",
+          "papel": "segundo secretário"
+        },
+        {
+          "nome": "Márcio Fernandes",
+          "papel": "primeiro secretário"
+        },
+        {
+          "nome": "Pedro Kemp",
+          "papel": "deputado e primeiro secretário"
+        },
+        {
+          "nome": "Zeca do PT",
+          "papel": "deputado"
+        },
+        {
+          "nome": "professor Rinaldo Caravina",
+          "papel": "deputado"
+        },
+        {
+          "nome": "Lia Nogueira",
+          "papel": "deputada"
+        },
+        {
+          "nome": "Gerson Claro",
+          "papel": "presidente da Assembleia Legislativa"
+        },
+        {
+          "nome": "João César Mato Grosso",
+          "papel": "deputado"
+        },
+        {
+          "nome": "Mara Caseiro",
+          "papel": "deputada"
+        },
+        {
+          "nome": "Júnior Mock",
+          "papel": "deputado"
+        }
+      ],
+      "decisoes": [
+        "Aprovado em primeira discussão e votação nominal o Projeto de Lei Complementar 004/2026, que altera a lei orgânica da Polícia Civil para exigir três anos de experiência jurídica ou policial e prova oral no concurso de delegado.",
+        "Aprovado em primeira discussão e votação nominal o Projeto de Lei 154/2026, que isenta Defensoria Pública e Ministério Público do pagamento de certidões na Junta Comercial do Estado de Mato Grosso do Sul.",
+        "Aprovado em discussão única e votação nominal o Projeto de Lei 115/2026, que declara de utilidade pública estadual a Associação Pantanal Esporte Clube Futebol de Amputados de Mato Grosso do Sul.",
+        "Aprovado em discussão única e votação nominal o Projeto de Lei 145/2026, que inclui no calendário oficial de eventos do Estado o Dia Estadual do Atleta Paralímpico, em 22 de setembro.",
+        "Aprovada moção de pesar apresentada pelo deputado Zé Teixeira aos familiares de Ana Maria Miller de Lima.",
+        "Aprovada moção de congratulação apresentada pelo deputado João César Mato Grosso à chefe-geral da Embrapa Gado de Corte de MS, Mariana Aragão.",
+        "Aprovado requerimento do deputado João César Mato Grosso concedendo diplomas de ilustre visitante aos artistas Ícaro e Gilmar, Humberto e Ronaldo e Panda, do projeto Setadoito.",
+        "Lida e aprovada a ata da 115ª sessão ordinária."
+      ],
+      "modelo": "S5-nano"
+    },
+    {
+      "id": "od3-rqrcPrY",
+      "miniatura": "miniaturas/od3-rqrcPrY.jpg",
+      "legenda": "legendas/od3-rqrcPrY.vtt",
+      "titulo": "SESSÃO ORDINÁRIA 11/11/2026",
+      "canal": "Assembleia Legislativa do ES",
+      "casa": "Assembleia Legislativa do ES",
+      "uf": "ES",
+      "data": "2026-11-16",
+      "duracao": 1657.0,
+      "resumo": "Sessão ordinária híbrida da Assembleia Legislativa do Espírito Santo, presidida pelo deputado delegado Danilo Baense. A ordem do dia tratou de projetos em discussão especial e indicações, sem votações substantivas. Na fase de comunicações, deputados Coronel Wellington e delegado Danilo Baense discutiram a segurança pública no estado, cobrando convocação de novas turmas da Polícia Civil e Militar, reabertura de delegacias e plantões 24h. O presidente Marcelo Santos participou virtualmente e destacou a conquista do Selo Diamante de Transparência pela terceira vez consecutiva.",
+      "tipo": "Plenário - sessão de debates",
+      "temas": [
+        "Defesa e Segurança",
+        "Processo Legislativo e Atuação Parlamentar",
+        "Administração Pública"
+      ],
+      "palavras_chave": [
+        "segurança pública",
+        "Polícia Civil",
+        "Polícia Militar",
+        "delegacias fechadas",
+        "concurso soldado PM 2026",
+        "selo diamante de transparência",
+        "Baixo Guandu",
+        "data center"
+      ],
+      "participantes": [
+        {
+          "nome": "deputado delegado Danilo Baense",
+          "papel": "presidente da sessão"
+        },
+        {
+          "nome": "deputado Coronel Wellington",
+          "papel": "deputado"
+        },
+        {
+          "nome": "deputado Marcelo Santos",
+          "papel": "presidente da Casa (participação virtual)"
+        },
+        {
+          "nome": "deputada Camila Valadão",
+          "papel": "autora do requerimento de informação"
+        },
+        {
+          "nome": "deputado Tiago Hoffman",
+          "papel": "autor do projeto de decreto legislativo"
+        },
+        {
+          "nome": "deputado doutor Bruno Rezende",
+          "papel": "autor de indicações e projetos"
+        }
+      ],
+      "decisoes": [
+        "Aprovadas quatro indicações do deputado doutor Bruno Rezende.",
+        "Aprovada a ata da sessão anterior sem leitura.",
+        "Projetos em discussão especial seguiram para segunda ou terceira sessão, conforme o caso.",
+        "Requerimento de informação 150/2026, da deputada Camila Valadão, encaminhado à Secretaria de Estado do Meio Ambiente e Recursos Hídricos (SEAMA) para prestar informações sobre impactos socioambientais de data center em Baixo Guandu."
+      ],
+      "modelo": "S5-nano"
+    },
+    {
+      "id": "05rdKsWN_5E",
+      "miniatura": "miniaturas/05rdKsWN_5E.jpg",
+      "legenda": "legendas/05rdKsWN_5E.vtt",
+      "titulo": "Sessão Ordinária - 10/11/26",
+      "canal": "TV ALERJ",
+      "casa": "TV ALERJ",
+      "uf": "RJ",
+      "data": "2026-11-10",
+      "duracao": 4050.0,
+      "resumo": "Sessão ordinária da Assembleia Legislativa do Rio de Janeiro (ALERJ) em 10/11/2026, presidida por um deputado não identificado nos tópicos. A pauta incluiu debates sobre falta de energia e água, com críticas à Light e Enel e menção a desabastecimento em Magé; educação, cotas raciais e valorização docente; e finanças públicas, com prorrogação para emendas ao PPA e PLOA 2027. Foram aprovados projetos de lei sobre condomínio, convênio ICMS e regime tributário para o aeroporto do Galeão, além de resoluções concedendo diplomas e medalhas. Uma audiência pública sobre água e energia foi marcada para segunda-feira às 11h.",
+      "tipo": "Plenário - sessão deliberativa",
+      "temas": [
+        "Meio Ambiente e Desenvolvimento Sustentável",
+        "Educação",
+        "Finanças Públicas e Orçamento"
+      ],
+      "palavras_chave": [
+        "Light",
+        "Enel",
+        "Magé",
+        "ANAEL",
+        "PL 3800/2021",
+        "PL 8223/2026",
+        "PL 8277/2026",
+        "Galeão"
+      ],
+      "participantes": [
+        {
+          "nome": "Fábio Silva",
+          "papel": "deputado"
+        },
+        {
+          "nome": "Jorge Felipe",
+          "papel": "deputado"
+        },
+        {
+          "nome": "Vinícius Cozoliano",
+          "papel": "deputado"
+        },
+        {
+          "nome": "Carlos Macedo",
+          "papel": "deputado"
+        },
+        {
+          "nome": "Lucinha",
+          "papel": "deputada"
+        },
+        {
+          "nome": "Anderson Moraes",
+          "papel": "deputado"
+        },
+        {
+          "nome": "Douglas Ruas",
+          "papel": "governador eleito"
+        }
+      ],
+      "decisoes": [
+        "Autorizado o deputado Fábio Silva a participar de audiência pública sobre falta de luz e água.",
+        "Aprovado o PL nº 3.800/2021, que altera a Lei do Condomínio Seguro.",
+        "Aprovado o PL nº 8.223/2026, que ratifica convênio ICMS e metas de desempenho, com substitutivo da CCJ.",
+        "Aprovado o PL nº 8.277/2026, que institui regime tributário especial para QAV/Galeão.",
+        "Prorrogado até 13/11, às 15h, o prazo para emendas ao PPA e PLOA de 2027.",
+        "Aprovados diversos projetos de resolução concedendo diplomas e medalhas (Construtor da Paz, Rússio Filipe Ched, Ananeri, Tiradentes).",
+        "Marcada audiência pública temática sobre água e energia para segunda-feira às 11h."
+      ],
+      "modelo": "S5-nano"
+    },
+    {
+      "id": "ddaxri92niQ",
+      "miniatura": "miniaturas/ddaxri92niQ.jpg",
+      "legenda": "legendas/ddaxri92niQ.vtt",
+      "titulo": "AO VIVO – 03/11 | Assembleia realiza duas sessões com projetos sobre proteção às mulheres",
+      "canal": "TV Assembleia do Paraná",
+      "casa": "TV Assembleia do Paraná",
+      "uf": "PR",
+      "data": "2026-11-03",
+      "duracao": 2686.0,
+      "resumo": "A Assembleia Legislativa do Paraná realizou em 3 de novembro de 2026 uma sessão ordinária e uma sessão extraordinária, com votações sobre projetos de lei. Foram aprovados: apoio ao aleitamento humano em emergências (PL 629/2026), reconhecimento do Santuário de Nossa Senhora do Perpétuo Socorro como patrimônio cultural imaterial (PL 575/2026), garantia de matrícula escolar para filhos de vítimas de violência doméstica (PL 130/2018, em segundo turno), critérios de cobrança de emolumentos extrajudiciais (PL 1016/2025), créditos orçamentários adicionais (PLs 782 e 783/2026), título de capital da luva de boxe a Cruzeiro do Oeste (PL 586/2026) e utilidade pública à Associação Amar e Cuidar (PL 647/2026). O projeto sobre o tabaco foi retirado de pauta após manifestação na Comissão de Agricultura. A sessão também tratou de pedidos de apoio a municípios atingidos por chuvas.",
+      "tipo": "Plenário - sessão deliberativa",
+      "temas": [
+        "Direitos Humanos e Minorias",
+        "Educação",
+        "Finanças Públicas e Orçamento"
+      ],
+      "palavras_chave": [
+        "violência doméstica",
+        "aleitamento humano",
+        "Santuário de Nossa Senhora do Perpétuo Socorro",
+        "tabaco",
+        "emolumentos extrajudiciais",
+        "crédito adicional especial",
+        "suplementação orçamentária",
+        "chuvas em Marquinho"
+      ],
+      "participantes": [
+        {
+          "nome": "Alexandre Cury",
+          "papel": "presidente da Assembleia Legislativa do Paraná"
+        },
+        {
+          "nome": "Hussein Bacri",
+          "papel": "deputado, líder da situação"
+        },
+        {
+          "nome": "Luciana Rafain",
+          "papel": "deputada, líder da oposição"
+        },
+        {
+          "nome": "Professor Lemos",
+          "papel": "deputado"
+        },
+        {
+          "nome": "Mara Lima",
+          "papel": "deputada cantora, primeira oradora do grande expediente"
+        },
+        {
+          "nome": "Goura",
+          "papel": "deputado"
+        },
+        {
+          "nome": "Maria Vitória",
+          "papel": "deputada"
+        },
+        {
+          "nome": "Jaco Vos",
+          "papel": "deputado, líder do PL"
+        }
+      ],
+      "decisoes": [
+        "Aprovado em segundo turno o projeto de lei 629/2026, que dispõe sobre apoio ao aleitamento humano em situações de emergência e desastres, na forma do substitutivo geral da CCJ.",
+        "Aprovado o projeto de lei 575/2026, que reconhece o Santuário de Nossa Senhora do Perpétuo Socorro, em Curitiba, como Patrimônio Cultural Imaterial do Paraná, e aprovada a emenda de plenário.",
+        "Aprovado em primeiro turno o projeto de lei 130/2018, que garante matrícula na rede pública estadual para filhos de mulheres vítimas de violência doméstica e familiar; retorna à CCJ para emenda no segundo turno.",
+        "Aprovado em primeiro turno o projeto de lei 1016/2025, do Tribunal de Justiça, que estabelece critérios para cobrança de emolumentos dos serviços extrajudiciais; emendas serão analisadas em nova votação.",
+        "Aprovado o projeto de lei 782/2026, que aprova crédito adicional especial alterando o orçamento fiscal do Estado.",
+        "Aprovado o projeto de lei 783/2026, que aprova outro crédito adicional especial alterando o orçamento fiscal do Estado.",
+        "Aprovado o projeto de lei 586/2026, que concede a Cruzeiro do Oeste o título de capital da luva de boxe.",
+        "Aprovado o projeto de lei 647/2026, que concede título de utilidade pública à Associação Amar e Cuidar, em Curitiba, na forma do substitutivo geral da CCJ. (Nota: a transcrição menciona 'projeto de lei nº 647-2026', mas o número pode estar incorreto; mantido conforme transcrito.)"
+      ],
+      "modelo": "S5-nano"
+    },
+    {
+      "id": "R4oolVML2dw",
+      "miniatura": "miniaturas/R4oolVML2dw.jpg",
+      "legenda": "legendas/R4oolVML2dw.vtt",
+      "titulo": "Sessão Ordinária - Parte 1 - 03/11/26",
+      "canal": "assembleiasc",
+      "casa": "assembleiasc",
+      "uf": "SC",
+      "data": "2026-11-03",
+      "duracao": 1819.0,
+      "resumo": "Sessão ordinária da Assembleia Legislativa de Santa Catarina, presidida pelo deputado Fernando Kreling (em exercício), com participação dos deputados Mário Mota, Sargento Lima, Neudi Sareta e Gessé Lopes. A sessão teve breves comunicações: Mário Mota homenageou o Dia do Servidor Público; Sargento Lima alertou sobre a redução de 2,4% nos repasses federais aos municípios e criticou antecipação das eleições de 2028; Neudi Sareta denunciou aumento de feminicídios em Santa Catarina (46 casos até 27 de outubro de 2026, alta de cerca de 21%) e o alto número de medidas protetivas; Gessé Lopes defendeu que alunos filmem professores e apresentou denúncia contra um professor de matemática por ofensas e ameaças a alunos. A sessão foi suspensa para a ordem do dia.",
+      "tipo": "Plenário - sessão de debates",
+      "temas": [
+        "Processo Legislativo e Atuação Parlamentar",
+        "Direitos Humanos e Minorias",
+        "Economia"
+      ],
+      "palavras_chave": [
+        "Dia do Servidor Público",
+        "feminicídio",
+        "medidas protetivas",
+        "repasses aos municípios",
+        "IRPJ",
+        "reforma tributária",
+        "eleições municipais 2028",
+        "professores de escolas públicas"
+      ],
+      "participantes": [
+        {
+          "nome": "Fernando Kreling",
+          "papel": "presidente em exercício da Assembleia Legislativa"
+        },
+        {
+          "nome": "Mário Mota",
+          "papel": "deputado"
+        },
+        {
+          "nome": "Sargento Lima",
+          "papel": "deputado"
+        },
+        {
+          "nome": "Neudi Sareta",
+          "papel": "deputado"
+        },
+        {
+          "nome": "Gessé Lopes",
+          "papel": "deputado"
+        }
+      ],
+      "decisoes": [],
+      "modelo": "S5-nano"
+    },
+    {
+      "id": "8AZP2Xuce1s",
+      "miniatura": "miniaturas/8AZP2Xuce1s.jpg",
+      "legenda": "legendas/8AZP2Xuce1s.vtt",
+      "titulo": "AO VIVO - SESSÃO PLENÁRIA - 3/11/2026",
+      "canal": "Assembleia Legislativa de Roraima",
+      "casa": "Assembleia Legislativa de Roraima",
+      "uf": "RR",
+      "data": "2026-11-03",
+      "duracao": 2080.0,
+      "resumo": "Sessão plenária ordinária da Assembleia Legislativa de Roraima realizada em 3 de novembro de 2026, presidida pelo deputado Chico Mozart, com a deputada Aurelina Medeiros como segunda secretária. A sessão teve início sem ordem do dia e foi suspensa para reunião de comissão especial que analisou projetos do Executivo, Judiciário e Tribunal de Contas. Após pedido de vista da deputada Aurelina Medeiros, os trabalhos foram retomados e encerrados com comunicado do deputado Renato Silva sobre convocação de secretários para prestar esclarecimentos sobre aplicação de empréstimo estadual.",
+      "tipo": "Plenário - sessão de debates",
+      "temas": [
+        "Processo Legislativo e Atuação Parlamentar",
+        "Finanças Públicas e Orçamento",
+        "Direitos Humanos e Minorias"
+      ],
+      "palavras_chave": [
+        "empréstimo estadual",
+        "secretaria de obras",
+        "Cefaz",
+        "CEPLAN",
+        "SECONV",
+        "projeto de lei 168/2026",
+        "projeto de lei 165/2026",
+        "comissão especial 12/2026"
+      ],
+      "participantes": [
+        {
+          "nome": "Chico Mozart",
+          "papel": "presidente da sessão"
+        },
+        {
+          "nome": "Renato Silva",
+          "papel": "presidente da comissão especial e primeiro secretário ad hoc"
+        },
+        {
+          "nome": "Aurelina Medeiros",
+          "papel": "segunda secretária e relatora com pedido de vista"
+        },
+        {
+          "nome": "Neto Loureiro",
+          "papel": "primeiro secretário ad hoc e vice-presidente da comissão especial"
+        },
+        {
+          "nome": "Rogério Borges",
+          "papel": "deputado que usou a tribuna para discurso"
+        },
+        {
+          "nome": "Catarina Guerra",
+          "papel": "deputada presente"
+        },
+        {
+          "nome": "Idazio da Perfil",
+          "papel": "deputado presente"
+        },
+        {
+          "nome": "Marcinho Belota",
+          "papel": "deputado presente"
+        }
+      ],
+      "decisoes": [
+        "Ata da sessão anterior aprovada na íntegra.",
+        "Pedido de vista dos projetos distribuídos à comissão especial pela deputada Aurelina Medeiros, adiando a deliberação para a próxima sessão.",
+        "Convocação dos secretários de Obras, Cefaz, CEPLAN e SECONV para prestar esclarecimentos sobre aplicação de empréstimo estadual em 9 de novembro de 2026, às 10h."
+      ],
+      "modelo": "S5-nano"
+    },
+    {
+      "id": "xtD3chIRVQk",
+      "miniatura": "miniaturas/xtD3chIRVQk.jpg",
+      "legenda": "legendas/xtD3chIRVQk.vtt",
+      "titulo": "AO VIVO – 27/10 | Assembleia realiza duas sessões plenárias com projetos sobre segurança",
+      "canal": "TV Assembleia do Paraná",
+      "casa": "TV Assembleia do Paraná",
+      "uf": "PR",
+      "data": "2026-10-27",
+      "duracao": 4320.0,
+      "resumo": "Sessão ordinária da Assembleia Legislativa do Paraná realizada em 27 de outubro de 2026, com pauta antecipada para o dia anterior. A presidente conduziu os trabalhos e deputados usaram o pequeno expediente para tratar de temas como violência política contra mulheres, casos de excesso policial, apoio a entidades sociais e projetos sobre segurança em espaços esportivos. Na ordem do dia, foram votados diversos projetos: aprovado em segundo turno o PL 153 sobre normas de segurança para traves de gol; aprovado o PL 670 do Ministério Público sobre criação/transformação de cargos; aprovado o PL 66 que exige comunicação à OAB-PR em casos de violência doméstica; aprovado o PL 667 sobre prazos processuais administrativos; rejeitado o PL 629 sobre apoio ao aleitamento humano em emergências. Também houve aprovação de títulos e requerimentos.",
+      "tipo": "Plenário - sessão deliberativa",
+      "temas": [
+        "Direito Constitucional",
+        "Direitos Humanos e Minorias",
+        "Educação"
+      ],
+      "palavras_chave": [
+        "traves de gol",
+        "violência política contra a mulher",
+        "APAEs",
+        "emendas parlamentares",
+        "Lei Orçamentária Anual 2027",
+        "Ministério Público",
+        "Defensoria Pública",
+        "OAB-PR"
+      ],
+      "participantes": [
+        {
+          "nome": "Presidente da Assembleia Legislativa do Paraná",
+          "papel": "presidente da sessão"
+        },
+        {
+          "nome": "Deputado Bazana",
+          "papel": "deputado, orador no pequeno expediente"
+        },
+        {
+          "nome": "Deputada Cristina Silvestre",
+          "papel": "deputada, autora de projeto sobre traves de gol"
+        },
+        {
+          "nome": "Deputado Alexandre Amaro",
+          "papel": "deputado, encaminhou voto em projeto"
+        },
+        {
+          "nome": "Deputado Romanelli",
+          "papel": "presidente da Comissão de Orçamento"
+        },
+        {
+          "nome": "Deputada Marli Paulino",
+          "papel": "autora de projeto sobre utilidade pública"
+        },
+        {
+          "nome": "Deputado Luiz Fernando Guerra",
+          "papel": "autor de projetos"
+        },
+        {
+          "nome": "Deputada Maria Vitória",
+          "papel": "coautora de projetos"
+        },
+        {
+          "nome": "Deputado Gilson",
+          "papel": "autor do projeto sobre traves de gol"
+        },
+        {
+          "nome": "Deputado Dr. Antenor",
+          "papel": "deputado, orador e autor de requerimento"
+        },
+        {
+          "nome": "Deputada Aline Andrioli",
+          "papel": "presidente da Comissão da Mulher Advogada da OAB-PR"
+        }
+      ],
+      "decisoes": [
+        "Aprovado em segundo turno o Projeto de Lei 153, que estabelece normas de segurança para instalação, fixação, manutenção e uso de traves de gol em espaços públicos e privados.",
+        "Aprovado em primeiro turno o Projeto de Lei 670, do Ministério Público, sobre criação e transformação de cargos no Ministério Público do Paraná.",
+        "Aprovado o Projeto de Lei 66, que dispõe sobre a comunicação à OAB-PR de casos de violência doméstica e familiar envolvendo advogados ou vítimas mulheres.",
+        "Aprovado o Projeto de Lei 667, que altera normas sobre prazos em processos administrativos estaduais.",
+        "Rejeitado o Projeto de Lei 629, que dispõe sobre apoio ao aleitamento humano em situações de emergência e desastres.",
+        "Aprovada a emenda de plenário ao Projeto de Lei 664.",
+        "Aberto prazo para apresentação de emendas à Lei Orçamentária Anual de 2027, com limite de R$ 2 milhões por parlamentar (R$ 1 milhão para custeio e R$ 1 milhão para capital), de 28 de outubro a 16 de novembro.",
+        "Sessões ordinárias marcadas para terça-feira (3) e quarta-feira (4) do dia seguinte, com ordem do dia definida."
+      ],
+      "modelo": "S5-nano"
+    },
+    {
+      "id": "kRAYxLz_Vho",
+      "miniatura": "miniaturas/kRAYxLz_Vho.jpg",
+      "legenda": "legendas/kRAYxLz_Vho.vtt",
+      "titulo": "Sessão Ordinária  - 15h - 27/10/2026",
+      "canal": "TV Câmara Distrital",
+      "casa": "TV Câmara Distrital",
+      "uf": "DF",
+      "data": "2026-10-27",
+      "duracao": 8880.0,
+      "resumo": "Sessão ordinária da Câmara Legislativa do Distrito Federal realizada em 27/10/2026. O centro dos trabalhos foi a PEC 22/2026, que altera o art. 66 da Lei Orgânica do DF sobre posse e regras da Mesa Diretiva; o relator Tiago Manzoni apresentou substitutivo alinhado ao STF (ADI 6.524). Depois de questionamentos regimentais, a proposição foi aprovada em 1º turno por 17 votos a 6, com 1 ausência, e o 2º turno foi remarcado para 10/11/2026. Também foi lida a Mensagem 188-2026, com crédito adicional de R$ 53,1 milhões à LOA do DF, e houve relatos de parlamentares sobre a eleição presidencial, além do Programa Conhecendo o Parlamento com estudantes.",
+      "tipo": "Plenário - sessão deliberativa",
+      "temas": [
+        "Processo Legislativo e Atuação Parlamentar",
+        "Direito Constitucional",
+        "Finanças Públicas e Orçamento"
+      ],
+      "palavras_chave": [
+        "pec 22/2026",
+        "artigo 66 da lei orgânica do distrito federal",
+        "adi 6.524",
+        "parque uei",
+        "plc 115",
+        "mensagem 188-2026",
+        "colégio de líderes"
+      ],
+      "participantes": [
+        {
+          "nome": "Presidente da Câmara Legislativa do DF (não nominado nos tópicos)",
+          "papel": "presidente da sessão"
+        },
+        {
+          "nome": "Tiago Manzoni",
+          "papel": "relator da PEC 22/2026 na CCJ e presidente da comissão"
+        },
+        {
+          "nome": "Pastor Daniel de Castro",
+          "papel": "deputado autor da PEC 22/2026, recém-empossado"
+        },
+        {
+          "nome": "Chico Vigilante",
+          "papel": "deputado, formulou questão de ordem sobre assinaturas do substitutivo"
+        },
+        {
+          "nome": "Roosevelt",
+          "papel": "deputado, segundo-secretário da Mesa, citado no parecer como exemplo de possível terceiro mandato consecutivo"
+        },
+        {
+          "nome": "Deise Amarilho",
+          "papel": "deputada, apresentou voto em separado divergente contra a PEC"
+        },
+        {
+          "nome": "Fábio Félix",
+          "papel": "deputado, criticou o campo derrotado e alertou sobre risco de impugnação da mesa pelo STF"
+        },
+        {
+          "nome": "Paula Belmonte",
+          "papel": "deputada, apoiou a PEC e cobrou votação de apelo sobre independência de emendas"
+        },
+        {
+          "nome": "Jorge Viana",
+          "papel": "deputado, pediu ampliação de correção de provas e defendeu o Fundo Constitucional do DF"
+        },
+        {
+          "nome": "Max Maciel",
+          "papel": "deputado, esclareceu sobre a regra anterior de reeleição e rebateu críticas ao substitutivo"
+        },
+        {
+          "nome": "Eduardo Pedrosa",
+          "papel": "deputado, defendeu a adequação do texto sem antecipar disputa eleitoral"
+        },
+        {
+          "nome": "Hermeto",
+          "papel": "deputado, agradeceu votos e mandato"
+        }
+      ],
+      "decisoes": [
+        "PEC 22/2026 aprovada em 1º turno por 17 votos a 6 (1 ausência), com o 2º turno remarcado para 10/11/2026 por causa do intertício mínimo de dez dias",
+        "Discussão do PLC 115, sobre o Parque Uei, adiada para o próximo Colégio de Líderes e para eventual votação na sessão seguinte",
+        "Votação preliminar do parecer do substitutivo à PEC 22/2026 não foi concluída durante a Ordem do Dia, após prazo inicialmente de 15 minutos, reduzido a 5",
+        "Mensagem 188-2026 do Poder Executivo, que encaminha à sanção o PL 2492-2026 abrindo crédito adicional de R$ 53.148.236,00 à lei orçamentária anual do DF, foi lida em plenário"
+      ],
+      "modelo": "S5-nano"
+    },
+    {
+      "id": "GRq_m6jaQGc",
+      "miniatura": "miniaturas/GRq_m6jaQGc.jpg",
+      "legenda": "legendas/GRq_m6jaQGc.vtt",
+      "titulo": "REUNIÃO PLENÁRIA | 27/10/2026",
+      "canal": "Assembleia Legislativa de Pernambuco",
+      "casa": "Assembleia Legislativa de Pernambuco",
+      "uf": "PE",
+      "data": "2026-10-27",
+      "duracao": 3538.0,
+      "resumo": "A Assembleia Legislativa de Pernambuco realizou sua 81ª reunião ordinária em 27 de outubro de 2026, presidida pelo deputado João Paulo (PT), com a deputada Dani Portela como 2ª secretária. A pauta incluiu leitura e votação de atas, expediente, pequeno expediente com discursos sobre a reeleição de Lula, falta de água em Toritama e o programa Rota do Leite. Foram aprovados em primeira e segunda discussão diversos projetos de lei complementar e ordinários, além de resolução. Também houve sessão solene para homenagear os 169 anos da Escola de Aprendizes de Marinheiro de Pernambuco.",
+      "tipo": "Plenário - sessão deliberativa",
+      "temas": [
+        "Processo Legislativo e Atuação Parlamentar",
+        "Economia",
+        "Meio Ambiente e Desenvolvimento Sustentável"
+      ],
+      "palavras_chave": [
+        "projeto de lei complementar nº 4.305/2026",
+        "projeto de lei ordinária nº 4.012/2026",
+        "projeto de lei ordinária nº 4.304/2026",
+        "projeto de lei ordinária nº 4.306/2026",
+        "projeto de lei ordinária nº 4.322/2026",
+        "Resolução nº 4.272/2026",
+        "Rota do Leite",
+        "Compesa"
+      ],
+      "participantes": [
+        {
+          "nome": "João Paulo",
+          "papel": "presidente da Assembleia Legislativa de Pernambuco, deputado PT-PE"
+        },
+        {
+          "nome": "Dani Portela",
+          "papel": "2ª secretária e deputada estadual"
+        },
+        {
+          "nome": "Renato Antunes",
+          "papel": "1º secretário e deputado estadual"
+        },
+        {
+          "nome": "Abimael Santos",
+          "papel": "deputado estadual"
+        },
+        {
+          "nome": "Danilo Godoy",
+          "papel": "deputado estadual"
+        },
+        {
+          "nome": "Luciano Duque",
+          "papel": "deputado estadual"
+        },
+        {
+          "nome": "Simone Santana",
+          "papel": "deputada estadual"
+        },
+        {
+          "nome": "William Brígido",
+          "papel": "deputado estadual"
+        },
+        {
+          "nome": "Rodrigo Farias",
+          "papel": "deputado estadual"
+        },
+        {
+          "nome": "Coronel Alberto Feitosa",
+          "papel": "presidente da sessão solene, deputado estadual"
+        }
+      ],
+      "decisoes": [
+        "Ata da 80ª Reunião Plenária Ordinária aprovada em discussão e votação.",
+        "Indicações nº 16.732 a 16.763 e requerimentos nº 5.532 a 5.536 aprovados em discussão única.",
+        "Projeto de lei complementar nº 4.305/2026 (Ministério Público) aprovado em primeira e segunda discussão, com 26 e 26 votos favoráveis, respectivamente.",
+        "Substitutivo nº 1 ao projeto de lei complementar nº 4.318/2026 (Poder Executivo) aprovado em primeira e segunda discussão, com 26 e 25 votos favoráveis, respectivamente.",
+        "Projeto de lei ordinária nº 4.012/2026 (Poder Executivo) aprovado em primeira e segunda discussão.",
+        "Projeto de lei ordinária nº 4.304/2026 (Poder Judiciário) aprovado em primeira e segunda discussão.",
+        "Projeto de lei ordinária nº 4.306/2026 (Ministério Público) aprovado em primeira e segunda discussão.",
+        "Projeto de lei ordinária nº 4.322/2026 (Poder Executivo) aprovado em primeira e segunda discussão, com pareceres favoráveis das 1ª, 2ª, 3ª e 11ª comissões; na segunda discussão, aprovado sem votação nominal registrada no texto, mas consta como aprovado ao final da reunião extraordinária (não especificado o número de votos). A transcrição indica aprovação em segunda discussão após colheita de votos, mas não registra o placar exato para este projeto. Considerando que os demais foram aprovados e a sessão encerrou com todas as matérias aprovadas, entende-se que foi aprovado, porém sem número explícito no trecho final. Para evitar imprecisão, registro apenas que foi aprovado em segunda discussão conforme encerramento da reunião extraordinária."
+      ],
+      "modelo": "S5-nano"
+    },
+    {
+      "id": "rIzW4-V1xKs",
+      "miniatura": "miniaturas/rIzW4-V1xKs.jpg",
+      "legenda": "legendas/rIzW4-V1xKs.vtt",
+      "titulo": "SESSÃO PLENÁRIA HÍBRIDA - 22/10/2026",
+      "canal": "Assembleia Legislativa - RS",
+      "casa": "Assembleia Legislativa - RS",
+      "uf": "RS",
+      "data": "2026-10-22",
+      "duracao": 3200.0,
+      "resumo": "Sessão plenária híbrida ordinária da Assembleia Legislativa do Rio Grande do Sul, realizada em 22 de outubro de 2026, conduzida pelo deputado Ronaldo Santini (Podemos), com participação virtual de deputados. A sessão teve chamada nominal dos 55 deputados estaduais, aprovação da ata anterior e período de comunicações parlamentares. Os discursos trataram predominantemente do cenário eleitoral de 2026, com críticas ao governo Lula e defesa da candidatura de Flávio Bolsonaro, além de acusações mútuas entre parlamentares de campos opostos. Não houve votação ou deliberação de projetos.",
+      "tipo": "Plenário - sessão de debates",
+      "temas": [
+        "Política, Partidos e Eleições",
+        "Direito Constitucional",
+        "Economia"
+      ],
+      "palavras_chave": [
+        "eleição 2026",
+        "Flávio Bolsonaro",
+        "Lula",
+        "STF",
+        "ministro do STF",
+        "rachadinha",
+        "Bolsa Família",
+        "produtividade"
+      ],
+      "participantes": [
+        {
+          "nome": "Ronaldo Santini",
+          "papel": "presidente da sessão, deputado Podemos-RS"
+        },
+        {
+          "nome": "Cláudio Branchieri",
+          "papel": "deputado PL-RS, abriu a sessão"
+        },
+        {
+          "nome": "Elizando Sabino",
+          "papel": "deputado Republicanos-RS, falou na tribuna"
+        },
+        {
+          "nome": "Paparico Bach",
+          "papel": "deputado União Progressistas-RS"
+        },
+        {
+          "nome": "Valdeci Oliveira",
+          "papel": "deputado PT-RS"
+        },
+        {
+          "nome": "Leonel Ratti",
+          "papel": "deputado PDT-RS"
+        },
+        {
+          "nome": "Pedro Pereira",
+          "papel": "deputado PSD-RS"
+        }
+      ],
+      "decisoes": [],
+      "modelo": "S5-nano"
+    },
+    {
+      "id": "4gigyPsu2MY",
+      "miniatura": "miniaturas/4gigyPsu2MY.jpg",
+      "legenda": "legendas/4gigyPsu2MY.vtt",
+      "titulo": "SESSÃO PLENÁRIA HÍBRIDA - 21/10/2026",
+      "canal": "Assembleia Legislativa - RS",
+      "casa": "Assembleia Legislativa - RS",
+      "uf": "RS",
+      "data": "2026-10-21",
+      "duracao": 1580.0,
+      "resumo": "Sessão ordinária híbrida da Assembleia Legislativa do Rio Grande do Sul, realizada em 21 de outubro de 2026, conduzida pelo presidente Sérgio Pérez. A sessão teve chamada nominal dos deputados para registro de presença e período de comunicações parlamentares. Durante as falas, houve críticas à conduta ética de alguns parlamentares, menções a denúncias envolvendo o senador Flávio Bolsonaro (suposta compra de ilha e assédio eleitoral) e defesa da lisura do processo eleitoral. Não houve votações ou deliberações; a sessão foi encerrada sem ordem do dia.",
+      "tipo": "Plenário - sessão de debates",
+      "temas": [
+        "Política, Partidos e Eleições",
+        "Direito e Defesa do Consumidor",
+        "Processo Legislativo e Atuação Parlamentar"
+      ],
+      "palavras_chave": [
+        "sessão ordinária híbrida",
+        "Sarau do Solar",
+        "Zé Caradípia",
+        "Flávio Bolsonaro",
+        "assédio eleitoral",
+        "ilha",
+        "Richarlison",
+        "Willer Thomas"
+      ],
+      "participantes": [
+        {
+          "nome": "Sérgio Pérez",
+          "papel": "presidente da sessão"
+        },
+        {
+          "nome": "Adão Preto Filho",
+          "papel": "deputado federal PT-RS"
+        },
+        {
+          "nome": "Alelino",
+          "papel": "deputado"
+        },
+        {
+          "nome": "Jefferson Fernandes",
+          "papel": "deputado"
+        },
+        {
+          "nome": "Laura Cito",
+          "papel": "deputada"
+        },
+        {
+          "nome": "Miguel Rosseto",
+          "papel": "deputado"
+        },
+        {
+          "nome": "Pepe Vargas",
+          "papel": "deputado"
+        },
+        {
+          "nome": "Estela Farias",
+          "papel": "deputada"
+        },
+        {
+          "nome": "Sofia Cavedon",
+          "papel": "deputada"
+        },
+        {
+          "nome": "Zé Nunes",
+          "papel": "deputado"
+        },
+        {
+          "nome": "Luciana Gerro",
+          "papel": "deputada"
+        },
+        {
+          "nome": "Matheus Gomes",
+          "papel": "deputado"
+        }
+      ],
+      "decisoes": [],
+      "modelo": "S5-nano"
+    },
+    {
+      "id": "luj3z_1eqiE",
+      "miniatura": "miniaturas/luj3z_1eqiE.jpg",
+      "legenda": "legendas/luj3z_1eqiE.vtt",
+      "titulo": "AO VIVO – 19/10 | Assembleia realiza sessões ordinária e extraordinária nesta segunda-feira",
+      "canal": "TV Assembleia do Paraná",
+      "casa": "TV Assembleia do Paraná",
+      "uf": "PR",
+      "data": "2026-10-19",
+      "duracao": 2816.0,
+      "resumo": "A Assembleia Legislativa do Paraná realizou em 19 de outubro de 2026 uma sessão ordinária seguida de sessão extraordinária. A presidente conduziu os trabalhos. Foram discutidas e votadas proposições sobre saúde da mulher (Campanha Agosto Dourado), emolumentos do Tribunal de Justiça, turismo religioso (Rota do Rosário com Pinhalão), eventos culturais (Feira do Peixe Vivo de Piraquara) e utilidade pública de entidades. Também houve discurso sobre renúncia fiscal e debate político sobre as eleições presidenciais. Foram aprovados projetos em primeiro e segundo turnos; o projeto que tratava de emolumentos foi retirado por pedido de vista.",
+      "tipo": "Plenário - sessão deliberativa",
+      "temas": [
+        "Processo Legislativo e Atuação Parlamentar",
+        "Direito Constitucional",
+        "Economia"
+      ],
+      "palavras_chave": [
+        "Agosto Dourado",
+        "Código Estadual da Mulher Paranaense",
+        "emolumentos extrajudiciais",
+        "Rota do Rosário",
+        "Pinhalão",
+        "Feira do Peixe Vivo de Piraquara",
+        "renúncia fiscal",
+        "orçamento"
+      ],
+      "participantes": [
+        {
+          "nome": "Presidente da Assembleia Legislativa do Paraná",
+          "papel": "presidente da sessão"
+        },
+        {
+          "nome": "Deputado Professor Lemos",
+          "papel": "deputado, primeiro orador do grande expediente"
+        },
+        {
+          "nome": "Deputado Ricardo Arruda",
+          "papel": "líder do governo"
+        },
+        {
+          "nome": "Deputado Rússia Embaca",
+          "papel": "líder do governo"
+        },
+        {
+          "nome": "Deputado Arius Queorato",
+          "papel": "líder da oposição"
+        },
+        {
+          "nome": "Deputada Ana Júlia",
+          "papel": "autora de projeto"
+        },
+        {
+          "nome": "Deputada Luciana Rafaim",
+          "papel": "autora de projeto"
+        },
+        {
+          "nome": "Deputada Marli Paulino",
+          "papel": "autora de projeto"
+        },
+        {
+          "nome": "Deputado do Carmo",
+          "papel": "deputado"
+        },
+        {
+          "nome": "Deputado Ney Leprevô",
+          "papel": "deputado"
+        },
+        {
+          "nome": "Deputado Cobra Repórter",
+          "papel": "autor de projeto"
+        },
+        {
+          "nome": "Fabiana (vice-prefeita de Paranaguá)",
+          "papel": "convidada"
+        }
+      ],
+      "decisoes": [
+        "Aprovado em primeiro turno o projeto de lei nº 630/2025, que institui a Campanha Agosto Dourado no Código Estadual da Mulher Paranaense.",
+        "Aprovado em primeiro turno o projeto de lei nº 554/2026, que inclui o município de Pinhalão na Rota do Rosário e a reconhece como patrimônio cultural e material do Paraná.",
+        "Aprovado em turno único o projeto de lei nº 596/2026, que inclui a Feira do Peixe Vivo de Piraquara no Calendário Oficial de Eventos do Paraná.",
+        "Aprovados os itens 5, 6 e 7 (matéria correlata) em votação conjunta.",
+        "Aprovado requerimento de dispensa de redação final para projetos aprovados sem emendas.",
+        "Retirado de ofício o projeto de lei nº 1016/2025 do Tribunal de Justiça, por pedido de vista na Comissão de Finanças e Tributação.",
+        "Encaminhadas como expediente duas requisições de informação da deputada Mabel Canto."
+      ],
+      "modelo": "S5-nano"
+    },
+    {
+      "id": "a0Z1OSdfhm0",
+      "miniatura": "miniaturas/a0Z1OSdfhm0.jpg",
+      "legenda": "legendas/a0Z1OSdfhm0.vtt",
+      "titulo": "Sessão ordinária - 14/10/2026",
+      "canal": "TV Assembleia Legislativa",
+      "casa": "TV Assembleia Legislativa",
+      "uf": "GO",
+      "data": "2026-10-14",
+      "duracao": 5974.0,
+      "resumo": "Sessão ordinária da Assembleia Legislativa de Goiás realizada em 14/10/2026, no Plenário Iris Rezende, conduzida pela presidência da Casa. A sessão incluiu leitura de trecho bíblico pelo deputado Clécio Alves, aprovação da ata, registro de visita honrosa do vereador Fabrício Peixe (Araguá), leitura e encaminhamento de projetos, discussão de matérias sobre contas especiais, títulos de cidadania e denominações, além de votação da Ordem do Dia. Foram aprovados requerimentos para sessões solenes e obras. Deputados debateram medidas federais, como o fim da escala 6x1, e discutiram suposto esquema envolvendo o banqueiro Daniel Vorcaro. A sessão foi encerrada após a conclusão das votações.",
+      "tipo": "Plenário - sessão deliberativa",
+      "temas": [
+        "Processo Legislativo e Atuação Parlamentar",
+        "Saúde",
+        "Economia"
+      ],
+      "palavras_chave": [
+        "2929/2026",
+        "2936/2026",
+        "2937/2026",
+        "881/2026",
+        "31.309/2025",
+        "23.779/2025",
+        "FUNDEC",
+        "Goiás Preve"
+      ],
+      "participantes": [
+        {
+          "nome": "Clécio Alves",
+          "papel": "deputado, leu trecho bíblico"
+        },
+        {
+          "nome": "Fabrício Peixe",
+          "papel": "vereador de Araguá, visita honrosa"
+        },
+        {
+          "nome": "Issyk Nanjúnior",
+          "papel": "deputado, apresentou moção de pesar"
+        },
+        {
+          "nome": "Dr. Jorge Moraes",
+          "papel": "deputado autor do projeto 881/2026"
+        },
+        {
+          "nome": "Lucas do Vale",
+          "papel": "deputado, autor do indicativo de proposição 6/2026"
+        },
+        {
+          "nome": "Bia de Lima",
+          "papel": "deputada, defendeu matéria e fim da escala 6x1"
+        },
+        {
+          "nome": "Amaury Ribeiro",
+          "papel": "deputado, criticou o PT e apresentou questão de ordem"
+        },
+        {
+          "nome": "Mauro Rubem",
+          "papel": "deputado, defendeu fim da escala 6x1"
+        },
+        {
+          "nome": "Coronel Dailton",
+          "papel": "deputado autor de projeto sobre prontuário médico"
+        },
+        {
+          "nome": "Tales Barreto",
+          "papel": "deputado, defendeu equilíbrio fiscal e anunciou audiência sobre saúde mental de servidores"
+        }
+      ],
+      "decisoes": [
+        "Aprovação da ata da sessão anterior.",
+        "Encaminhamento dos projetos 2929/2026, 2936/2026 e 2937/2026 às comissões pertinentes.",
+        "Aprovação preliminar do projeto 881/2026, que institui política estadual sobre doenças de Creutzfeldt-Jakob.",
+        "Aprovação preliminar dos projetos 882/2026 e 185/2026, que concedem denominação e títulos de cidadania.",
+        "Aprovação preliminar do projeto 883/2026, que institui calendário cívico com o Urutaí Rodeio Show.",
+        "Aprovação em primeira votação, com 22 votos favoráveis, do projeto 31.309/2025, que concede a Quirinópolis o título de capital goiana da cana-de-açúcar.",
+        "Aprovação com 23 votos favoráveis do projeto sobre prontuário médico (apresentado pelo deputado Coronel Dailton).",
+        "Aprovação em segunda votação, com 23 votos favoráveis, do projeto 23.779/2025, que concede a Santa Fé de Goiás o título de capital do gergelim.,', 'Aprovação em primeira votação, com 21 votos favoráveis, do projeto da governadoria que altera a Lei Complementar 160/2020 (FUNDEC).', 'Votação concluída com 24 votos favoráveis à aprovação dos requerimentos: Requerimento 951 (sessão solene para entrega de medalha a Vitor Teixeira em 17 de novembro), Requerimento 955 (construção de base do Batalhão Rural da 3ª Companhia às margens da GO-330), Requerimento 957 (sessão solene extraordinária em homenagem ao Grupo QG em 16 de outubro) e Requerimento 960 (sessão solene extraordinária em homenagem aos profissionais da educação em 17 de outubro).', 'Sessão encerrada por extinção da pauta, com convocação de nova sessão para o dia seguinte no horário regimental.']}o"
+      ],
+      "modelo": "S5-nano"
+    },
+    {
+      "id": "K7mSbBxexMQ",
+      "miniatura": "miniaturas/K7mSbBxexMQ.jpg",
+      "legenda": "legendas/K7mSbBxexMQ.vtt",
+      "titulo": "Sessão Plenária 07/10/2026",
+      "canal": "TV ASSEMBLEIA MARANHAO",
+      "casa": "TV ASSEMBLEIA MARANHAO",
+      "uf": "MA",
+      "data": "2026-10-07",
+      "duracao": 3712.0,
+      "resumo": "Sessão plenária ordinária da Assembleia Legislativa do Maranhão presidida pelo deputado Hélio Tudocuço, realizada em 7 de outubro de 2026. A sessão teve leitura da ata da sessão anterior, aprovada, e do expediente. No pequeno e grande expedientes, deputados discursaram sobre temas eleitorais recentes: cobrança por concursos públicos (2.300 vagas para professor), reajuste de 21,7% para servidores, limites territoriais entre São Luís e Ribamar, e agradecimentos pela votação nas eleições de 2026, incluindo a deputada federal eleita Iracema Valle com 179.351 votos. Não houve ordem do dia nem votações; o presidente determinou a inclusão na pauta da sessão seguinte das medidas provisórias 556 a 559/2026, vetos e projetos de lei.",
+      "tipo": "Plenário - sessão de debates",
+      "temas": [
+        "Processo Legislativo e Atuação Parlamentar",
+        "Educação",
+        "Política, Partidos e Eleições"
+      ],
+      "palavras_chave": [
+        "medida provisória 556/2026",
+        "medida provisória 557/2026",
+        "medida provisória 558/2026",
+        "medida provisória 559/2026",
+        "concurso público professor",
+        "reajuste 21,7%",
+        "limites territoriais São Luís Ribamar",
+        "Iracema Valle deputada federal eleita"
+      ],
+      "participantes": [
+        {
+          "nome": "Hélio Tudocuço",
+          "papel": "presidente da sessão"
+        },
+        {
+          "nome": "Antônio Pereira",
+          "papel": "primeiro secretário em exercício e presidente em exercício"
+        },
+        {
+          "nome": "Catolé Júnior",
+          "papel": "primeiro secretário em exercício (mencionado)"
+        },
+        {
+          "nome": "Cláudia Coutinho",
+          "papel": "segunda secretária em exercício"
+        },
+        {
+          "nome": "Wellington do Curso",
+          "papel": "deputado estadual, discursou no pequeno expediente"
+        },
+        {
+          "nome": "Júlio Mendonça",
+          "papel": "deputado estadual, discursou"
+        },
+        {
+          "nome": "Iracema Valle",
+          "papel": "presidente da Assembleia Legislativa e deputada federal eleita"
+        },
+        {
+          "nome": "Mikau",
+          "papel": "deputada estadual, eleita deputada federal"
+        },
+        {
+          "nome": "Catulé",
+          "papel": "deputado estadual, discursou"
+        },
+        {
+          "nome": "Iglesias",
+          "papel": "deputado estadual, discursou"
+        }
+      ],
+      "decisoes": [
+        "Ata da 85ª Sessão Ordinária, realizada em 6 de outubro de 2026, lida e aprovada.",
+        "Expediente lido e encaminhado à publicação."
+      ],
+      "modelo": "S5-nano"
+    },
+    {
+      "id": "yhI-2qDTDJg",
+      "miniatura": "miniaturas/yhI-2qDTDJg.jpg",
+      "legenda": "legendas/yhI-2qDTDJg.vtt",
+      "titulo": "SESSÃO ORDINÁRIA - 04/08/2026",
+      "canal": "TV ALBA",
+      "casa": "TV ALBA",
+      "uf": "BA",
+      "data": "2026-08-04",
+      "duracao": 3296.0,
+      "resumo": "Sessão ordinária de retomada dos trabalhos da Assembleia Legislativa da Bahia, em 4 de agosto de 2026, presidida pela deputada Ivana Bastos. O deputado Hilton Coelho criticou o programa Pé na Escola e a gestão municipal de Salvador, além de cobrar respostas sobre investigações e a situação dos policiais civis. O deputado Ângelo Almeida parabenizou a escolha do novo chefe da Casa Civil e destacou avanços do VLT e da Ponte Salvador-Itaparica. A deputada Olívia Santana anunciou candidatura à Câmara Federal e defendeu a reeleição de Jerônimo Rodrigues, Lula e Jacques Wagner. Houve ainda discursos sobre o aniversário de Itambé, homenagem ao Fluminense de Feira, sanção pendente de projetos que homenageiam ex-prefeitos na BA 617, e votação aprovada do projeto de lei complementar 161/2026, que cria fundo para modernização do Tribunal de Contas dos Municípios.",
+      "tipo": "Plenário - sessão de debates",
+      "temas": [
+        "Processo Legislativo e Atuação Parlamentar",
+        "Política, Partidos e Eleições",
+        "Educação"
+      ],
+      "palavras_chave": [
+        "Pé na Escola",
+        "Colégio Municipal Paulo Mendes de Aguiar",
+        "VLT",
+        "Ponte Salvador-Itaparica",
+        "Fluminense de Feira",
+        "Tribunal de Contas dos Municípios",
+        "projeto de lei complementar 161/2026",
+        "BA 617"
+      ],
+      "participantes": [
+        {
+          "nome": "Ivana Bastos",
+          "papel": "presidente da Assembleia Legislativa"
+        },
+        {
+          "nome": "Rosenberg Pinto",
+          "papel": "deputado, líder do governo"
+        },
+        {
+          "nome": "Hilton Coelho",
+          "papel": "deputado federal PT-BA"
+        },
+        {
+          "nome": "Ângelo Almeida",
+          "papel": "deputado estadual"
+        },
+        {
+          "nome": "Olívia Santana",
+          "papel": "deputada estadual PCdoB-BA"
+        },
+        {
+          "nome": "Tiago Corrêa",
+          "papel": "deputado estadual"
+        },
+        {
+          "nome": "Raimundinho da JR",
+          "papel": "deputado estadual"
+        },
+        {
+          "nome": "Adolfo Menezes",
+          "papel": "deputado estadual"
+        },
+        {
+          "nome": "Euclides Fernandes",
+          "papel": "deputado estadual"
+        },
+        {
+          "nome": "Luciano Ribeiro",
+          "papel": "deputado estadual"
+        },
+        {
+          "nome": "Bispo José Garimateia",
+          "papel": "deputado estadual"
+        }
+      ],
+      "decisoes": [
+        "Aprovado, por acordo de liderança, o projeto de lei complementar 161/2026, do Tribunal de Contas dos Municípios da Bahia, que institui o Fundo de Reaparelhamento e Modernização do TCM-BA.",
+        "Expediente despachado: ofício da deputada Cláudia Oliveira comunicando ausências por questões de saúde a partir de 3 de agosto por sete dias."
+      ],
+      "modelo": "S5-nano"
+    },
+    {
+      "id": "eguirhh2AKM",
+      "miniatura": "miniaturas/eguirhh2AKM.jpg",
+      "legenda": "legendas/eguirhh2AKM.vtt",
+      "titulo": "AO VIVO – 17/11 | 108ª Sessão Ordinária da Assembleia Legislativa do Paraná",
+      "canal": "TV Assembleia do Paraná",
+      "casa": "TV Assembleia do Paraná",
+      "uf": "PR",
+      "data": "2025-11-17",
+      "duracao": 7530.0,
+      "resumo": "A 108ª Sessão Ordinária da Assembleia Legislativa do Paraná, realizada em 17 de novembro de 2025, foi conduzida no Plenário e teve como pauta projetos sobre meio ambiente, poluição sonora, educação legislativa e homenagens. No grande expediente, houve entrega de menção honrosa à jornalista Dulcinea Novaes e homenagens a Açaí e à professora Valdineia Pereira de Souza. Na ordem do dia, foram aprovados o PL nº 499/2020 (recolhimento de colchões usados), por 46 votos a 1; o PL nº 600/2024 (prevenção à poluição sonora), por 47 votos a 0; e o PR nº 14/2025 (Rede Estadual de Educação Legislativa), por 48 votos a 0. Também foram aprovadas mensagens do Executivo e requerimentos diversos, com convocação extraordinária da CCJ.",
+      "tipo": "Plenário - sessão deliberativa",
+      "temas": [
+        "Meio Ambiente e Desenvolvimento Sustentável",
+        "Educação",
+        "Finanças Públicas e Orçamento"
+      ],
+      "palavras_chave": [
+        "PL 499/2020",
+        "colchões usados",
+        "PL 600/2024",
+        "poluição sonora",
+        "PR 14/2025",
+        "Rede Estadual de Educação Legislativa",
+        "Parceiro da Escola",
+        "Açaí"
+      ],
+      "participantes": [
+        {
+          "nome": "Luciana Rafaim",
+          "papel": "deputada, entregou menção honrosa"
+        },
+        {
+          "nome": "Marcelo Rangel",
+          "papel": "deputado, homenageou Açaí"
+        },
+        {
+          "nome": "Alexandre Cury",
+          "papel": "deputado, destacou investimentos em inovação"
+        },
+        {
+          "nome": "Arilson Quiorato",
+          "papel": "deputado, criticou programa Parceiro da Escola"
+        },
+        {
+          "nome": "Evandro Raújo",
+          "papel": "deputado, alertou sobre contratos de pedágio"
+        },
+        {
+          "nome": "professor Lemos",
+          "papel": "deputado, defendeu escola pública"
+        },
+        {
+          "nome": "Mara Lima",
+          "papel": "deputada, homenageou professora Valdineia Pereira de Souza"
+        },
+        {
+          "nome": "Tito Barrichello",
+          "papel": "deputado, homenageou professora Valdineia Pereira de Souza"
+        }
+      ],
+      "decisoes": [
+        "PL nº 499/2020 aprovado em segundo turno por 46 votos a 1, com emenda substitutiva geral aprovada e emenda nº 1 prejudicada.",
+        "PL nº 600/2024 aprovado em segundo turno na forma do substitutivo geral da CCJ por 47 votos a 0; retorna à CCJ por ter recebido emenda.",
+        "PR nº 14/2025 aprovado em primeiro turno por 48 votos a 0.",
+        "Itens 5, 6, 7, 8, 10, 11 e 12 aprovados em votação agrupada por 40 votos a 5.",
+        "PL nº 882/2023 aprovado por 46 votos a 0.",
+        "Mensagens do Executivo lidas: doações de imóveis a Santa Fé, Tijucas do Sul e São Mateus do Sul; alteração da Lei 21.477 para doação a Goiô-Ere; parâmetros de gestão dos hospitais universitários; níveis de governança das instituições estaduais de ensino superior; alteração da Lei 21.352 sobre organização administrativa do Executivo.",
+        "CCJ convocada para reunião extraordinária após a sessão ordinária."
+      ],
+      "modelo": "S5-nano"
+    },
+    {
+      "id": "8AKJc6ewBZQ",
+      "miniatura": "miniaturas/8AKJc6ewBZQ.jpg",
+      "legenda": "legendas/8AKJc6ewBZQ.vtt",
+      "titulo": "SESSÃO PLENÁRIA HÍBRIDA - 12/09/2024",
+      "canal": "Assembleia Legislativa - RS",
+      "casa": "Assembleia Legislativa - RS",
+      "uf": "RS",
+      "data": "2024-09-12",
+      "duracao": 2197.0,
+      "resumo": "Sessão ordinária híbrida da Assembleia Legislativa do Rio Grande do Sul, presidida pelo deputado Ayrton Lima, realizada em 12 de setembro de 2024. O tema central foi a crise climática e seus impactos no estado, com destaque para as recomendações da Prefeitura de Porto Alegre sobre a fumaça das queimadas, o orçamento estadual com previsão de déficit de R$ 2,8 bilhões e a destinação de recursos ao Fundo de Recuperação do RS (FUNRIGS). Deputados discutiram também a recuperação econômica gaúcha, a educação e a tentativa de golpe de 8 de janeiro. Não houve votações ou deliberações formais; a sessão foi encerrada com convocação para sessão solene da Revolução Farroupilha em 17 de setembro.",
+      "tipo": "Plenário - sessão de debates",
+      "temas": [
+        "Meio Ambiente e Desenvolvimento Sustentável",
+        "Finanças Públicas e Orçamento",
+        "Direito e Defesa do Consumidor"
+      ],
+      "palavras_chave": [
+        "fumaça",
+        "chuva preta",
+        "FUNRIGS",
+        "orçamento 2025",
+        "déficit de R$ 2,8 bilhões",
+        "Revolução Farroupilha",
+        "8 de janeiro",
+        "tentativa de golpe"
+      ],
+      "participantes": [
+        {
+          "nome": "Ayrton Lima",
+          "papel": "presidente da sessão"
+        },
+        {
+          "nome": "Luísa Clasma",
+          "papel": "deputada presente"
+        },
+        {
+          "nome": "Dr. Tiago Duarte",
+          "papel": "deputado do União Brasil, participante das comunicações"
+        },
+        {
+          "nome": "Leonel Rad",
+          "papel": "deputado, participou da tribuna"
+        },
+        {
+          "nome": "Sérgio Pérez",
+          "papel": "deputado, participou da tribuna"
+        },
+        {
+          "nome": "Cláudio Branquelli",
+          "papel": "deputado, desistiu de falar"
+        },
+        {
+          "nome": "Eduardo Leite",
+          "papel": "governador do Rio Grande do Sul, entregou orçamento"
+        }
+      ],
+      "decisoes": [],
+      "modelo": "S5-nano"
+    },
+    {
+      "id": "ToBGXfkHTiA",
+      "miniatura": "miniaturas/ToBGXfkHTiA.jpg",
+      "legenda": "legendas/ToBGXfkHTiA.vtt",
+      "titulo": "Sessão Ordinária Matutina - 10/07/2024",
+      "canal": "TV Assembleia MT",
+      "casa": "TV Assembleia MT",
+      "uf": "MT",
+      "data": "2024-07-10",
+      "duracao": 3959.0,
+      "resumo": "Sessão ordinária matutina da Assembleia Legislativa de Mato Grosso em 10/07/2024, conduzida pela presidência da Casa. A ata da 40ª sessão ordinária foi lida e aprovada sem ressalvas. Foram aprovados projetos de lei em primeira e segunda votação. No pequeno expediente, deputados apresentaram indicações sobre limpeza urbana, saúde e homenagens. Destacou-se a discussão sobre o projeto da Comissão de Saúde que revoga a Lei 12.542/2024, sem convocação dos membros titulares. A sessão foi suspensa por 10 minutos para deliberação na comissão; deputados defenderam o projeto e houve voto contrário ao requerimento de urgência.",
+      "tipo": "Plenário - sessão deliberativa",
+      "temas": [
+        "Processo Legislativo e Atuação Parlamentar",
+        "Saúde",
+        "Direito Constitucional"
+      ],
+      "palavras_chave": [
+        "Lei 12.542/2024",
+        "Comissão de Saúde",
+        "requerimento de urgência",
+        "projeto de lei 86/2023",
+        "projeto de lei 994/2023",
+        "Wilson Santos",
+        "Valmir Moreto",
+        "Júlio Campos"
+      ],
+      "participantes": [
+        {
+          "nome": "Wilson Santos",
+          "papel": "deputado federal (uso da palavra)"
+        },
+        {
+          "nome": "Valmir Moreto",
+          "papel": "deputado (uso da palavra)"
+        },
+        {
+          "nome": "Júlio Campos",
+          "papel": "deputado (apresentou indicações)"
+        },
+        {
+          "nome": "Ranalli",
+          "papel": "deputado (informou projetos e críticas)"
+        },
+        {
+          "nome": "Sebastião Rezende",
+          "papel": "deputado (questionou tramitação e defendeu projeto)"
+        },
+        {
+          "nome": "Botelho",
+          "papel": "presidente da Comissão de Saúde"
+        }
+      ],
+      "decisoes": [
+        "Ata da 40ª sessão ordinária lida e aprovada sem ressalvas.",
+        "Aprovados em primeira votação os projetos de lei nº 86, 543, 582, 916, 1309, 1360, 1498, 1564, 2196, 2270, 2315/2023 e nº 70, 78, 87, 89, 92, 356, 374, 878, 145, 146, 147, 1246, 1298/2024.",
+        "Aprovados em segunda votação os projetos de lei nº 794 e 994/2023.",
+        "Sessão suspensa por 10 minutos para deliberação da Comissão de Saúde sobre o projeto que revoga a Lei 12.542/2024.",
+        "Voto contrário ao requerimento de urgência para revogar a Lei 12.542/2024."
+      ],
+      "modelo": "S5-nano"
+    },
+    {
+      "id": "Tz_o0STt9FE",
+      "miniatura": "miniaturas/Tz_o0STt9FE.jpg",
+      "legenda": "legendas/Tz_o0STt9FE.vtt",
+      "titulo": "CPI da Braskem ouve Álvaro da Costa, Roberto Farias e Vitor Bourbon – 24/4/24",
+      "canal": "TV Senado",
+      "casa": "TV Senado",
+      "uf": "",
+      "data": "2024-04-24",
+      "duracao": 10294.0,
+      "resumo": "A terceira reunião da CPI da Braskem (Req. nº 952/2023) ouviu testemunhas sobre a responsabilidade socioambiental da empresa pelas cavidades de sal-gema em Maceió (AL): Roberto Faria, da Concrete, perito contratado pela Braskem; Vitor Bourbon, da Flodin, que substituiu Álvaro Maia da Costa ausente por saúde; e Marcelo Assumpção, da USP. Com direito ao silêncio garantido por liminar do ministro Cristiano Zanino, Bourbon disse que dados de sondagem vinham da Braskem. O relator, senador Rogério Carvalho, apontou falta de transparência nos estudos de 2019 e 2020 e pediu dados sobre o mapa de subsidência de 2020. Foi aprovada a dispensa de leitura da ata da 12ª reunião e marcada nova reunião para o dia 7 (ou 8), às 9h.",
+      "tipo": "CPI ou CPMI",
+      "temas": [
+        "Meio Ambiente e Desenvolvimento Sustentável",
+        "Processo Legislativo e Atuação Parlamentar",
+        "Direito Constitucional"
+      ],
+      "palavras_chave": [
+        "CPI da Braskem",
+        "sal-gema",
+        "Maceió",
+        "Braskem",
+        "mapa de subsidência de 2020",
+        "Modecom Tecnologia",
+        "Flodin",
+        "USP"
+      ],
+      "participantes": [
+        {
+          "nome": "Senador Rogério Carvalho",
+          "papel": "relator da CPI da Braskem"
+        },
+        {
+          "nome": "Roberto Fernando dos Santos Faria",
+          "papel": "testemunha; sócio e responsável técnico da Concrete, perito contratado pela Braskem"
+        },
+        {
+          "nome": "Vitor José Campos Bourbon",
+          "papel": "testemunha; ex-funcionário da Flodin"
+        },
+        {
+          "nome": "Marcelo Souza de Assumpção",
+          "papel": "testemunha; professor de sismologia e geofísica da Universidade de São Paulo"
+        },
+        {
+          "nome": "Álvaro Maia da Costa",
+          "papel": "testemunha da Modecom Tecnologia, ausente por motivo de saúde e substituída"
+        }
+      ],
+      "decisoes": [
+        "Aprovada a dispensa de leitura da ata da 12ª reunião da CPI da Braskem.",
+        "Designada nova reunião da CPI para o dia 7 (com possibilidade de realização no dia 8), às 9h.",
+        "Relator solicitou formalização de pedido à Braskem sobre os dados utilizados no mapa de risco/subsidência de setembro de 2020, diante de apontamento de falta de transparência e indício de dolo da empresa.",
+        "Lida decisão do ministro Cristiano Zanino no Habeas Corpus nº 240-335, de 23/4/2024, que deferiu parcialmente a liminar e assegurou a Vitor José Campos Bourbon o direito ao silêncio e à não autoincriminação, com assistência de advogado."
+      ],
+      "modelo": "S5-nano"
+    },
+    {
+      "id": "yR_MkYsSen0",
+      "miniatura": "miniaturas/yR_MkYsSen0.jpg",
+      "legenda": "legendas/yR_MkYsSen0.vtt",
+      "titulo": "CPI do MST - Relatório de Ricardo Salles - 21/09/2023",
+      "canal": "Câmara dos Deputados",
+      "casa": "Câmara dos Deputados",
+      "uf": "",
+      "data": "2023-09-21",
+      "duracao": 7833.0,
+      "resumo": "A CPI do MST realizou sua 23ª reunião extraordinária em 21/09/2023 para discutir e votar o relatório final do relator, deputado Ricardo Salles (PL-SP), que trata das invasões como \"indústria criminosa\", uso de recursos públicos e condições nos assentamentos. Foram relatados recrutamento de trabalhadores no Sul da Bahia, irregularidades em diligências em Alagoas e Goiás e contradições na atuação do Ministério da Agricultura e do INCRA. O relator sinalizou ajustes após alerta sobre anexos de indiciamento não disponibilizados. Houve vista coletiva por duas sessões e a votação foi remarcada para 26/09, último dia de funcionamento do colegiado, sem prorrogação.",
+      "tipo": "CPI ou CPMI",
+      "temas": [
+        "Estrutura Fundiária",
+        "Política, Partidos e Eleições",
+        "Finanças Públicas e Orçamento"
+      ],
+      "palavras_chave": [
+        "CPI do MST",
+        "relatório final Ricardo Salles",
+        "Movimento dos Trabalhadores Sem Terra",
+        "INCRA",
+        "Memorando Circular 01/2019",
+        "Instrução Normativa 132/2023",
+        "Iteral",
+        "Acampamento São José"
+      ],
+      "participantes": [
+        {
+          "nome": "Ricardo Salles",
+          "papel": "relator da CPI do MST (deputado PL-SP)"
+        },
+        {
+          "nome": "João Pedro Stédile",
+          "papel": "coordenador nacional do MST, ouvido na comissão"
+        },
+        {
+          "nome": "Chico Graziano",
+          "papel": "ex-deputado e ex-presidente do INCRA, expos dados sobre assentamentos"
+        },
+        {
+          "nome": "Ronaldo Caiado",
+          "papel": "governador de Goiás, ouvido em audiência na comissão"
+        },
+        {
+          "nome": "Carlos Fávaro",
+          "papel": "ministro da Agricultura, prestou depoimento"
+        },
+        {
+          "nome": "Paulo Teixeira",
+          "papel": "ministro citado, prestou esclarecimentos na comissão"
+        },
+        {
+          "nome": "Gonçalves Dias",
+          "papel": "general e ex-ministro do GSI, prestou depoimento institucional"
+        },
+        {
+          "nome": "Geraldo de Mello Filho",
+          "papel": "ex-presidente do INCRA, apresentou dados técnicos aceitos pela comissão"
+        },
+        {
+          "nome": "Fábio Costa",
+          "papel": "deputado, proponente da diligência em Alagoas"
+        },
+        {
+          "nome": "Paulão",
+          "papel": "deputado, representante político do MST, acompanhou diligência em Alagoas"
+        },
+        {
+          "nome": "Gustavo Gayer",
+          "papel": "deputado, organizador de diligência em Hidrolândia (GO)"
+        },
+        {
+          "nome": "Magda Mofato",
+          "papel": "deputada, organizadora de diligência em Hidrolândia (GO)"
+        }
+      ],
+      "decisoes": [
+        "Vista coletiva do relatório concedida por duas sessões.",
+        "Discussão e votação do relatório remarcadas para 26/09/2023.",
+        "Prazo de funcionamento da CPI encerrado em 26/09/2023, sem prorrogação.",
+        "Após alerta do deputado Nilton Tato, o relator informou que enviaria os anexos com descrições de condutas e sugestões de indiciamento e sinalizou ajustes no texto antes da votação."
+      ],
+      "modelo": "S5-nano"
+    },
+    {
+      "id": "JjZmdSEw6VQ",
+      "miniatura": "miniaturas/JjZmdSEw6VQ.jpg",
+      "legenda": "legendas/JjZmdSEw6VQ.vtt",
+      "titulo": "Sessão Ordinária - Parte 1 - 13/09/23",
+      "canal": "assembleiasc",
+      "casa": "assembleiasc",
+      "uf": "SC",
+      "data": "2023-09-13",
+      "duracao": 2269.0,
+      "resumo": "Sessão ordinária da Assembleia Legislativa de Santa Catarina realizada em 13 de setembro de 2023, presidida pelo deputado Padre Pedro Baldiceira e secretariada pelo deputado Marcos da Rosa. A ata da sessão anterior foi aprovada. Destacaram-se a posse do suplente José Cláudio Caramori (PSD), que assumiu a vaga de Napoleão Bernardes; o convite para o lançamento da EFAP 2023 em Chapecó; um mandado de segurança sobre obras e pedágio na BR-101 (Autopista Litoral Sul); registro do falecimento de Helena Edília Lima Pires, fundadora do GAPA; informes sobre cirurgias eletivas no Estado; homenagem ao Dia Nacional da Cachaça; e alerta sobre a falta de organização estadual para acolhimento de imigrantes venezuelanos. Não houve apreciação de matérias na ordem do dia por falta de quórum.",
+      "tipo": "Plenário - sessão de debates",
+      "temas": [
+        "Saúde",
+        "Direitos Humanos e Minorias",
+        "Economia"
+      ],
+      "palavras_chave": [
+        "EFAP 2023",
+        "IFAP",
+        "Mercoagro",
+        "Autopista Litoral Sul",
+        "BR-101",
+        "mandado de segurança",
+        "GAPA",
+        "Helena Edília Lima Pires"
+      ],
+      "participantes": [
+        {
+          "nome": "Padre Pedro Baldiceira",
+          "papel": "presidente da sessão"
+        },
+        {
+          "nome": "Marcos da Rosa",
+          "papel": "secretário da sessão"
+        },
+        {
+          "nome": "José Cláudio Caramori",
+          "papel": "deputado empossado, suplente PSD"
+        },
+        {
+          "nome": "Mário Mota",
+          "papel": "deputado"
+        },
+        {
+          "nome": "Sérgio Guimarães",
+          "papel": "deputado"
+        },
+        {
+          "nome": "Carlos Humberto",
+          "papel": "deputado"
+        },
+        {
+          "nome": "Fabiano da Luz",
+          "papel": "deputado"
+        },
+        {
+          "nome": "Maurício Scudelar",
+          "papel": "deputado"
+        },
+        {
+          "nome": "Napoleão Bernardes",
+          "papel": "deputado licenciado"
+        }
+      ],
+      "decisoes": [
+        "Aprovação da ata da 83ª Sessão Ordinária realizada em 12 de setembro de 2023.",
+        "Concessão de licença sem remuneração ao deputado Napoleão Bernardes por 30 dias, a partir de 12 de setembro de 2023.",
+        "Posse do suplente José Cláudio Caramori (PSD) na vaga deixada por Napoleão Bernardes.",
+        "Suspensão da sessão até as 16 horas para a ordem do dia.",
+        "Matérias não apreciadas na ordem do dia por falta de quórum."
+      ],
+      "modelo": "S5-nano"
+    },
+    {
+      "id": "IJaLfyagc9M",
+      "miniatura": "miniaturas/IJaLfyagc9M.jpg",
+      "legenda": "legendas/IJaLfyagc9M.vtt",
+      "titulo": "Sessão Plenária - 01/08/2023",
+      "canal": "ALECE TV",
+      "casa": "ALECE TV",
+      "uf": "CE",
+      "data": "2023-08-01",
+      "duracao": 10860.0,
+      "resumo": "Sessão ordinária deliberativa da Assembleia Legislativa do Ceará (ALECE), realizada em 1º/08/2023, presidida por Evandro Leitão e secretariada por Stuart Castro, com 20 deputados no plenário. Foram lidas e aprovadas atas e expedientes das sessões extraordinárias de 14/07/2023, incluindo o PLC 14/2023, aprovado com redações finais e votos contrários de Sargento Reginaldo e Felipe Mota, além de outros projetos de lei e da indicação 65/2023. Na tribuna, os debates concentraram-se em saúde (Maracanãú), educação (defesa do ministro Camilo Santana e das escolas de tempo integral) e segurança pública. Também foi eleita a Comissão de Representação de Recesso e informado o envio do programa 'Vai e Vem' à Assembleia.",
+      "tipo": "Plenário - sessão deliberativa",
+      "temas": [
+        "Processo Legislativo e Atuação Parlamentar",
+        "Educação",
+        "Saúde"
+      ],
+      "palavras_chave": [
+        "plc 14/2023",
+        "vai e vem",
+        "loa 2024",
+        "previne brasil",
+        "maracanãú",
+        "cpmi do 8 de janeiro",
+        "camilo santana",
+        "romualdo de guedes"
+      ],
+      "participantes": [
+        {
+          "nome": "Evandro Leitão",
+          "papel": "presidente da mesa da sessão"
+        },
+        {
+          "nome": "Stuart Castro",
+          "papel": "secretário da mesa"
+        },
+        {
+          "nome": "Romualdo de Guedes",
+          "papel": "deputado estadual, autor do PLC 14/2023 e da emenda aditiva de plenário nº 1"
+        },
+        {
+          "nome": "Guilherme Sampaio",
+          "papel": "líder do governo; deputado estadual (PT)"
+        },
+        {
+          "nome": "Felipe Mota",
+          "papel": "deputado estadual (União), registrou voto contrário"
+        },
+        {
+          "nome": "Sargento Reginaldo",
+          "papel": "deputado estadual, registrou voto contrário e pronunciamentos sobre segurança pública"
+        },
+        {
+          "nome": "Lucinilo Frota",
+          "papel": "deputado estadual, pronunciou-se sobre saúde em Maracanãú"
+        },
+        {
+          "nome": "Nísio Costa",
+          "papel": "deputado estadual, pronunciou-se sobre educação"
+        },
+        {
+          "nome": "Romeu Odiguer",
+          "papel": "deputado estadual, discursou com discurso escrito"
+        },
+        {
+          "nome": "Messias Dias",
+          "papel": "deputado estadual (PT)"
+        },
+        {
+          "nome": "Carmelo Neto",
+          "papel": "deputado estadual, cobrou apuração na CPMI do 8 de janeiro"
+        }
+      ],
+      "decisoes": [
+        "Lidas e aprovadas as atas e expedientes das sessões extraordinárias de 14/07/2023, com leitura dos projetos de lei 776 a 782/2023, da indicação 456/2023 e dos requerimentos 9.120/2023 e 9.164/2023.",
+        "Acatada a emenda aditiva de plenário nº 1 ao PLC 14/2023 (Poder Executivo, autoria do dep. Romualdo de Guedes); aprovado o PLC 14/2023 e aprovadas suas redações finais nas sessões extraordinárias de 14/07/2023.",
+        "Convocadas sessões extraordinárias para as 12h34 e 12h54.",
+        "Aprovados os PLs 516/2023, 569/2023, 69/2023, 72/2023, 73/2023, 74/2023 e 78/2023, com emendas aditivas e de supressão; registrados votos contrários de Sargento Reginaldo e Felipe Mota.",
+        "Aprovado o projeto de indicação 65/2023.",
+        "Eleita a Comissão de Representação de Recesso (18 a 31/07/2023), composta por Bruno Pedrosa, Antônio Granja e Guilherme Bismarck (PDT), Jô Farias, Messias Dias e Guilherme Sampaio (PT), Dra. Silvana (PL) e Felipe Mota (União).",
+        "Anunciado que o programa 'Vai e Vem', de gratuidade no transporte intermunicipal da Região Metropolitana de Fortaleza, será encaminhado à Assembleia para apreciação e votação, com previsão de implementação até o fim do ano."
+      ],
+      "modelo": "S5-nano"
+    },
+    {
+      "id": "-8pjywnLkwI",
+      "miniatura": "miniaturas/-8pjywnLkwI.jpg",
+      "legenda": "legendas/-8pjywnLkwI.vtt",
+      "titulo": "Mauro Cid usa habeas corpus para ficar em silêncio na CPMI dos Atos de 8 de Janeiro",
+      "canal": "TV Senado",
+      "casa": "TV Senado",
+      "uf": "",
+      "data": "2023-07-12",
+      "duracao": 345.0,
+      "resumo": "A CPMI dos Atos de 8 de Janeiro ouviu o tenente-coronel Mauro Cid, ex-ajudante de ordens do ex-presidente Jair Bolsonaro, que chegou à comissão amparado por habeas corpus do STF e permaneceu em silêncio durante toda a audiência. Ele narrou brevemente sua trajetória militar e afirmou que apenas aguardava do lado de fora das reuniões, sem participar das discussões. A relatora, senadora Elisiane Gama (PSD-MA), fez perguntas sobre fraudes em cartões de vacina, os atos de 8 de janeiro e supostas articulações para anular o processo eleitoral. A comissão aprovou cerca de 90 requerimentos, incluindo quebras de sigilo de George Washington, Silvinei Vasquez, Mauro Cid e Jean Lauande Jr. O presidente da comissão, deputado Arthur Maia, ameaçou denunciar Cid ao STF por descumprimento de ordem judicial.",
+      "tipo": "CPI ou CPMI",
+      "temas": [
+        "Direito Constitucional",
+        "Política, Partidos e Eleições",
+        "Processo Legislativo e Atuação Parlamentar"
+      ],
+      "palavras_chave": [
+        "Mauro Cid",
+        "CPMI dos Atos de 8 de Janeiro",
+        "habeas corpus",
+        "cartões de vacina",
+        "atos antidemocráticos",
+        "George Washington",
+        "Silvinei Vasquez",
+        "Jean Lauande Jr."
+      ],
+      "participantes": [
+        {
+          "nome": "Mauro Cid",
+          "papel": "tenente-coronel, ex-ajudante de ordens do ex-presidente Bolsonaro, depoente"
+        },
+        {
+          "nome": "Elisiane Gama",
+          "papel": "relatora da CPMI, senadora PSD-MA"
+        },
+        {
+          "nome": "Arthur Maia",
+          "papel": "presidente da CPMI, deputado federal"
+        },
+        {
+          "nome": "Jair Bolsonaro",
+          "papel": "ex-presidente da República, mencionado"
+        }
+      ],
+      "decisoes": [
+        "Aprovados cerca de 90 requerimentos com pedidos de informações, relatórios financeiros e quebras de sigilo.",
+        "Aprovadas quebras de sigilo fiscal, bancário, telefônico e telemático do empresário George Washington.",
+        "Aprovadas quebras de sigilo telefônico e telemático do ex-diretor da PRF Silvinei Vasquez.",
+        "Aprovadas quebras de sigilo telefônico e telemático do tenente-coronel Mauro Cid e do coronel Jean Lauande Jr.",
+        "O presidente da comissão anunciou a possibilidade de denúncia ao STF contra Mauro Cid por descumprimento de ordem judicial."
+      ],
+      "modelo": "S5-nano"
+    },
+    {
+      "id": "5n81bZteNBc",
+      "miniatura": "miniaturas/5n81bZteNBc.jpg",
+      "legenda": "legendas/5n81bZteNBc.vtt",
+      "titulo": "Sessão Ordinária na Alepa - 30.05.2023",
+      "canal": "TV Alepa Pará",
+      "casa": "TV Alepa Pará",
+      "uf": "PA",
+      "data": "2023-05-31",
+      "duracao": 12586.0,
+      "resumo": "Na 23ª sessão ordinária da Assembleia Legislativa do Pará (Alepa), em 30 de maio de 2023, no plenário Newton Miranda, os debates foram dominados pela escolha de Belém como sede da COP-30, conferência do clima da ONU prevista para 2025. Deputados defenderam a criação de comissão e sessão especial de acompanhamento do evento, além de criticarem riscos e expectativas ligados à obra e à infraestrutura. Também foram discutidos royalties na Margem Equatorial, resíduos sólidos metropolitanos, saúde mental de servidores da segurança pública, reajuste tarifário de energia elétrica e o PPA Participativo. Foram aprovados por unanimidade projetos de utilidade pública, o PL 140/2021 sobre apoio psicológico a policiais e convocada audiência pública sobre metas fiscais.",
+      "tipo": "Plenário - sessão deliberativa",
+      "temas": [
+        "Meio Ambiente e Desenvolvimento Sustentável",
+        "Economia",
+        "Finanças Públicas e Orçamento"
+      ],
+      "palavras_chave": [
+        "COP-30",
+        "Margem Equatorial",
+        "Foz do Amazonas",
+        "Usinas da Paz",
+        "PL 140/2021",
+        "Guamá Resíduos Sólidos",
+        "ANEEL",
+        "PPA Participativo"
+      ],
+      "participantes": [
+        {
+          "nome": "Josué Paiva",
+          "papel": "deputado REP, autor de requerimento pela Comissão de Acompanhamento da COP-30"
+        },
+        {
+          "nome": "Carlos Bordalo",
+          "papel": "deputado PT, autor do pedido de sessão especial sobre a COP-30"
+        },
+        {
+          "nome": "Lívia Duarte",
+          "papel": "deputada PSOL, coautora do pedido de sessão especial sobre a COP-30"
+        },
+        {
+          "nome": "Chamonzinho",
+          "papel": "deputado, pediu início imediato da reunião da Comissão de Fiscalização Financeira e Orçamentária"
+        },
+        {
+          "nome": "Alex Santiago",
+          "papel": "deputado, autor do PL 140/2021 sobre apoio médico e psicológico a policiais"
+        },
+        {
+          "nome": "Coronel Nil",
+          "papel": "deputado, relatou atendimento psicológico na PM e defendeu extensão aos bombeiros"
+        },
+        {
+          "nome": "Tony Cunha",
+          "papel": "deputado delegado, defendeu atenção à saúde mental dos servidores e anunciou ofício ao Ministério Público"
+        },
+        {
+          "nome": "Gustavo Sefer",
+          "papel": "deputado, defendeu exploração de petróleo no Pará na foz do Amazonas"
+        },
+        {
+          "nome": "Maria do Carmo",
+          "papel": "deputada, tratou do enfrentamento da depressão e da rede psicossocial"
+        },
+        {
+          "nome": "Raimundo Santos",
+          "papel": "deputado, autor do PL 386/2022 de utilidade pública"
+        },
+        {
+          "nome": "Fábio Freitas",
+          "papel": "deputado, autor de projetos de utilidade pública e do requerimento de anulação da audiência da ANEEL"
+        },
+        {
+          "nome": "Rony Silva",
+          "papel": "deputado, tratou da destinação de resíduos"
+        }
+      ],
+      "decisoes": [
+        "Requerimento do deputado Josué Paiva (REP) pela instalação de Comissão de Acompanhamento do Poder Legislativo para a preparação da COP-30 apresentado na sessão.",
+        "Sessão Especial já aprovada em fevereiro sobre a COP-30, prevista para agosto, com participação do governo do Estado, da prefeitura de Belém, de senadores, deputados federais e representantes da sociedade civil, a pedido dos deputados Carlos Bordalo (PT) e Lívia Duarte (PSOL).",
+        "Ata da sessão considerada aprovada sem votação.",
+        "Aprovados por unanimidade os PLs 230/2017-2022 (utilidade pública da Associação dos Empreendedores do Estado do Pará), 386/2022 (utilidade pública da Associação Arca da Família) e 18/2023 (utilidade pública da Coptransil de Limoeiro do Ajuru).",
+        "Aprovado por unanimidade o PL 140/2021, do deputado Alex Santiago, que dispõe sobre diretrizes de apoio médico e psicológico a policiais militares e bombeiros.",
+        "Aprovados requerimentos de licenças, aplausos e homenagens.",
+        "Aprovada sessão solene Portugal-Pará para 5/06.",
+        "Convocada audiência pública da Comissão de Fiscalização Financeira e Orçamentária sobre metas fiscais para 31/05/2023, às 14h, no auditório João Batista."
+      ],
+      "modelo": "S5-nano"
+    },
+    {
+      "id": "Myfr4ZE_jq4",
+      "miniatura": "miniaturas/Myfr4ZE_jq4.jpg",
+      "legenda": "legendas/Myfr4ZE_jq4.vtt",
+      "titulo": "Câmara aprova projeto do marco temporal de demarcação das terras indígenas - 30/05/2023",
+      "canal": "Câmara dos Deputados",
+      "casa": "Câmara dos Deputados",
+      "uf": "",
+      "data": "2023-05-30",
+      "duracao": 23918.0,
+      "resumo": "Sessão extraordinária deliberativa da Câmara dos Deputados, em 30/05/2023, para votar o PL 490/2007, que altera o Estatuto do Índio e define o marco temporal de 5 de outubro de 1988 para a demarcação de terras indígenas. O substitutivo do relator Arthur Oliveira Maia (União-BA) restringe demarcações às terras ocupadas nessa data, autoriza transgênicos, proíbe ampliação de terras já demarcadas e faculta a retomada por interesse público. O texto foi aprovado (290 votos a 142 na votação final) e enviado ao Senado. Na mesma sessão, a MP 1164/2023, do novo Bolsa Família, foi aprovada na forma do PLV 11/2023, e houve impasses regimentais sobre a situação do deputado Deltan Dallagnol.",
+      "tipo": "Plenário - sessão deliberativa",
+      "temas": [
+        "Direito Constitucional",
+        "Direitos Humanos e Minorias",
+        "Economia"
+      ],
+      "palavras_chave": [
+        "pl 490/2007",
+        "marco temporal",
+        "5 de outubro de 1988",
+        "raposa serra do sol",
+        "plv 11/2023",
+        "mp 1164/2023",
+        "deltan dallagnol",
+        "convenção 169 da oit"
+      ],
+      "participantes": [
+        {
+          "nome": "Arthur Oliveira Maia",
+          "papel": "Relator do PL 490/2007 (deputado federal União-BA)"
+        },
+        {
+          "nome": "Dr. Francisco",
+          "papel": "Relator do PLV 11/2023 (deputado federal PT-PI)"
+        },
+        {
+          "nome": "Guilherme Boulos",
+          "papel": "Deputado (protocolou questão de ordem sobre o PL 490/2007)"
+        },
+        {
+          "nome": "Chico Alencar",
+          "papel": "Deputado federal PSOL-RJ"
+        },
+        {
+          "nome": "Renata Abreu",
+          "papel": "Deputada federal Podemos (questão de ordem sobre mandato de Deltan Dallagnol)"
+        },
+        {
+          "nome": "Glauber Braga",
+          "papel": "Deputado (questionou Deltan Dallagnol sobre negócios imobiliários)"
+        },
+        {
+          "nome": "Aguinaldo Ribeiro",
+          "papel": "Líder da maioria"
+        },
+        {
+          "nome": "Sônia Guajajara",
+          "papel": "Ministra (compareceu ao plenário)"
+        },
+        {
+          "nome": "Célia Xakriabá",
+          "papel": "Liderança indígena (compareceu ao plenário)"
+        },
+        {
+          "nome": "Lúcio Moschini",
+          "papel": "Deputado federal MDB-RO"
+        },
+        {
+          "nome": "André Figueiredo",
+          "papel": "Deputado (autor do destaque de bancada nº 4 do Bloco União/PDT)"
+        },
+        {
+          "nome": "Zé Guimarães",
+          "papel": "Deputado (mencionou tentativa frustrada de retirar o PL 490 de pauta)"
+        }
+      ],
+      "decisoes": [
+        "Requerimento de encerramento da discussão do PL 490/2007 aprovado por 311 votos a 137 (com abstenções).",
+        "Comissão de Agricultura aprovou o substitutivo ao PL 490/2007 com os PLs 1218/2007, 2302/2007 e 2311/2007 apensados; a Comissão de Direitos Humanos e Minorias apresentou parecer pela rejeição; a CCJ opinou pela constitucionalidade, juridicidade, técnica legislativa e aprovação do texto.",
+        "Substitutivo ao PL 490/2007 aprovado: 283 votos a favor, 155 contrários e 1 abstenção (439 votantes); na contagem de manutenção do texto, 288 a 148, com 2 abstenções (438 votantes); votação final registrou 290 votos a favor, 142 contrários e 1 abstenção (433 votantes), mantido o texto e aprovada a redação final, encaminhada ao Senado Federal.",
+        "Tentativa do governo de retirar o PL 490/2007 de pauta, usada como obstrução, foi frustrada.",
+        "Destaque de bancada nº 2, que pedia votação da emenda de comissão nº 98 do PL (crédito consignado a beneficiários do Bolsa Família), rejeitado: 159 votos a favor e 270 contrários.",
+        "MP 1164/2023 (novo Bolsa Família) aprovada na forma do PLV 11/2023, ressalvados os destaques; entre as mudanças incorporadas estão inclusão das nutrizes no benefício variável, recebimento concomitante do seguro defeso, consignado para beneficiários do BPC com margem de 35% e adicional do auxílio gás.",
+        "Votação da MP 1154 adiada para o dia seguinte, com painel aberto a partir das 9h e votação a partir das 11h; convocada sessão deliberativa extraordinária para quarta-feira (31/05), às 9h55.",
+        "Discussão sobre a perda do mandato de Deltan Dallagnol: questão de ordem da deputada Renata Abreu (Podemos) defendeu contraditório e ampla defesa antes da decisão da Mesa; a Mesa manteve o rito adotado, o parlamentar seguiu no exercício do mandato e o caso foi encaminhado à Corregedoria, com a discussão sobre eventual anulação prosseguindo."
+      ],
+      "modelo": "S5-nano"
+    },
+    {
+      "id": "Floxn5Vlsk0",
+      "miniatura": "miniaturas/Floxn5Vlsk0.jpg",
+      "legenda": "legendas/Floxn5Vlsk0.vtt",
+      "titulo": "59ª Sessão Ordinária da 3ª Sessão Legislativa da 19ª Legislatura  30.06.2021",
+      "canal": "Aleam | Assembleia Legislativa do Amazonas",
+      "casa": "Aleam | Assembleia Legislativa do Amazonas",
+      "uf": "AM",
+      "data": "2021-06-30",
+      "duracao": 13855.0,
+      "resumo": "Sessão ordinária da Aleam em 30/06/2021, aberta com leitura de expediente sobre concursos públicos, saúde no interior e o programa Luz para Todos. Discutiu-se a CPI da Saúde: questionamentos sobre suposto pedido/votação de indiciamento de governadores, envio do relatório à PGR e críticas aos pagamentos indenizatórios. Cobrou-se fiscalização da gestão do governador Wilson Lima (servidores e Cosama). A Aleam recebeu lideranças indígenas que repudiaram o PL 490 e o marco temporal, pedindo posicionamento da Casa e políticas de saúde e educação. Na ordem do dia, 33 requerimentos e projetos foram enviados às comissões técnicas; o requerimento de convocação do diretor da Cosama foi aprovado e nova sessão foi convocada para o dia seguinte. Presidiu a sessão Roberto Cidade, com alternância para Adjuto Afonso.",
+      "tipo": "Plenário - sessão deliberativa",
+      "temas": [
+        "Direito Constitucional",
+        "Administração Pública",
+        "Saúde"
+      ],
+      "palavras_chave": [
+        "pl 490",
+        "marco temporal",
+        "cpi da saúde",
+        "bolsa floresta",
+        "cosama",
+        "luz para todos",
+        "operacao sangria",
+        "audiencia publica defensoria publica"
+      ],
+      "participantes": [
+        {
+          "nome": "Roberto Cidade",
+          "papel": "presidente da Assembleia Legislativa do Amazonas (presidiu a sessão)"
+        },
+        {
+          "nome": "Adjuto Afonso",
+          "papel": "presidente da Assembleia Legislativa (substituiu Roberto Cidade na presidência da sessão)"
+        },
+        {
+          "nome": "Álvaro Campelo",
+          "papel": "deputado estadual"
+        },
+        {
+          "nome": "Fausto Júnior",
+          "papel": "deputado estadual, relator da CPI da Saúde"
+        },
+        {
+          "nome": "Dermilson Chagas",
+          "papel": "deputado estadual"
+        },
+        {
+          "nome": "Wilker Barreto",
+          "papel": "deputado estadual"
+        },
+        {
+          "nome": "Cabo Maciel",
+          "papel": "deputado estadual"
+        },
+        {
+          "nome": "Tony Medeiros",
+          "papel": "deputado estadual"
+        },
+        {
+          "nome": "Ângelos Figueira",
+          "papel": "deputado estadual (proponente do REQ 2768/2021, audiência pública sobre recursos hídricos)"
+        },
+        {
+          "nome": "Terezinha Ruiz",
+          "papel": "deputada estadual"
+        },
+        {
+          "nome": "Omar Aziz",
+          "papel": "senador"
+        },
+        {
+          "nome": "Estélio Moura (cacique Chauá)",
+          "papel": "liderança indígena do povo Chauá"
+        }
+      ],
+      "decisoes": [
+        "Requerimento de convocação do diretor da Cosama, de autoria de Dermilson Chagas, aprovado em plenário.",
+        "33 requerimentos encaminhados e 2 projetos de lei e 1 projeto de resolução enviados às comissões técnicas.",
+        "Tempo regimental extrapolado mediante concessão de prorrogação de falas às lideranças indígenas.",
+        "Nova sessão ordinária convocada para o dia seguinte, no horário regimental.",
+        "Relatório da CPI da Saúde encaminhado à Procuradoria-Geral da República (PGR), com denúncia apresentada contra o governador com base nos fatos apurados."
+      ],
+      "modelo": "S5-nano"
+    },
+    {
+      "id": "DldyhG7qs3I",
+      "miniatura": "miniaturas/DldyhG7qs3I.jpg",
+      "legenda": "legendas/DldyhG7qs3I.vtt",
+      "titulo": "Veja resumo dos depoimentos dos irmãos Miranda na CPI da Pandemia",
+      "canal": "TV Senado",
+      "casa": "TV Senado",
+      "uf": "",
+      "data": "2021-06-28",
+      "duracao": 121.0,
+      "resumo": "Depoimento na CPI da Pandemia do Senado Federal, em 25 de junho de 2021, dos irmãos Luis Miranda (deputado federal DEM-DF) e Luis Ricardo Miranda, servidor do Ministério da Saúde. Eles relataram pressão para acelerar a importação da vacina Covaxin via Precisa Medicamentos e que comunicaram o fato ao presidente Jair Bolsonaro, que teria citado o deputado Ricardo Barros (PP-PR) como responsável pela pressão. A sessão teve discussão sobre supostas irregularidades no contrato e ofensas entre os depoentes e um senador. Foi anunciado pedido de convite ou convocação do deputado Ricardo Barros.",
+      "tipo": "CPI ou CPMI",
+      "temas": [
+        "Saúde",
+        "Processo Legislativo e Atuação Parlamentar",
+        "Direito e Defesa do Consumidor"
+      ],
+      "palavras_chave": [
+        "Covaxin",
+        "Precisa Medicamentos",
+        "Luis Miranda",
+        "Ricardo Barros",
+        "importação de vacina",
+        "CPI da Pandemia",
+        "Ministério da Saúde"
+      ],
+      "participantes": [
+        {
+          "nome": "Luis Ricardo Miranda",
+          "papel": "depoente, servidor do Ministério da Saúde"
+        },
+        {
+          "nome": "Luis Miranda",
+          "papel": "depoente, deputado federal DEM-DF"
+        },
+        {
+          "nome": "Jair Bolsonaro",
+          "papel": "presidente da República, mencionado pelos depoentes"
+        },
+        {
+          "nome": "Ricardo Barros",
+          "papel": "deputado federal PP-PR, citado como possível responsável pela pressão"
+        }
+      ],
+      "decisoes": [
+        "Anunciado pedido de convite ou convocação do deputado federal Ricardo Barros (PP-PR) para prestar esclarecimentos sobre supostas ligações com o episódio envolvendo a Covaxin e a Precisa Medicamentos."
+      ],
+      "modelo": "S5-nano"
+    },
+    {
+      "id": "pRBwc7YY0ko",
+      "miniatura": "miniaturas/pRBwc7YY0ko.jpg",
+      "legenda": "legendas/pRBwc7YY0ko.vtt",
+      "titulo": "TV ALRN - SESSÃO ORDINÁRIA - 26 05 2021",
+      "canal": "TV Assembleia RN",
+      "casa": "TV Assembleia RN",
+      "uf": "RN",
+      "data": "2021-05-26",
+      "duracao": 5220.0,
+      "resumo": "Sessão ordinária da Assembleia Legislativa do Rio Grande do Norte, aberta com dez deputados presentes e presidida pelo deputado Francisco do PT (primeira secretaria). O expediente tratou de 27 requerimentos e projetos, incluindo regularização de água em Nova Cruz, recuperação de rodovias e homenagens. No grande expediente, houve voto de pesar ao jornalista João Batista Machado 'Machadinho'. Deputados discutiram a criação de uma CPI da Covid, com 10 assinaturas, e criticaram possíveis usos políticos. Na ordem do dia, foram aprovados por unanimidade os projetos de lei 186/2019, 137/2020, 190/2020 e o projeto 420/2019. A sessão foi encerrada com 21 deputados presentes e convocação de sessão extraordinária para votação de vetos.",
+      "tipo": "Plenário - sessão deliberativa",
+      "temas": [
+        "Processo Legislativo e Atuação Parlamentar",
+        "Saúde",
+        "Economia"
+      ],
+      "palavras_chave": [
+        "CPI da Covid",
+        "Hospital Regional de Açú",
+        "Nova Cruz",
+        "RN-263",
+        "BR-104",
+        "João Batista Machado",
+        "universidades federais",
+        "academias atividades essenciais"
+      ],
+      "participantes": [
+        {
+          "nome": "Francisco do PT",
+          "papel": "deputado, primeira secretaria"
+        },
+        {
+          "nome": "Coronel Azevedo",
+          "papel": "deputado"
+        },
+        {
+          "nome": "Kelpys Lima",
+          "papel": "deputado"
+        },
+        {
+          "nome": "Francisco Dupete",
+          "papel": "deputado"
+        },
+        {
+          "nome": "Galeno Torquato",
+          "papel": "deputado"
+        },
+        {
+          "nome": "Gustavo Carvalho",
+          "papel": "deputado"
+        },
+        {
+          "nome": "Hermano Moraes",
+          "papel": "deputado"
+        },
+        {
+          "nome": "Isolda Dantas",
+          "papel": "deputada"
+        },
+        {
+          "nome": "Nelter Queiroz",
+          "papel": "deputado"
+        },
+        {
+          "nome": "Vivaldo Costa",
+          "papel": "deputado"
+        },
+        {
+          "nome": "Ivaldo Costa",
+          "papel": "deputado"
+        },
+        {
+          "nome": "Zé Dias",
+          "papel": "deputado"
+        }
+      ],
+      "decisoes": [
+        "Aprovados por unanimidade os projetos de lei 186/2019, 137/2020 e 190/2020, com suas emendas.",
+        "Aprovado o projeto 420/2019 (política estadual de práticas integrativas no SUS).",
+        "Convocada sessão extraordinária para votação dos vetos, com necessidade de presença qualificada."
+      ],
+      "modelo": "S5-nano"
+    },
+    {
+      "id": "HYH2vL0Bf6o",
+      "miniatura": "miniaturas/HYH2vL0Bf6o.jpg",
+      "legenda": "legendas/HYH2vL0Bf6o.vtt",
+      "titulo": "Violência Política de Gênero e Ato Solene em Memória de Marielle Franco - 15/03/21 - 16:18",
+      "canal": "Câmara dos Deputados",
+      "casa": "Câmara dos Deputados",
+      "uf": "",
+      "data": "2021-03-15",
+      "duracao": 7015.0,
+      "resumo": "Audiência pública promovida pela Secretaria da Mulher da Câmara dos Deputados, no Plenário 08, com o tema 'Violência Política de Gênero e Ato Solene em Memória de Marielle Franco', dentro do calendário do Dia Internacional da Mulher. Foram debatidas diversas formas de violência política contra mulheres, incluindo ameaças, assédio, desinformação e assassinatos. O evento relembrou o assassinato da vereadora Marielle Franco e do motorista Anderson Gomes em 2018. Participaram deputadas federais e estaduais, representantes de movimentos sociais e organizações como ONU Mulheres e TSE, que apresentaram dados sobre violência política e iniciativas legislativas e institucionais. A audiência foi encerrada com homenagens a Marielle Franco.",
+      "tipo": "Audiência pública",
+      "temas": [
+        "Direitos Humanos e Minorias",
+        "Política, Partidos e Eleições",
+        "Processo Legislativo e Atuação Parlamentar"
+      ],
+      "palavras_chave": [
+        "violência política de gênero",
+        "Marielle Franco",
+        "Anderson Gomes",
+        "PL 349/2015",
+        "cotas de gênero",
+        "TSE",
+        "ONU Mulheres",
+        "carta das mulheres negras"
+      ],
+      "participantes": [
+        {
+          "nome": "Secretaria da Mulher da Câmara dos Deputados",
+          "papel": "promotora do evento"
+        },
+        {
+          "nome": "Erika Kockay",
+          "papel": "deputada federal"
+        },
+        {
+          "nome": "Isapena",
+          "papel": "deputada estadual"
+        },
+        {
+          "nome": "Jandira Feghali",
+          "papel": "deputada federal"
+        },
+        {
+          "nome": "Ana Lúcia Martins",
+          "papel": "vereadora, PT-SC"
+        },
+        {
+          "nome": "Duda Salaberti",
+          "papel": "vereadora, BH"
+        },
+        {
+          "nome": "Carol D'Artora",
+          "papel": "vereadora, Curitiba"
+        },
+        {
+          "nome": "Jaqueline Silva",
+          "papel": "representante da AMNB"
+        }
+      ],
+      "decisoes": [],
+      "modelo": "S5-nano"
+    },
+    {
+      "id": "cek1imINtj4",
+      "miniatura": "miniaturas/cek1imINtj4.jpg",
+      "legenda": "legendas/cek1imINtj4.vtt",
+      "titulo": "O Conselho de Ética na Alesp se reuniu e acolheu processo por quebra de decoro contra Fernando Cury",
+      "canal": "Alesp",
+      "casa": "Alesp",
+      "uf": "SP",
+      "data": "2021-02-11",
+      "duracao": 196.0,
+      "resumo": "O Conselho de Ética e Decoro Parlamentar da Assembleia Legislativa de São Paulo (Alesp) reuniu-se virtualmente para analisar sete itens de pauta. Entre as deliberações, foi acolhida por unanimidade representação da deputada Isa Pena (PSOL) contra o deputado Fernando Cury (sem partido indicado) por quebra de decoro parlamentar. A defesa de Cury pediu suspeição dos deputados do PSOL no Conselho. Também foi rejeitado requerimento de afastamento do deputado Alex de Madureira (PSD) do Conselho. Houve votação pela não suspensão da deputada Érica Malunguinho, com nove votos contra e uma abstenção. Os pedidos de representação contra Marcia Lia (PT), Frederico Dávila (PSL) e Gil Diniz foram arquivados por unanimidade.",
+      "tipo": "Conselho de Ética",
+      "temas": [
+        "Processo Legislativo e Atuação Parlamentar",
+        "Direito e Justiça",
+        "Política, Partidos e Eleições"
+      ],
+      "palavras_chave": [
+        "Fernando Cury",
+        "Isa Pena",
+        "Douglas Garcia",
+        "Alex de Madureira",
+        "Érica Malunguinho",
+        "Marcia Lia",
+        "Frederico Dávila",
+        "Gil Diniz"
+      ],
+      "participantes": [
+        {
+          "nome": "Conselho Estadual de Defesa dos Direitos da Pessoa Humana",
+          "papel": "autor da representação contra Douglas Garcia"
+        },
+        {
+          "nome": "Isa Pena",
+          "papel": "deputada PSOL, autora de requerimentos"
+        },
+        {
+          "nome": "Fernando Cury",
+          "papel": "deputado alvo de representação por quebra de decoro"
+        },
+        {
+          "nome": "Douglas Garcia",
+          "papel": "deputado PTB, alvo de representação"
+        },
+        {
+          "nome": "Alex de Madureira",
+          "papel": "deputado PSD, alvo de requerimento de afastamento do Conselho"
+        },
+        {
+          "nome": "Marcia Lia",
+          "papel": "deputada PT, alvo de pedido de representação arquivado"
+        },
+        {
+          "nome": "Frederico Dávila",
+          "papel": "deputado PSL, alvo de pedido de representação arquivado"
+        },
+        {
+          "nome": "Gil Diniz",
+          "papel": "deputado, alvo de pedido de representação arquivado"
+        }
+      ],
+      "decisoes": [
+        "Por unanimidade, foi admitido o processo da deputada Isa Pena contra o deputado Fernando Cury por quebra de decoro parlamentar.",
+        "Não foi aceito requerimento da deputada Isa Pena que pedia o afastamento do deputado Alex de Madureira do Conselho de Ética.",
+        "Nove votos pela não suspensão da deputada Érica Malunguinho e uma abstenção, garantindo sua permanência na comissão para votar.",
+        "Por unanimidade, foi arquivado o pedido de representação por quebra de decoro contra a deputada Marcia Lia (PT).",
+        "Por unanimidade, foi arquivado o pedido de representação por quebra de decoro contra o deputado Frederico Dávila (PSL).",
+        "Por unanimidade, foi arquivado o pedido de representação por quebra de decoro contra o deputado Gil Diniz."
+      ],
+      "modelo": "S5-nano"
+    },
+    {
+      "id": "Pr7xH9Hzcdw",
+      "miniatura": "miniaturas/Pr7xH9Hzcdw.jpg",
+      "legenda": "legendas/Pr7xH9Hzcdw.vtt",
+      "titulo": "01/08/2019 09:30 - Comissão Parlamentar de Inquérito da Barragem de Brumadinho",
+      "canal": "Assembleia de Minas Gerais",
+      "casa": "Assembleia de Minas Gerais",
+      "uf": "MG",
+      "data": "2019-08-02",
+      "duracao": 6170.0,
+      "resumo": "Reunião da Comissão Parlamentar de Inquérito (CPI) da Barragem de Brumadinho da Assembleia Legislativa de Minas Gerais, realizada em 1º de agosto de 2019, com a finalidade de receber, discutir e votar proposições. A comissão ouviu Moisés Clemente, técnico em eletroeletrônica da Vale, como testemunha do rompimento da barragem B1 do Córrego do Feijão em 25 de janeiro de 2019. Ele relatou condições emergenciais de trabalho, classificação de risco divergente (risco 3 informado pela empresa versus risco 10 apontado por ele), falhas no plano de ação de emergência e omissão de informações sobre a situação crítica da barragem. Foram aprovados requerimentos para ouvir testemunha e reiterar ofício ao Ministério Público. Os trabalhos foram suspensos temporariamente durante o depoimento e encerrados após contribuições dos deputados.",
+      "tipo": "CPI ou CPMI",
+      "temas": [
+        "Meio Ambiente e Desenvolvimento Sustentável",
+        "Direito e Defesa do Consumidor",
+        "Trabalho e Emprego"
+      ],
+      "palavras_chave": [
+        "barragem B1",
+        "Córrego do Feijão",
+        "Vale",
+        "rompimento da barragem",
+        "Moisés Clemente",
+        "PAI-BM",
+        "risco 3",
+        "risco 10"
+      ],
+      "participantes": [
+        {
+          "nome": "Moisés Clemente",
+          "papel": "testemunha, técnico em eletroeletrônica da Vale"
+        },
+        {
+          "nome": "André Quintão",
+          "papel": "deputado"
+        },
+        {
+          "nome": "Sargento Rodrigues",
+          "papel": "deputado"
+        },
+        {
+          "nome": "Rodrigo Mello",
+          "papel": "gerente executivo da Vale (mencionado)"
+        }
+      ],
+      "decisoes": [
+        "Dispensa da ata anterior e aprovação de correspondências recebidas.",
+        "Aprovação de requerimento para ouvir Moisés Clemente como testemunha do rompimento da barragem B1; trabalhos suspensos temporariamente para sua chegada.",
+        "Encerramento do depoimento de Moisés Clemente após contribuições dos deputados André Quintão e Sargento Rodrigues.",
+        "Aprovação de requerimento para reiterar ofício ao Procurador-Geral de Justiça, Sérgio Toné, solicitando cópia dos TACs firmados com a Vale e recomendações dos últimos cinco anos."
+      ],
+      "modelo": "S5-nano"
+    },
+    {
+      "id": "m9hVbWoPnbc",
+      "miniatura": "miniaturas/m9hVbWoPnbc.jpg",
+      "legenda": "legendas/m9hVbWoPnbc.vtt",
+      "titulo": "19/03/2019 10:30 - Comissão Parlamentar de Inquérito da Barragem de Brumadinho",
+      "canal": "Assembleia de Minas Gerais",
+      "casa": "Assembleia de Minas Gerais",
+      "uf": "MG",
+      "data": "2019-03-20",
+      "duracao": 975.0,
+      "resumo": "Reunião inaugural da Comissão Parlamentar de Inquérito (CPI) da Barragem de Brumadinho, da Assembleia Legislativa de Minas Gerais, destinada a eleger presidente e vice-presidente. Foram eleitos, por votação nominal e unanimidade, respectivamente, o deputado Gustavo Valadares (presidente) e o deputado Sargento Rodrigues (vice-presidente). O relator designado foi o deputado André Quintão. Discutiu-se a condução dos trabalhos, com ênfase na necessidade de resultados práticos e no respeito ao rito legal da CPI. Foi fixado o horário das reuniões ordinárias para quintas-feiras às 9h30 e convocada nova reunião extraordinária no mesmo dia às 17h para apreciação de requerimentos.",
+      "tipo": "CPI ou CPMI",
+      "temas": [
+        "Processo Legislativo e Atuação Parlamentar",
+        "Meio Ambiente e Desenvolvimento Sustentável",
+        "Direito e Defesa do Consumidor"
+      ],
+      "palavras_chave": [
+        "CPI da Barragem de Brumadinho",
+        "Vale",
+        "Gustavo Valadares",
+        "Sargento Rodrigues",
+        "André Quintão",
+        "tragédia de Brumadinho",
+        "reunião ordinária",
+        "requerimentos"
+      ],
+      "participantes": [
+        {
+          "nome": "Gustavo Valadares",
+          "papel": "deputado eleito presidente da CPI"
+        },
+        {
+          "nome": "Sargento Rodrigues",
+          "papel": "deputado eleito vice-presidente da CPI"
+        },
+        {
+          "nome": "André Quintão",
+          "papel": "deputado designado relator"
+        },
+        {
+          "nome": "Carlos Soares",
+          "papel": "líder do bloco Liberdade e Progresso, ausente"
+        }
+      ],
+      "decisoes": [
+        "Eleição do deputado Gustavo Valadares para presidente da CPI por maioria de votos nominais.",
+        "Eleição do deputado Sargento Rodrigues para vice-presidente por unanimidade.",
+        "Designação do deputado André Quintão como relator da CPI.",
+        "Fixação das reuniões ordinárias da CPI para quintas-feiras às 9h30.",
+        "Convocação de reunião extraordinária em 19 de março de 2019, às 17h, para apreciação de requerimentos."
+      ],
+      "modelo": "S5-nano"
+    },
+    {
+      "id": "XE2CCB_gcHU",
+      "miniatura": "miniaturas/XE2CCB_gcHU.jpg",
+      "legenda": "legendas/XE2CCB_gcHU.vtt",
+      "titulo": "Plenário aprova arquivamento da denúncia contra Temer – 02/08/2017",
+      "canal": "Câmara dos Deputados",
+      "casa": "Câmara dos Deputados",
+      "uf": "",
+      "data": "2017-08-03",
+      "duracao": 547.0,
+      "resumo": "O Plenário da Câmara dos Deputados aprovou, em votação realizada após mais de 13 horas de discussão, o arquivamento da denúncia de corrupção passiva contra o presidente Michel Temer, apresentada pelo procurador-geral Rodrigo Janot. Por 264 votos a favor do arquivamento (263 no placar citado pela repórter), 227 pela continuidade, duas abstenções e 18 ausências, a denúncia foi rejeitada. Com isso, Temer não será investigado criminalmente pelo STF enquanto estiver no cargo. Líderes do governo e da oposição concederam entrevistas sobre os impactos políticos e a possibilidade de novas denúncias e votações de reformas.",
+      "tipo": "Plenário - sessão deliberativa",
+      "temas": [
+        "Direito Penal e Processual Penal",
+        "Política, Partidos e Eleições",
+        "Economia"
+      ],
+      "palavras_chave": [
+        "denúncia contra Michel Temer",
+        "corrupção passiva",
+        "arquivamento da denúncia",
+        "Rodrigo Janot",
+        "Supremo Tribunal Federal",
+        "reforma da Previdência",
+        "reforma política",
+        "MP do Refis"
+      ],
+      "participantes": [
+        {
+          "nome": "Michel Temer",
+          "papel": "Presidente da República, denunciado"
+        },
+        {
+          "nome": "Rodrigo Janot",
+          "papel": "Procurador-Geral da República, autor da denúncia"
+        },
+        {
+          "nome": "Agnaldo Ribeiro",
+          "papel": "Líder do governo na Câmara dos Deputados"
+        },
+        {
+          "nome": "Paulo Teixeira",
+          "papel": "Vice-líder da oposição, bancada do PT-SP"
+        },
+        {
+          "nome": "Dine Moraes",
+          "papel": "Repórter da TV Câmara que acompanhou a sessão"
+        }
+      ],
+      "decisoes": [
+        "O Plenário aprovou o arquivamento da denúncia de corrupção passiva contra o presidente Michel Temer, por 264 votos a favor (263 segundo a repórter), 227 votos pela continuidade, duas abstenções e 18 ausências.",
+        "Com o arquivamento, o presidente Temer não será investigado criminalmente pelo STF enquanto estiver no cargo."
+      ],
+      "modelo": "S5-nano"
+    },
+    {
+      "id": "mPMDORnyd_E",
+      "miniatura": "miniaturas/mPMDORnyd_E.jpg",
+      "legenda": "legendas/mPMDORnyd_E.vtt",
+      "titulo": "Eduardo Cunha tem mandato cassado - Plenário - 12/09/2016",
+      "canal": "Câmara dos Deputados",
+      "casa": "Câmara dos Deputados",
+      "uf": "",
+      "data": "2016-09-12",
+      "duracao": 17647.0,
+      "resumo": "Sessão deliberativa extraordinária do Plenário da Câmara dos Deputados em 12/09/2016, presidida pelo delegado Edson Moreira, dedicada à apreciação da Representação nº 1/2015 (PSOL e Rede Sustentabilidade), que pedia a perda do mandato de Eduardo Cunha. O Conselho de Ética já havia julgado procedente a representação e a Comissão de Constituição e Justiça manteve essa decisão. O parecer foi aprovado com 450 votos 'sim', 10 'não' e 9 abstenções, sendo promulgada a Resolução nº 18/2016, que declara a perda do mandato por conduta incompatível com o decoro parlamentar. A defesa alegou ausência de prova material e motivação política; apoiadores da cassação citaram trustes no exterior e omissões em depoimento à CPI da Petrobras.",
+      "tipo": "Plenário - sessão deliberativa",
+      "temas": [
+        "Processo Legislativo e Atuação Parlamentar",
+        "Direito Constitucional",
+        "Política, Partidos e Eleições"
+      ],
+      "palavras_chave": [
+        "eduardo cunha",
+        "representação nº 1/2015",
+        "resolução nº 18/2016",
+        "conselho de ética e decoro parlamentar",
+        "cpi da petrobras",
+        "trust netherton",
+        "mp 729/2016",
+        "pl 4.567/2016"
+      ],
+      "participantes": [
+        {
+          "nome": "Edson Moreira",
+          "papel": "delegado, presidente da sessão"
+        },
+        {
+          "nome": "Rodrigo Maia",
+          "papel": "presidente da Câmara dos Deputados, promulgou a resolução"
+        },
+        {
+          "nome": "Eduardo Cunha",
+          "papel": "deputado federal denunciado pela Representação nº 1/2015"
+        },
+        {
+          "nome": "Marcelo Nobre",
+          "papel": "advogado de Eduardo Cunha"
+        },
+        {
+          "nome": "Marcos Rogério",
+          "papel": "relator, apresentou voto pela perda do mandato"
+        },
+        {
+          "nome": "Moema Santiago",
+          "papel": "deputada, discursou favoravelmente à cassação"
+        },
+        {
+          "nome": "Clarissa Garotinho",
+          "papel": "deputada, discursou favoravelmente à cassação"
+        },
+        {
+          "nome": "Silvio Costa",
+          "papel": "deputado, discursou na sessão"
+        },
+        {
+          "nome": "Daniel Almeida",
+          "papel": "líder do PT, declarou voto favorável à cassação"
+        },
+        {
+          "nome": "Ivan Valente",
+          "papel": "deputado PSOL, discursou favoravelmente à cassação"
+        },
+        {
+          "nome": "Chico Alencar",
+          "papel": "deputado PSOL, reforçou oposição à cassação"
+        },
+        {
+          "nome": "Afonso Florencio",
+          "papel": "líder partidário, defendeu o encerramento da discussão"
+        }
+      ],
+      "decisoes": [
+        "Ata da sessão anterior aprovada sem observações.",
+        "Lido ato de constituição da CPI nº 23/2016 para apurar irregularidades nas concessões de benefícios fiscais com base na Lei 8.313/1991 (PRONAC).",
+        "Na CCJ, parecer pelo não conhecimento do recurso nº 107 de 2015, dos recursos nº 108 e 114 de 2016 e do aditamento ao recurso nº 144 de 2016, e pelo não provimento do recurso nº 144 de 2016, mantendo a decisão do Conselho de Ética que julgou procedente a Representação nº 1/2015.",
+        "Requerimento de encerramento da discussão do parecer da Representação nº 1/2015 acolhido pela presidência, com condução imediata da votação.",
+        "Pedidos de destaques e de adiamento da votação por duas sessões recusados pela presidência; pedido de votação nominal para aferir 1/3 de apoiamento ao efeito suspensivo não alcançou o quórum exigido.",
+        "Votação do parecer da Representação nº 1/2015 encerrada com resultado proclamado de 450 votos 'sim', 10 votos 'não' e 9 abstenções, aprovando o parecer pela perda do mandato.",
+        "Promulgada a Resolução nº 18/2016, que declara a perda do mandato de Eduardo Cunha por conduta incompatível com o decoro parlamentar, com base no art. 55, § 2º, da Constituição Federal, no art. 240 do Regimento Interno e no Código de Ética.",
+        "Comunicadas a MP 729/2016 (com PLV 26/2016, apoio financeiro à educação) e a MP 732/2016 (com PLV 25/2016, receitas patrimoniais e planta de valores); convocada nova sessão para 13/09, às 9h, com o PL 4.567/2016 (pré-sal)."
+      ],
+      "modelo": "S5-nano"
+    },
+    {
+      "id": "ni6v1Mc4Z30",
+      "miniatura": "miniaturas/ni6v1Mc4Z30.jpg",
+      "legenda": "legendas/ni6v1Mc4Z30.vtt",
+      "titulo": "Impeachment - Sessão Extraordinária - 31/08/2016",
+      "canal": "TV Senado",
+      "casa": "TV Senado",
+      "uf": "",
+      "data": "2016-08-31",
+      "duracao": 14738.0,
+      "resumo": "O Plenário do Senado julgou o impeachment de Dilma Rousseff em 31/08/2016, sob presidência do ministro Ricardo Lewandowski, presidente do STF. O relator senador Anastasia enquadrou as condutas na Lei nº 1.079/1950 e nos arts. 85 e 167 da Constituição. Senadores favoráveis ao impeachment incluíram Ana Amélia (PP-RS) e Ronaldo Caiado (DEM-GO); contrários, Lindbergh Farias (PT-RJ), Vanessa Grazziotin (PCdoB-AM) e Humberto Costa (PT-PE). A perda do cargo foi aprovada por 61 votos a 20. Na votação sobre a inabilitação por oito anos, foram 42 votos a favor, 36 contra e 3 abstenções, insuficientes para os dois terços; assim, manteve-se seus direitos políticos. Renan Calheiros promulgou a Resolução nº 35/2016.",
+      "tipo": "Plenário - sessão deliberativa",
+      "temas": [
+        "Direito Constitucional",
+        "Finanças Públicas e Orçamento",
+        "Processo Legislativo e Atuação Parlamentar"
+      ],
+      "palavras_chave": [
+        "dilma rousseff",
+        "impeachment",
+        "ricardo lewandowski",
+        "renan calheiros",
+        "resolução nº 35/2016",
+        "pedaladas fiscais",
+        "plano safra",
+        "lei nº 1.079/1950"
+      ],
+      "participantes": [
+        {
+          "nome": "Ricardo Lewandowski",
+          "papel": "ministro-presidente do STF; presidiu a sessão de julgamento"
+        },
+        {
+          "nome": "Renan Calheiros",
+          "papel": "senador; promulgou a Resolução nº 35/2016"
+        },
+        {
+          "nome": "Anastasia",
+          "papel": "senador relator; apresentou parecer sobre o enquadramento das condutas"
+        },
+        {
+          "nome": "Raimundo Lira",
+          "papel": "presidente da Comissão Especial do Impeachment; votou pela cassação e contra a perda dos direitos políticos"
+        },
+        {
+          "nome": "Randolfo Rodrigues",
+          "papel": "senador; defendeu o destaque para votação em separado da inabilitação"
+        },
+        {
+          "nome": "Cássio Cunha Lima",
+          "papel": "senador; suscitou preliminar de preclusão e criticou o fatiamento das penas"
+        },
+        {
+          "nome": "Ronaldo Caiado",
+          "papel": "senador DEM-GO; encaminhou pelo impeachment e defendeu interpretação estrita do regimento"
+        },
+        {
+          "nome": "Ana Amélia",
+          "papel": "senadora PP-RS; encaminhou pelo impeachment"
+        },
+        {
+          "nome": "Lindbergh Farias",
+          "papel": "senador PT-RJ; contrário ao afastamento"
+        },
+        {
+          "nome": "Vanessa Grazziotin",
+          "papel": "senadora PCdoB-AM; contrária ao afastamento"
+        },
+        {
+          "nome": "Humberto Costa",
+          "papel": "senador PT-PE; contrário ao afastamento"
+        },
+        {
+          "nome": "Kátia Abreu",
+          "papel": "senadora PMDB-TO; defendeu a manutenção dos direitos políticos"
+        }
+      ],
+      "decisoes": [
+        "Parecer da comissão especial do impeachment foi aprovado em 09/08/2016.",
+        "Na sessão de pronúncia de 09/08/2016, o Plenário rejeitou quatro destaques: preliminares anteriores ao mérito, 'pedaladas fiscais', o decreto de 27/09/2015 (R$ 29.922.832) e o decreto de 20/08/2015 (R$ 600.268.845).",
+        "Foi deferido o requerimento de destaque para votar separadamente a inabilitação por oito anos.",
+        "Na votação sobre a perda do mandato de Dilma Rousseff, 61 senadores votaram a favor e 20 votaram contra.",
+        "Na votação sobre a inabilitação por oito anos, 42 votaram a favor, 36 votaram contra e 3 se abstiveram, abaixo dos 54 votos necessários aos dois terços.",
+        "Sentença de Ricardo Lewandowski condenou Dilma Rousseff por crimes de responsabilidade (arts. 85, VI, e 167, V, da Constituição; art. 10, itens 4, 6 e 7, e art. 11, itens 2 e 3, da Lei nº 1.079/1950), afastando a inabilitação por falta de quórum.",
+        "Renan Calheiros promulgou a Resolução nº 35/2016, julgando procedente a denúncia e impondo a perda do cargo sem prejuízo das demais sanções judiciais cabíveis.",
+        "Foi convocada sessão solene do Congresso para empossar Michel Temer, prevista para as 16h."
+      ],
+      "modelo": "S5-nano"
+    },
+    {
+      "id": "V-u2jD7W3yU",
+      "miniatura": "miniaturas/V-u2jD7W3yU.jpg",
+      "legenda": "legendas/V-u2jD7W3yU.vtt",
+      "titulo": "PLENÁRIO - Votação do pedido de impeachment da presidente Dilma Rousseff - 17/04/2016 - 14:00",
+      "canal": "Câmara dos Deputados",
+      "casa": "Câmara dos Deputados",
+      "uf": "",
+      "data": "2016-04-17",
+      "duracao": 35341.0,
+      "resumo": "Sessão deliberativa extraordinária do Plenário da Câmara dos Deputados realizada em 17/04/2016 para votação, em turno único, do parecer do relator deputado Jovair Arantes favorável à admissibilidade da denúncia por crime de responsabilidade nº 1/2015 contra a presidente Dilma Rousseff, apresentada pelos denunciantes Hélio Bicudo, Miguel Reale Júnior e Janaína Paschoal. Conduzida pelo presidente da Câmara, Eduardo Cunha, com chamada nominal e voto aberto após as orientações dos partidos. A discussão durou até cerca de 3h42 e foi marcada por tumulto. O placar final registrado foi 367 votos \"sim\", 137 \"não\", 7 abstenções e 2 ausentes, autorizando a instauração de processo contra Dilma no Senado Federal, com sessões de debate agendadas para os dias seguintes.",
+      "tipo": "Plenário - sessão deliberativa",
+      "temas": [
+        "Processo Legislativo e Atuação Parlamentar",
+        "Política, Partidos e Eleições",
+        "Direito Constitucional"
+      ],
+      "palavras_chave": [
+        "denúncia por crime de responsabilidade nº 1/2015",
+        "Jovair Arantes",
+        "Dilma Rousseff",
+        "Eduardo Cunha",
+        "Senado Federal",
+        "ADPF 378",
+        "art. 85 da Constituição",
+        "Rogério Rosso"
+      ],
+      "participantes": [
+        {
+          "nome": "Eduardo Cunha",
+          "papel": "presidente da Câmara dos Deputados"
+        },
+        {
+          "nome": "José Guimarães",
+          "papel": "líder do governo (PT-CE)"
+        },
+        {
+          "nome": "Rogério Rosso",
+          "papel": "presidente da comissão especial"
+        },
+        {
+          "nome": "Jovair Arantes",
+          "papel": "relator do parecer sobre a admissibilidade da denúncia (Patriota-GO)"
+        },
+        {
+          "nome": "Gilberto Nascimento",
+          "papel": "assumiu a presidência dos trabalhos na discussão"
+        },
+        {
+          "nome": "Beto Mansur",
+          "papel": "deputado (PRB-SP), registrou votos \"sim\" e integrou a mesa"
+        },
+        {
+          "nome": "Felipe Bournier",
+          "papel": "deputado responsável pela anotação de votos \"não\""
+        },
+        {
+          "nome": "Alex Canziani",
+          "papel": "deputado responsável pela anotação de abstenções"
+        },
+        {
+          "nome": "Washington Reis",
+          "papel": "deputado (PMDB-RJ), primeiro inscrito a falar"
+        },
+        {
+          "nome": "Zé Eduardo Cardoso",
+          "papel": "advogado-geral da União, citado nos argumentos contrários ao impeachment"
+        },
+        {
+          "nome": "Hélio Pereira Bicudo",
+          "papel": "um dos denunciantes por crime de responsabilidade"
+        },
+        {
+          "nome": "Miguel Reale Júnior",
+          "papel": "um dos denunciantes por crime de responsabilidade"
+        }
+      ],
+      "decisoes": [
+        "Aprovado por maioria qualificada (367 votos \"sim\", mais de dois terços) o parecer do relator Jovair Arantes que recomendava a admissibilidade jurídica e política da denúncia por crime de responsabilidade nº 1/2015 contra a presidente Dilma Rousseff.",
+        "Autorizada a instauração de processo contra Dilma Rousseff por crime de responsabilidade, com base em créditos complementares sem autorização do Congresso (CF, art. 85, VI, e art. 67, §5º) e contratação ilegal de operações de crédito (Lei 1.079/1950, arts. 10 e 11); a decisão seria comunicada ao Senado Federal (CF, art. 52, I).",
+        "Resultado da votação: 367 votos \"sim\", 137 votos \"não\", 7 abstenções e 2 ausentes, total de 511 deputados.",
+        "Registrado voto antecipado do deputado Austin Reis (PMDB-RJ), que compareceu acompanhado de médico e votou \"sim\" antes de se retirar do plenário por motivo médico.",
+        "Registram-se as ausências de Aníbal Gomes (PMDB-CE) e de Clarissa Garotinho (PR-RJ), por licença-maternidade.",
+        "O deputado Alfredo Nascimento renunciou ao cargo de presidente nacional do Partido da República e ao mandato parlamentar, votando \"sim\" após discordar da orientação da executiva partidária.",
+        "Ficaram marcadas sessões não deliberativas de debate para segunda-feira, 18/04/2016, às 14h, e para os dias seguintes, após a comunicação da decisão ao Senado Federal."
+      ],
+      "modelo": "S5-nano"
+    }
+  ]
+}

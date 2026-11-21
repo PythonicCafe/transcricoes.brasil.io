@@ -1,0 +1,10 @@
+/* Etiqueta de tema legislativo. */
+.theme-badge {
+  display: inline-block;
+  padding: 0.125rem var(--space-sm);
+  background-color: var(--color-tag-surface);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-tag-text);
+}

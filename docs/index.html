@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <title>Transcripts - Brasil.IO</title>
+  <!-- Aplica o tema antes do CSS carregar, para a página não piscar. É o único script fora de js/. -->
+  <script>
+    (function () {
+      var tema = "sistema";
+      try { tema = localStorage.getItem("tema") || "sistema"; } catch (erro) { /* sem armazenamento */ }
+      var escuro = tema === "escuro" || (tema === "sistema" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+      document.documentElement.setAttribute("data-bs-theme", escuro ? "dark" : "light");
+    })();
+  </script>
+  <link rel="stylesheet" href="vendor/bootstrap.min.css">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<a class="visually-hidden-focusable" href="#app" data-t="pular">Skip to content</a>
+<header class="site-nav">
+  <nav class="container site-nav__inner" data-t-rotulo="rotulo_menu" aria-label="Main">
+    <a href="#/"><img class="site-nav__logo" src="logo-brasil-io.png" alt="Brasil.IO"></a>
+    <span class="site-nav__name" data-t="marca">Transcripts</span>
+    <a class="site-nav__link" href="#/sobre" data-t="menu_sobre">How it was made</a>
+    <a class="site-nav__link" id="link-repo" href="https://github.com/PythonicCafe/transcricoes.brasil.io" data-t="menu_codigo">Source code</a>
+    <div class="option-group" role="group" data-t-rotulo="rotulo_idioma" aria-label="Language">
+      <button class="option-group__option" type="button" data-idioma="en" lang="en" title="English">en</button>
+      <button class="option-group__option" type="button" data-idioma="pt" lang="pt-BR" title="Português">pt</button>
+      <button class="option-group__option" type="button" data-idioma="es" lang="es" title="Español">es</button>
+    </div>
+    <div class="option-group option-group--pill" role="group" data-t-rotulo="rotulo_tema" aria-label="Color theme">
+      <button class="option-group__option" type="button" data-tema-visual="claro" data-t="tema_claro">Light</button>
+      <button class="option-group__option" type="button" data-tema-visual="escuro" data-t="tema_escuro">Dark</button>
+      <button class="option-group__option" type="button" data-tema-visual="sistema" data-t="tema_sistema">System</button>
+    </div>
+  </nav>
+</header>
+<main class="container" id="app" tabindex="-1">
+  <p>Loading…</p>
+  <noscript><p>This site needs JavaScript: search runs in your browser. Este site precisa de JavaScript: a busca roda no navegador.</p></noscript>
+</main>
+<footer class="container site-footer">
+  <p><span data-t="rodape"></span> <a href="https://brasil.io/">Brasil.IO</a> · <a href="https://pythonic.cafe/">Pythonic Café</a></p>
+</footer>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
