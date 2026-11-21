@@ -1,0 +1,40 @@
+/* Transcrição com rolagem própria; a fala atual tem fundo e contorno fino. */
+.transcript-search {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-sm);
+}
+
+.transcript-search__count {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+
+.transcript-hint {
+  margin-bottom: var(--space-sm);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.transcript-list {
+  max-height: 70vh;
+  margin: 0;
+  padding: var(--space-sm);
+  overflow-y: auto;
+  list-style: none;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.transcript-list__line {
+  padding: var(--space-xs);
+  border-radius: var(--radius-sm);
+}
+
+.transcript-list__line.is-current {
+  background-color: var(--color-current);
+  box-shadow: inset 0 0 0 1px var(--color-border);
+}

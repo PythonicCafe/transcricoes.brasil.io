@@ -1,0 +1,34 @@
+/* Elementos HTML puros: tipografia, links, foco e preferência por menos movimento. */
+body {
+  font-family: var(--font-family-base);
+}
+
+a {
+  color: var(--color-link);
+}
+
+a:hover {
+  color: var(--color-link-hover);
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+mark {
+  padding: 0 0.1em;
+  background-color: var(--color-highlight);
+  color: var(--color-highlight-text);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

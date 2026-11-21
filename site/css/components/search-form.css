@@ -1,0 +1,41 @@
+/* Formulário de busca: consulta e botão na primeira linha, filtros na segunda. */
+.search-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-sm);
+  margin-bottom: var(--space-lg);
+}
+
+.search-form__submit {
+  --bs-btn-bg: var(--color-action);
+  --bs-btn-border-color: var(--color-action);
+  --bs-btn-color: var(--color-action-contrast);
+  --bs-btn-hover-bg: var(--color-action-hover);
+  --bs-btn-hover-border-color: var(--color-action-hover);
+  --bs-btn-hover-color: var(--color-action-contrast);
+  --bs-btn-active-bg: var(--color-action-hover);
+  --bs-btn-active-border-color: var(--color-action-hover);
+  --bs-btn-active-color: var(--color-action-contrast);
+}
+
+@media (min-width: 992px) {
+  .search-form {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+  }
+
+  .search-form__query {
+    grid-column: span 10;
+  }
+
+  .search-form__submit {
+    grid-column: span 2;
+  }
+
+  .search-form__filter {
+    grid-column: span 4;
+  }
+
+  .search-form__date {
+    grid-column: span 2;
+  }
+}

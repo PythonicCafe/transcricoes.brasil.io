@@ -1,0 +1,14 @@
+/* Agregador: importa as camadas na ordem tokens, base, layout, componentes e ajustes de terceiros. */
+@import url("tokens.css");
+@import url("base.css");
+@import url("layout.css");
+@import url("components/site-nav.css");
+@import url("components/option-group.css");
+@import url("components/search-form.css");
+@import url("components/multi-select.css");
+@import url("components/result-card.css");
+@import url("components/theme-badge.css");
+@import url("components/time-link.css");
+@import url("components/machine-box.css");
+@import url("components/transcript-list.css");
+@import url("vendor-overrides.css");
