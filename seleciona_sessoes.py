@@ -20,7 +20,7 @@ from collections import defaultdict
 from pathlib import Path
 
 from canais_horas import RE_EXCLUI, RE_SESSAO, le_jsonl
-from pipeline import id_do_video
+from pipeline import PASTA_DADOS, id_do_video
 
 NOMES_DAS_CASAS = {"Câmara dos Deputados": "Câmara", "Senado Federal": "Senado"}
 
@@ -36,7 +36,6 @@ def data_do_video(video: dict) -> str:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--dados", type=Path, default=Path("dados"))
     parser.add_argument("--csv", type=Path, required=True, help="CSV de vídeos que receberá as novas linhas")
     parser.add_argument("--horas", type=float, required=True, help="total de horas de vídeo a acrescentar")
     parser.add_argument("--min-minutos", type=float, default=20)
@@ -45,9 +44,9 @@ def main() -> None:
     parser.add_argument("--simula", action="store_true", help="mostra a escolha sem gravar nada")
     args = parser.parse_args()
 
-    canais = le_jsonl(args.dados / "canais.jsonl")
-    videos = le_jsonl(args.dados / "canais_videos.jsonl")
-    caminho_metadados = args.dados / "videos.jsonl"
+    canais = le_jsonl(PASTA_DADOS / "canais.jsonl")
+    videos = le_jsonl(PASTA_DADOS / "canais_videos.jsonl")
+    caminho_metadados = PASTA_DADOS / "videos.jsonl"
     ja_escolhidos = set(le_jsonl(caminho_metadados))
     with args.csv.open(encoding="utf-8-sig", newline="") as arquivo:
         leitor = csv.DictReader(arquivo)
@@ -63,7 +62,7 @@ def main() -> None:
     # Candidatos por casa (os dois canais do Ceará caem na mesma casa), do mais recente para o mais antigo.
     candidatos: dict[tuple[str, str], list[dict]] = defaultdict(list)
     for canal in canais.values():
-        lista = args.dados / "listas" / f"{canal['id']}.txt"
+        lista = PASTA_DADOS / "listas" / f"{canal['id']}.txt"
         if not lista.exists():
             continue
         chave = (nome_da_casa(canal["casa"]), canal["uf"])

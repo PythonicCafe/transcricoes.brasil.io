@@ -22,6 +22,7 @@ from tqdm import tqdm
 
 from pipeline import (
     MARITACA_URL,
+    PASTA_DADOS,
     ErroLLM,
     GeradorMaritaca,
     analisa,
@@ -67,7 +68,6 @@ def le_json(caminho: Path) -> dict | None:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("ids", nargs="*", default=IDS_PADRAO, help="ids dos vídeos (padrão: os 8 já avaliados)")
-    parser.add_argument("--dados", type=Path, default=Path("dados"), help="pasta de dados do pipeline")
     parser.add_argument("--modelos", default="S5-nano,S5", help="nomes dos modelos na API, separados por vírgula")
     parser.add_argument("--maritaca-url", default=MARITACA_URL)
     parser.add_argument("--lista-modelos", action="store_true", help="só lista os modelos da API e sai")
@@ -82,11 +82,11 @@ def main() -> None:
         return
 
     modelos = [modelo.strip() for modelo in args.modelos.split(",") if modelo.strip()]
-    metadados = le_jsonl(args.dados / "videos.jsonl")
-    pasta_saida = args.dados / "resumo-teste"
+    metadados = le_jsonl(PASTA_DADOS / "videos.jsonl")
+    pasta_saida = PASTA_DADOS / "resumo-teste"
     ids = []
     for video_id in args.ids:
-        if (args.dados / "transcricao" / f"{video_id}.txt").exists():
+        if (PASTA_DADOS / "transcricao" / f"{video_id}.txt").exists():
             ids.append(video_id)
         else:
             print(f"AVISO: sem transcrição para {video_id}, ignorado")
@@ -101,7 +101,7 @@ def main() -> None:
                     destino = pasta / f"{video_id}.json"
                     if destino.exists():
                         continue
-                    transcricao = (args.dados / "transcricao" / f"{video_id}.txt").read_text(encoding="utf-8")
+                    transcricao = (PASTA_DADOS / "transcricao" / f"{video_id}.txt").read_text(encoding="utf-8")
                     inicio = time.perf_counter()
                     try:
                         analise, info = analisa(gerador, transcricao, metadados.get(video_id), args, progresso)
@@ -127,8 +127,8 @@ def main() -> None:
     for video_id in ids:
         comparacao[video_id] = {
             "contexto_enviado_ao_modelo": contexto_video(metadados.get(video_id)),
-            "transcricao": (args.dados / "transcricao" / f"{video_id}.txt").read_text(encoding="utf-8"),
-            "local": le_json(args.dados / "resumo" / f"{video_id}.json"),
+            "transcricao": (PASTA_DADOS / "transcricao" / f"{video_id}.txt").read_text(encoding="utf-8"),
+            "local": le_json(PASTA_DADOS / "resumo" / f"{video_id}.json"),
             **{
                 modelo: le_json(pasta_saida / re.sub(r"[^A-Za-z0-9._-]", "_", modelo) / f"{video_id}.json")
                 for modelo in modelos

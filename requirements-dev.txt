@@ -1,0 +1,4 @@
+# mede_site.py (medição do site num navegador)
+playwright
+# verificação de estilo
+ruff

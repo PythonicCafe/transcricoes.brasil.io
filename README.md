@@ -20,6 +20,7 @@ are machine-generated, were not reviewed by people and contain errors.
 | `canais_horas.py` | Measures how many hours of video each legislative YouTube channel has (`canais.csv`). |
 | `testa_resumo.py` | Runs the same summary prompt on other models, to compare results. |
 | `videos.csv` | The videos chosen for this first version. |
+| `mede_site.py`, `compara.py` | Measure the generated site in a real browser (time, network, memory) and compare two measurements. |
 
 ## Running
 
@@ -39,6 +40,28 @@ python gera_site.py --csv videos.csv   # writes docs/
 
 This version searches in the browser so it can be a static site. The production version will use PostgreSQL full-text
 search on Brasil.IO.
+
+## Development
+
+Everything runs inside a development container (Python dependencies, ffmpeg, Chromium and Deno), so the code and its
+dependencies do not run on your machine. The repository is mounted, not copied, and the pipeline data lives in
+`dados/`, which git ignores. `make` alone lists every command:
+
+```sh
+make build              # build the image, once
+make select HOURS=100   # add new sessions to videos.csv (make select-dry-run only shows them)
+make capture            # download, transcribe and summarize what is missing
+make site               # write docs/
+make serve              # check it at http://localhost:8000
+make publish            # commit docs/ and videos.csv, then push
+make measure            # measure the site in Chromium, without network
+```
+
+`make capture` reads `GROQ_API_KEY`, `MARITACA_API_KEY` and `YOUTUBE_API_KEY` from the environment. By default the
+container cannot see your browser; `make capture COOKIES=1` mounts the Firefox profile read-only, for when YouTube
+asks for a login. `python compara.py before.json after.json` compares two measurements.
+
+In `site/` the CSS is split by layer and component; `gera_site.py` joins it into a single `docs/css/app.css`.
 
 ## License
 

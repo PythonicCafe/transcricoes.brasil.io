@@ -11,4 +11,6 @@
 @import url("components/time-link.css");
 @import url("components/machine-box.css");
 @import url("components/transcript-list.css");
+@import url("components/page-nav.css");
+@import url("components/load-status.css");
 @import url("vendor-overrides.css");

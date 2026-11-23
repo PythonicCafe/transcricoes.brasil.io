@@ -28,6 +28,7 @@ from pathlib import Path
 
 from tqdm import tqdm
 
+PASTA_DADOS = Path(__file__).resolve().parent / "dados"
 RE_SESSAO = re.compile(
     r"(sess[aã]o|sess[oõ]es|reuni[aã]o)\s+(plen[aá]ria|ordin[aá]ria|extraordin[aá]ria|deliberativa|n[aã]o deliberativa)"
     r"|\d+\s*[ªa]\s+(sess[aã]o|reuni[aã]o)\s+(ordin|extraordin)|plen[aá]rio",
@@ -143,7 +144,6 @@ def resume(canais: list[dict], ids_por_canal: dict[str, list[str]], videos: dict
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("csv", type=Path, help="CSV com as colunas casa, uf, url")
-    parser.add_argument("--dados", type=Path, default=Path("dados"))
     parser.add_argument("--atualizar-listas", action="store_true", help="lista de novo os vídeos de cada canal")
     parser.add_argument(
         "--so-resumo", action="store_true", help="não busca detalhes de vídeos; resume o que já foi coletado"
@@ -161,12 +161,12 @@ def main() -> None:
             {chave.strip().lower(): valor.strip() for chave, valor in linha.items()}
             for linha in csv.DictReader(arquivo)
         ]
-    pasta_listas = args.dados / "listas"
+    pasta_listas = PASTA_DADOS / "listas"
     pasta_listas.mkdir(parents=True, exist_ok=True)
-    caminho_videos = args.dados / "canais_videos.jsonl"
+    caminho_videos = PASTA_DADOS / "canais_videos.jsonl"
 
     try:
-        por_url = resolve_canais(youtube, linhas, args.dados / "canais.jsonl")
+        por_url = resolve_canais(youtube, linhas, PASTA_DADOS / "canais.jsonl")
         canais = [por_url[linha["url"]] for linha in linhas if linha["url"] in por_url]
         ids_por_canal = {}
         for canal in tqdm(canais, desc="listas", unit="canal"):
@@ -196,11 +196,11 @@ def main() -> None:
         sys.exit(130)
 
     resumo = resume(canais, ids_por_canal, videos)
-    (args.dados / "canais_resumo.json").write_text(
+    (PASTA_DADOS / "canais_resumo.json").write_text(
         json.dumps(resumo, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
     )
     colunas = [coluna for coluna in resumo[0] if coluna != "por_ano"] if resumo else []
-    with (args.dados / "canais_resumo.csv").open("w", encoding="utf-8", newline="") as arquivo:
+    with (PASTA_DADOS / "canais_resumo.csv").open("w", encoding="utf-8", newline="") as arquivo:
         escritor = csv.DictWriter(arquivo, fieldnames=colunas, extrasaction="ignore")
         escritor.writeheader()
         escritor.writerows(resumo)
@@ -211,7 +211,7 @@ def main() -> None:
     tqdm.write(f"{len(resumo)} canais, {total:,.0f} h de vídeo, {sessoes:,.0f} h em sessões plenárias prováveis")
     if detalhados < listados:
         tqdm.write(f"PARCIAL: detalhes de {detalhados} de {listados} vídeos; as horas cobrem só esses")
-    tqdm.write(f"resumo em {args.dados / 'canais_resumo.json'} e {args.dados / 'canais_resumo.csv'}")
+    tqdm.write(f"resumo em {PASTA_DADOS / 'canais_resumo.json'} e {PASTA_DADOS / 'canais_resumo.csv'}")
 
 
 if __name__ == "__main__":

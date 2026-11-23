@@ -1,0 +1,17 @@
+/* Aviso de carregamento do arquivo de busca, com barra de progresso. */
+.load-status {
+  max-width: 32rem;
+  margin: var(--space-lg) 0;
+}
+
+.load-status__text {
+  margin-bottom: var(--space-xs);
+  color: var(--color-text-secondary);
+}
+
+.load-status__bar {
+  display: block;
+  width: 100%;
+  height: 0.75rem;
+  accent-color: var(--color-brand);
+}

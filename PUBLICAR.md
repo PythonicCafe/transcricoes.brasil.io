@@ -5,13 +5,11 @@ O site é a pasta `docs/`, gerada pelo `gera_site.py`. O GitHub Pages serve essa
 ## 1. Repositório
 
 - [ ] Criar `PythonicCafe/transcricoes.brasil.io` no GitHub, **público** e vazio (sem README nem licença)
-- [ ] Gerar o site e conferir que `docs/dados/` entrou no commit (são 2 arquivos JSON):
+- [ ] Gerar o site e conferir que `docs/dados/` entrou no commit (2 arquivos JSON e a pasta `itens/`):
 
 ```sh
-python gera_site.py --dados ~/projects/transcricoes/dados \
-    --csv ~/projects/transcricoes/dados/videos-sessoes-legislativas.csv \
-    --excluir _M8DeaEaUuo,nBlqVDlwHWU
-git add docs && git status --short docs   # precisa listar docs/dados/indice.json e docs/dados/transcricoes.json
+make build && make site
+git add docs && git status --short docs   # precisa listar docs/dados/itens.json, docs/dados/busca.json e docs/dados/itens/
 git commit -m "Gera o site"
 git remote add origin git@github.com:PythonicCafe/transcricoes.brasil.io.git
 git push -u origin main                   # ou: git push -f origin main, se o histórico foi refeito

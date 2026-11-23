@@ -13,11 +13,13 @@ function guarda(chave, valor) {
 let idioma = guardado("idioma", "en");
 if (!TEXTOS[idioma]) idioma = "en";
 let temaVisual = guardado("tema", "sistema");
-let indice = null;          // {config, sessoes: [...]}
-let transcricoes = null;    // {id: [[segundos, texto], ...]}
+let indice = null;          // {config, sessoes: [...]}: a lista enxuta de `dados/itens.json`, já decodificada
+let dadosDaBusca = null;    // `dados/busca.json`: {falas: {id: [[segundos, texto], ...]}, palavras_chave: {id: [...]}}
 let carregando = null;
+const itensCompletos = new Map();    // id -> promessa do `dados/itens/<id>.json` (a sessão completa)
 const cacheDeLinhas = {};
-const estado = { consulta: "", casas: new Set(), tema: "", de: "", ate: "" };
+const estado = { consulta: "", casas: new Set(), tema: "", de: "", ate: "", pagina: 1 };
+const POR_PAGINA = 20;     // cartões desenhados por vez, na lista e nos resultados da busca
 
 const t = (chave, valores = {}) => {
   let texto = TEXTOS[idioma][chave] ?? chave;
@@ -32,9 +34,58 @@ function aplicaTemaVisual() {
   document.documentElement.setAttribute("data-bs-theme", escuro ? "dark" : "light");
 }
 
-function carregaTranscricoes() {
-  if (!carregando) carregando = fetch("dados/transcricoes.json").then((r) => r.json()).then((dados) => { transcricoes = dados; });
+// Baixa o `busca.json` em pedaços, para avisar quanto já chegou: o arquivo é grande e a primeira busca espera por ele.
+// `aoAvancar` recebe a fração de 0 a 1; o total vem do `itens.json`, porque o navegador só conhece o tamanho comprimido.
+let avisaProgresso = () => {};
+function carregaBusca() {
+  if (!carregando) {
+    carregando = fetch("dados/busca.json").then(async (resposta) => {
+      if (!resposta.ok) throw new Error(String(resposta.status));
+      const total = indice.config.busca_bytes;
+      if (!resposta.body || !total) return resposta.json();
+      const leitor = resposta.body.getReader();
+      const decodificador = new TextDecoder();
+      const pedacos = [];
+      let recebido = 0;
+      for (;;) {
+        const { done, value } = await leitor.read();
+        if (done) break;
+        pedacos.push(decodificador.decode(value, { stream: true }));
+        recebido += value.length;
+        avisaProgresso(Math.min(recebido / total, 1));
+      }
+      pedacos.push(decodificador.decode());
+      return JSON.parse(pedacos.join(""));
+    }).then((dados) => { dadosDaBusca = dados; });
+    carregando.catch(() => { carregando = null; });
+  }
   return carregando;
+}
+
+// A sessão completa (metadados, resumo, participantes, decisões e falas); a promessa falha se o id não existir.
+function carregaItem(id) {
+  if (!itensCompletos.has(id)) {
+    itensCompletos.set(id, fetch(`dados/itens/${encodeURIComponent(id)}.json`).then((r) => { if (!r.ok) throw new Error(String(r.status)); return r.json(); }));
+  }
+  return itensCompletos.get(id);
+}
+
+const miniatura = (id) => indice.config.sem_miniatura.includes(id) ? `https://i.ytimg.com/vi/${encodeURIComponent(id)}/mqdefault.jpg` : `miniaturas/${encodeURIComponent(id)}.webp`;
+
+// Cada linha de `itens.json` segue a ordem de `campos`; casa, UF, tipo e temas vêm como posição nas listas de opções.
+function decodificaLista(dados) {
+  const opcoes = { casa: dados.casas, uf: dados.ufs, tipo: dados.tipos };
+  const sessoes = dados.itens.map((linha) => {
+    const sessao = {};
+    dados.campos.forEach((campo, posicao) => {
+      const valor = linha[posicao];
+      if (opcoes[campo]) sessao[campo] = opcoes[campo][valor];
+      else if (campo === "temas") sessao.temas = valor.map((tema) => dados.temas[tema]);
+      else sessao[campo] = valor;
+    });
+    return sessao;
+  });
+  return { config: dados.config, sessoes };
 }
 
 function sessoesFiltradas() {
@@ -51,7 +102,7 @@ const temasHtml = (sessao) => sessao.temas.map((tema) => `<span class="theme-bad
 function cartao(sessao, termos, extra = "") {
   const destino = `#/v/${encodeURIComponent(sessao.id)}`;
   return `<article class="result-card">
-    <a class="result-card__thumb" href="${destino}" tabindex="-1" aria-hidden="true"><img class="result-card__image" src="${escapa(sessao.miniatura)}" width="320" height="180" loading="lazy" alt=""></a>
+    <a class="result-card__thumb" href="${destino}" tabindex="-1" aria-hidden="true"><img class="result-card__image" src="${escapa(miniatura(sessao.id))}" width="320" height="180" loading="lazy" alt=""></a>
     <div class="result-card__body">
       <h2 class="result-card__title" lang="pt-BR"><a href="${destino}">${destaca(sessao.titulo, termos)}</a></h2>
       <p class="result-card__meta"><span class="result-card__source" lang="pt-BR">${origem(sessao)}</span>, ${t("publicado")} ${data(sessao.data)} · <span lang="pt-BR">${escapa(sessao.tipo)}</span></p>
@@ -94,7 +145,7 @@ function desenhaInicio() {
       <div class="input-group search-form__date"><label class="input-group-text" for="de">${t("de")}</label><input id="de" class="form-control" type="date" value="${escapa(estado.de)}"></div>
       <div class="input-group search-form__date"><label class="input-group-text" for="ate">${t("ate")}</label><input id="ate" class="form-control" type="date" value="${escapa(estado.ate)}"></div>
     </form>
-    <div id="resultados" aria-live="polite"></div>`;
+    <div id="resultados" aria-live="polite" tabindex="-1"></div>`;
   const aplica = (evento) => {
     if (evento && evento.type === "submit") evento.preventDefault();
     estado.consulta = document.getElementById("consulta").value.trim();
@@ -102,6 +153,7 @@ function desenhaInicio() {
     estado.de = document.getElementById("de").value;
     estado.ate = document.getElementById("ate").value;
     estado.casas = new Set([...document.querySelectorAll("#casas input:checked")].map((caixa) => caixa.value));
+    estado.pagina = 1;
     document.getElementById("casas-rotulo").innerHTML = rotuloCasas();
     desenhaResultados();
   };
@@ -114,29 +166,77 @@ function trechosHtml(sessao, trechos, termos) {
   return trechos.map((trecho) => `<li class="passage-list__item"><a class="time-link" href="#/v/${encodeURIComponent(sessao.id)}/${Math.floor(trecho.segundos)}">▶ ${relogio(trecho.segundos)}</a> <span lang="pt-BR">${destaca(trecho.texto, termos)}</span></li>`).join("");
 }
 
+// Botões de página: primeira, última e as vizinhas da atual, com reticências nos saltos. Vazio se há uma página só.
+function paginacaoHtml(paginas) {
+  if (paginas < 2) return "";
+  const atual = estado.pagina;
+  const numeros = [...new Set([1, atual - 1, atual, atual + 1, paginas])].filter((n) => n >= 1 && n <= paginas).sort((a, b) => a - b);
+  const botoes = numeros.map((n, posicao) =>
+    `${posicao && n - numeros[posicao - 1] > 1 ? '<li class="page-nav__gap" aria-hidden="true">…</li>' : ""}<li><button class="page-nav__button" type="button" data-pagina="${n}" aria-label="${escapa(t("pagina", { n }))}"${n === atual ? ' aria-current="page"' : ""}>${n}</button></li>`).join("");
+  return `<nav aria-label="${escapa(t("paginacao"))}"><ul class="page-nav">
+    <li><button class="page-nav__button" type="button" data-pagina="${atual - 1}"${atual === 1 ? " disabled" : ""}>${t("anterior")}</button></li>
+    ${botoes}
+    <li><button class="page-nav__button" type="button" data-pagina="${atual + 1}"${atual === paginas ? " disabled" : ""}>${t("proxima")}</button></li>
+  </ul></nav>`;
+}
+
+// Recorta a página atual de `itens` (a busca e os filtros continuam valendo para todos; só o desenho é paginado).
+function recortaPagina(itens) {
+  const paginas = Math.max(1, Math.ceil(itens.length / POR_PAGINA));
+  estado.pagina = Math.min(Math.max(1, estado.pagina), paginas);
+  const inicio = (estado.pagina - 1) * POR_PAGINA;
+  const posicao = paginas > 1 ? ` · ${t("pagina_de", { n: estado.pagina, total: paginas })}` : "";
+  return { visiveis: itens.slice(inicio, inicio + POR_PAGINA), posicao, navegacao: paginacaoHtml(paginas) };
+}
+
+function ligaPaginacao(alvo) {
+  alvo.querySelectorAll("[data-pagina]").forEach((botao) => botao.addEventListener("click", () => {
+    estado.pagina = Number(botao.dataset.pagina);
+    desenhaResultados();
+    alvo.scrollIntoView({ behavior: "instant" });
+    alvo.focus({ preventScroll: true });
+  }));
+}
+
 function desenhaResultados() {
   const alvo = document.getElementById("resultados");
   const termos = termosDaConsulta(estado.consulta);
   if (!termos.length) {
     const sessoes = sessoesFiltradas();
-    alvo.innerHTML = `<p class="result-count">${sessoes.length} ${t("sessoes")}</p>` + sessoes.map((sessao) => cartao(sessao, [])).join("");
+    const { visiveis, posicao, navegacao } = recortaPagina(sessoes);
+    alvo.innerHTML = `<p class="result-count">${sessoes.length} ${t("sessoes")}${posicao}</p>` + visiveis.map((sessao) => cartao(sessao, [])).join("") + navegacao;
+    ligaPaginacao(alvo);
     return;
   }
-  if (!transcricoes) {
-    alvo.innerHTML = `<p class="result-count">${t("carregando")}</p>`;
-    carregaTranscricoes().then(desenhaResultados);
+  if (!dadosDaBusca) {
+    alvo.innerHTML = `<div class="load-status" role="status">
+        <p class="load-status__text">${t("carregando_busca")} <span id="carga-porcento"></span></p>
+        <progress class="load-status__bar" id="carga-barra" max="100" value="0" aria-label="${escapa(t("carregando_busca"))}"></progress>
+      </div>`;
+    avisaProgresso = (fracao) => {
+      const barra = document.getElementById("carga-barra");
+      if (!barra) return;
+      barra.value = Math.round(fracao * 100);
+      document.getElementById("carga-porcento").textContent = `${Math.round(fracao * 100)}%`;
+    };
+    carregaBusca().then(desenhaResultados).catch(() => {
+      const atual = document.getElementById("resultados");
+      if (atual) atual.innerHTML = `<p class="empty-state">${t("erro_busca")}</p>`;
+    });
     return;
   }
-  const resultados = busca(sessoesFiltradas(), transcricoes, termos, cacheDeLinhas);
+  const resultados = busca(sessoesFiltradas(), dadosDaBusca, termos, cacheDeLinhas);
   const total = resultados.reduce((soma, r) => soma + r.trechos.length, 0);
   if (!resultados.length) { alvo.innerHTML = `<p class="empty-state">${t("nenhum")}</p>`; return; }
-  alvo.innerHTML = `<p class="result-count">${t("resultados", { trechos: total, sessoes: resultados.length })} <strong>${escapa(estado.consulta)}</strong></p>` +
-    resultados.map(({ sessao, trechos }, numero) => cartao(sessao, termos, `
+  const { visiveis, posicao, navegacao } = recortaPagina(resultados);
+  alvo.innerHTML = `<p class="result-count">${t("resultados", { trechos: total, sessoes: resultados.length })} <strong>${escapa(estado.consulta)}</strong>${posicao}</p>` +
+    visiveis.map(({ sessao, trechos }, numero) => cartao(sessao, termos, `
         <p class="result-card__label">${trechos.length ? trechos.length + " " + t("trechos") : t("so_resumo")}</p>
         <ul class="passage-list" id="trechos-${numero}">${trechosHtml(sessao, trechos.slice(0, 5), termos)}</ul>
-        ${trechos.length > 5 ? `<button class="btn btn-link btn-sm passage-list__more" type="button" data-mais="${numero}">${t("mais", { n: trechos.length })}</button>` : ""}`)).join("");
+        ${trechos.length > 5 ? `<button class="btn btn-link btn-sm passage-list__more" type="button" data-mais="${numero}">${t("mais", { n: trechos.length })}</button>` : ""}`)).join("") + navegacao;
+  ligaPaginacao(alvo);
   alvo.querySelectorAll("[data-mais]").forEach((botao) => botao.addEventListener("click", () => {
-    const { sessao, trechos } = resultados[Number(botao.dataset.mais)];
+    const { sessao, trechos } = visiveis[Number(botao.dataset.mais)];
     document.getElementById(`trechos-${botao.dataset.mais}`).innerHTML = trechosHtml(sessao, trechos, termos);
     botao.remove();
   }));
@@ -173,9 +273,14 @@ function paraPlayer() {
 }
 
 function desenhaSessao(id, segundos) {
-  const sessao = indice.sessoes.find((s) => s.id === id);
-  if (!sessao) { location.hash = "#/"; return; }
   const vez = sessaoAberta;
+  app().innerHTML = `<p class="result-count">${t("carregando")}</p>`;
+  carregaItem(id).then((sessao) => { if (vez === sessaoAberta) desenhaSessaoCarregada(sessao, segundos, vez); })
+    .catch(() => { itensCompletos.delete(id); if (vez === sessaoAberta) location.hash = "#/"; });
+}
+
+function desenhaSessaoCarregada(sessao, segundos, vez) {
+  const id = sessao.id;
   const erro = `${indice.config.repositorio}/issues/new?title=${encodeURIComponent("Erro em " + id + ": " + sessao.titulo)}`;
   const lista = (itens) => itens.length ? `<ul class="machine-box__list" lang="pt-BR">${itens.map((item) => `<li>${item}</li>`).join("")}</ul>` : "";
   // O YouTube recusa o player (erro 153) quando a página não envia o cabeçalho Referer; daí o referrerpolicy.
@@ -183,7 +288,7 @@ function desenhaSessao(id, segundos) {
     <p><a href="#/">${t("voltar")}</a></p>
     <h1 class="page-title page-title--session" lang="pt-BR">${escapa(sessao.titulo)}</h1>
     <p class="page-lead"><span lang="pt-BR">${origem(sessao)}</span>, ${t("publicado")} ${data(sessao.data)} · ${duracaoLegivel(sessao.duracao)} · <span lang="pt-BR">${escapa(sessao.tipo)}</span> ·
-      <a href="https://www.youtube.com/watch?v=${encodeURIComponent(id)}" target="_blank" rel="noopener">${t("ver_youtube")}</a> · <a href="${escapa(sessao.legenda)}" download>${t("baixar_legenda")}</a> · <a href="${escapa(erro)}" target="_blank" rel="noopener">${t("erro")}</a></p>
+      <a href="https://www.youtube.com/watch?v=${encodeURIComponent(id)}" target="_blank" rel="noopener">${t("ver_youtube")}</a> · <a href="legendas/${encodeURIComponent(id)}.vtt" download>${t("baixar_legenda")}</a> · <a href="${escapa(erro)}" target="_blank" rel="noopener">${t("erro")}</a></p>
     <div class="session-layout">
       <div class="session-layout__main">
         <div class="video-player ratio ratio-16x9"><iframe id="player" src="${enderecoPlayer(id, segundos || 0, segundos !== null)}" title="YouTube: ${escapa(sessao.titulo)}" referrerpolicy="strict-origin-when-cross-origin" allow="autoplay; encrypted-media; picture-in-picture; web-share" allowfullscreen></iframe></div>
@@ -205,85 +310,82 @@ function desenhaSessao(id, segundos) {
           <span class="transcript-search__count" id="contagem-sessao" aria-live="polite"></span>
         </div>
         <p class="transcript-hint">${t("clique")}</p>
-        <ol class="transcript-list" id="transcricao" tabindex="0" lang="pt-BR"><li>${t("carregando")}</li></ol>
+        <ol class="transcript-list" id="transcricao" tabindex="0" lang="pt-BR"></ol>
       </section>
     </div>`;
-  carregaTranscricoes().then(() => {
-    const linhas = transcricoes[id] || [];
-    const alvo = document.getElementById("transcricao");
-    if (!alvo) return;
-    const normalizadas = cacheDeLinhas[id] ??= linhas.map((linha) => normaliza(linha[1]));
-    const campo = document.getElementById("busca-sessao");
-    const contagem = document.getElementById("contagem-sessao");
-    let atual = -1;
-    if (segundos !== null) linhas.forEach((linha, posicao) => { if (linha[0] <= segundos) atual = posicao; });
-    // Marca a fala `posicao` como atual, se ela estiver na lista (com filtro, pode não estar). A lista só rola
-    // sozinha quando o ponteiro não está sobre ela, para não brigar com quem está lendo.
-    const marca = (posicao, rolar) => {
-      atual = posicao;
-      const anterior = alvo.querySelector(".is-current");
-      const nova = alvo.querySelector(`[data-linha="${posicao}"]`);
-      if (anterior === nova) return;
-      if (anterior) anterior.classList.remove("is-current");
-      if (!nova) return;
-      nova.classList.add("is-current");
-      if (rolar && !alvo.matches(":hover")) alvo.scrollTop = nova.offsetTop - alvo.offsetTop - 60;
-    };
-    // Com termos no campo, a lista mostra só as falas que casam (e a seguinte, quando o trecho passa de uma fala).
-    const desenhaLinhas = () => {
-      const termos = termosDaConsulta(campo.value);
-      let posicoes = linhas.map((_, posicao) => posicao);
-      if (termos.length) {
-        const achadas = falasQueCasam(normalizadas, termos);
-        posicoes = achadas.flatMap(({ posicao, inteira }) => inteira ? [posicao] : [posicao, posicao + 1]);
-        contagem.textContent = t("ocorrencias", { n: achadas.length });
-      } else {
-        contagem.textContent = "";
-      }
-      alvo.innerHTML = posicoes.length
-        ? posicoes.map((posicao) => `<li class="transcript-list__line" data-linha="${posicao}"><button class="time-link" type="button" data-segundos="${linhas[posicao][0]}" data-posicao="${posicao}">▶ ${relogio(linhas[posicao][0])}</button> ${destaca(linhas[posicao][1], termos)}</li>`).join("")
-        : `<li>${t("nenhum_na_sessao")}</li>`;
-      alvo.scrollTop = 0;
-      marca(atual, true);
-    };
-    campo.addEventListener("input", () => { estado.consulta = campo.value.trim(); desenhaLinhas(); });
-    alvo.addEventListener("click", (evento) => {
-      const botao = evento.target.closest("[data-segundos]");
-      if (!botao) return;
-      const inicioDaFala = Number(botao.dataset.segundos);
-      if (player) {
-        player.seekTo(inicioDaFala, true);
-        player.playVideo();
-      } else {
-        document.getElementById("player").src = enderecoPlayer(id, inicioDaFala, true);
-      }
-      marca(Number(botao.dataset.posicao), false);
-    });
-    desenhaLinhas();
-
-    // Enquanto o vídeo toca, acompanha o tempo e marca a fala correspondente. Sem a API do YouTube (bloqueada,
-    // por exemplo), o resto da página segue funcionando, só sem a marcação automática.
-    carregaApiDoPlayer().then((YT) => {
-      if (vez !== sessaoAberta || !document.getElementById("player")) return;
-      const novo = new YT.Player("player", { events: { onReady: () => { if (vez === sessaoAberta) player = novo; } } });
-      relogioDoPlayer = setInterval(() => {
-        if (vez !== sessaoAberta || !player || player.getPlayerState() !== YT.PlayerState.PLAYING) return;
-        const agora = player.getCurrentTime();
-        let primeira = 0, ultima = linhas.length - 1, posicao = -1;
-        while (primeira <= ultima) {
-          const meio = (primeira + ultima) >> 1;
-          if (linhas[meio][0] <= agora) { posicao = meio; primeira = meio + 1; } else { ultima = meio - 1; }
-        }
-        if (posicao !== atual) marca(posicao, true);
-      }, 500);
-    }).catch(() => {});
+  const linhas = sessao.falas;
+  const alvo = document.getElementById("transcricao");
+  const normalizadas = cacheDeLinhas[id] ??= linhas.map((linha) => normaliza(linha[1]));
+  const campo = document.getElementById("busca-sessao");
+  const contagem = document.getElementById("contagem-sessao");
+  let atual = -1;
+  if (segundos !== null) linhas.forEach((linha, posicao) => { if (linha[0] <= segundos) atual = posicao; });
+  // Marca a fala `posicao` como atual, se ela estiver na lista (com filtro, pode não estar). A lista só rola
+  // sozinha quando o ponteiro não está sobre ela, para não brigar com quem está lendo.
+  const marca = (posicao, rolar) => {
+    atual = posicao;
+    const anterior = alvo.querySelector(".is-current");
+    const nova = alvo.querySelector(`[data-linha="${posicao}"]`);
+    if (anterior === nova) return;
+    if (anterior) anterior.classList.remove("is-current");
+    if (!nova) return;
+    nova.classList.add("is-current");
+    if (rolar && !alvo.matches(":hover")) alvo.scrollTop = nova.offsetTop - alvo.offsetTop - 60;
+  };
+  // Com termos no campo, a lista mostra só as falas que casam (e a seguinte, quando o trecho passa de uma fala).
+  const desenhaLinhas = () => {
+    const termos = termosDaConsulta(campo.value);
+    let posicoes = linhas.map((_, posicao) => posicao);
+    if (termos.length) {
+      const achadas = falasQueCasam(normalizadas, termos);
+      posicoes = achadas.flatMap(({ posicao, inteira }) => inteira ? [posicao] : [posicao, posicao + 1]);
+      contagem.textContent = t("ocorrencias", { n: achadas.length });
+    } else {
+      contagem.textContent = "";
+    }
+    alvo.innerHTML = posicoes.length
+      ? posicoes.map((posicao) => `<li class="transcript-list__line" data-linha="${posicao}"><button class="time-link" type="button" data-segundos="${linhas[posicao][0]}" data-posicao="${posicao}">▶ ${relogio(linhas[posicao][0])}</button> ${destaca(linhas[posicao][1], termos)}</li>`).join("")
+      : `<li>${t("nenhum_na_sessao")}</li>`;
+    alvo.scrollTop = 0;
+    marca(atual, true);
+  };
+  campo.addEventListener("input", () => { estado.consulta = campo.value.trim(); desenhaLinhas(); });
+  alvo.addEventListener("click", (evento) => {
+    const botao = evento.target.closest("[data-segundos]");
+    if (!botao) return;
+    const inicioDaFala = Number(botao.dataset.segundos);
+    if (player) {
+      player.seekTo(inicioDaFala, true);
+      player.playVideo();
+    } else {
+      document.getElementById("player").src = enderecoPlayer(id, inicioDaFala, true);
+    }
+    marca(Number(botao.dataset.posicao), false);
   });
+  desenhaLinhas();
+
+  // Enquanto o vídeo toca, acompanha o tempo e marca a fala correspondente. Sem a API do YouTube (bloqueada,
+  // por exemplo), o resto da página segue funcionando, só sem a marcação automática.
+  carregaApiDoPlayer().then((YT) => {
+    if (vez !== sessaoAberta || !document.getElementById("player")) return;
+    const novo = new YT.Player("player", { events: { onReady: () => { if (vez === sessaoAberta) player = novo; } } });
+    relogioDoPlayer = setInterval(() => {
+      if (vez !== sessaoAberta || !player || player.getPlayerState() !== YT.PlayerState.PLAYING) return;
+      const agora = player.getCurrentTime();
+      let primeira = 0, ultima = linhas.length - 1, posicao = -1;
+      while (primeira <= ultima) {
+        const meio = (primeira + ultima) >> 1;
+        if (linhas[meio][0] <= agora) { posicao = meio; primeira = meio + 1; } else { ultima = meio - 1; }
+      }
+      if (posicao !== atual) marca(posicao, true);
+    }, 500);
+  }).catch(() => {});
 }
 
 function desenhaSobre() {
   const casas = new Set(indice.sessoes.map((s) => s.casa)).size;
   const horas = Math.round(indice.sessoes.reduce((soma, s) => soma + s.duracao, 0) / 3600);
-  const modelos = [...new Set(indice.sessoes.map((s) => s.modelo))].map((modelo) => `${escapa(modelo)} (${t("pesos_abertos")})`).join(", ");
+  const modelos = indice.config.modelos.map((modelo) => `${escapa(modelo)} (${t("pesos_abertos")})`).join(", ");
   const valores = { sessoes: indice.sessoes.length, horas, casas, modelos, repo: escapa(indice.config.repositorio) };
   app().innerHTML = `<p><a href="#/">${t("voltar")}</a></p><h1 class="page-title">${t("sobre_titulo")}</h1><div class="prose-block">` +
     TEXTOS[idioma].sobre.map((paragrafo) => {
@@ -333,5 +435,8 @@ document.addEventListener("click", (evento) => {
 window.addEventListener("hashchange", desenha);
 aplicaTemaVisual();
 desenha();
-fetch("dados/indice.json").then((r) => r.json()).then((dados) => { indice = dados; desenha(); })
-  .catch(() => { app().innerHTML = "<p class=\"empty-state\">Could not load dados/indice.json.</p>"; });
+// Num link direto para uma sessão, o arquivo dela começa a baixar junto com a lista, sem esperar por ela.
+const rotaInicial = decodeURIComponent(location.hash.replace(/^#\/?/, "")).split("/");
+if (rotaInicial[0] === "v" && rotaInicial[1]) carregaItem(rotaInicial[1]).catch(() => {});
+fetch("dados/itens.json").then((r) => r.json()).then((dados) => { indice = decodificaLista(dados); desenha(); })
+  .catch(() => { app().innerHTML = "<p class=\"empty-state\">Could not load dados/itens.json.</p>"; });

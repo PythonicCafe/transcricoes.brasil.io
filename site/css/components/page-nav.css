@@ -1,0 +1,50 @@
+/* Paginação da lista de sessões e dos resultados da busca. A página atual tem fundo sólido e `aria-current`,
+ * para não depender só de cor. */
+.page-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  margin: var(--space-lg) 0;
+  padding: 0;
+  list-style: none;
+}
+
+.page-nav__button {
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  padding: 0 var(--space-sm);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-link);
+  cursor: pointer;
+}
+
+.page-nav__button:hover:not(:disabled) {
+  border-color: var(--color-link);
+  text-decoration: underline;
+}
+
+.page-nav__button[aria-current="page"] {
+  background-color: var(--color-brand);
+  border-color: var(--color-brand);
+  font-weight: 700;
+  color: var(--color-brand-contrast);
+}
+
+.page-nav__button:disabled {
+  color: var(--color-text-secondary);
+  cursor: default;
+}
+
+.page-nav__gap {
+  padding: 0 var(--space-xs);
+  color: var(--color-text-secondary);
+}
+
+/* A lista recebe o foco ao trocar de página, para o leitor de tela recomeçar dali; ela não é um controle. */
+#resultados:focus {
+  outline: none;
+}

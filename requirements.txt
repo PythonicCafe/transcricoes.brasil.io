@@ -1,7 +1,7 @@
 # pipeline.py, canais_horas.py, testa_resumo.py
 tqdm
 youtool
-yt-dlp
+yt-dlp[default]
 # groq.py (transcrição pela API da Groq)
 audioop-lts; python_version >= "3.13"
 numpy

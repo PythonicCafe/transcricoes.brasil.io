@@ -46,6 +46,8 @@ from pathlib import Path
 
 from tqdm import tqdm
 
+# Os dados ficam sempre em `dados/`, ao lado dos scripts (o git ignora a pasta).
+PASTA_DADOS = Path(__file__).resolve().parent / "dados"
 ETAPAS = ["metadados", "audio", "transcricao", "resumo"]
 MARITACA_URL = "https://chat.maritaca.ai/api"
 
@@ -835,7 +837,6 @@ def lista_etapas(valor: str) -> list[str]:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("csv", type=Path, help="CSV com a coluna `url`")
-    parser.add_argument("--dados", type=Path, default=Path("dados"), help="pasta de dados (padrão: dados/)")
     parser.add_argument("--etapas", type=lista_etapas, default=ETAPAS, help="ex.: metadados,audio (padrão: todas)")
     parser.add_argument(
         "--yt-dlp-args", default="", help='opções extras para o yt-dlp, ex.: "--cookies-from-browser firefox"'
@@ -865,10 +866,10 @@ def main() -> None:
 
     ids = le_csv(args.csv)
     tqdm.write(f"{len(ids)} vídeos em {args.csv}")
-    caminho_metadados = args.dados / "videos.jsonl"
-    pasta_audio = args.dados / "audio"
-    pasta_transcricao = args.dados / "transcricao"
-    pasta_resumo = args.dados / "resumo"
+    caminho_metadados = PASTA_DADOS / "videos.jsonl"
+    pasta_audio = PASTA_DADOS / "audio"
+    pasta_transcricao = PASTA_DADOS / "transcricao"
+    pasta_resumo = PASTA_DADOS / "resumo"
 
     try:
         if "metadados" in args.etapas:

@@ -38,18 +38,19 @@ export function falasQueCasam(linhas, termos) {
   return achadas;
 }
 
-// Procura em todas as sessões recebidas. Um trecho casa quando todos os termos estão na mesma fala ou em duas falas
-// seguidas. Sessões sem trecho entram se os termos estiverem no título, no resumo ou nas palavras-chave.
-export function busca(sessoes, transcricoes, termos, cache = {}) {
+// Procura em todas as sessões recebidas; `dados` é o `busca.json` ({falas, palavras_chave}, por id). Um trecho casa
+// quando todos os termos estão na mesma fala ou em duas falas seguidas. Sessões sem trecho entram se os termos
+// estiverem no título, no resumo ou nas palavras-chave.
+export function busca(sessoes, dados, termos, cache = {}) {
   const resultados = [];
   for (const sessao of sessoes) {
-    const original = transcricoes[sessao.id] || [];
+    const original = dados.falas[sessao.id] || [];
     const linhas = cache[sessao.id] ??= original.map((linha) => normaliza(linha[1]));
     const trechos = falasQueCasam(linhas, termos).map(({ posicao, inteira }) => ({
       segundos: original[posicao][0],
       texto: inteira ? original[posicao][1] : original[posicao][1] + " " + original[posicao + 1][1],
     }));
-    const meta = normaliza(`${sessao.titulo} ${sessao.resumo} ${sessao.palavras_chave.join(" ")}`);
+    const meta = normaliza(`${sessao.titulo} ${sessao.resumo} ${(dados.palavras_chave[sessao.id] || []).join(" ")}`);
     const noResumo = termos.every((termo) => meta.includes(termo));
     if (trechos.length || noResumo) resultados.push({ sessao, trechos, noResumo });
   }
