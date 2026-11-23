@@ -16,6 +16,11 @@
   </script>
   <link rel="stylesheet" href="vendor/bootstrap.min.css">
   <link rel="stylesheet" href="css/app.css">
+  <!-- Pedidos já no HTML, para o navegador não esperar o app.js para descobrir os módulos e a lista de sessões. -->
+  <link rel="modulepreload" href="js/modules/textos.js">
+  <link rel="modulepreload" href="js/modules/busca.js">
+  <link rel="modulepreload" href="js/modules/formato.js">
+  <link rel="preload" href="dados/itens.json" as="fetch" crossorigin>
 </head>
 <body>
 <a class="visually-hidden-focusable" href="#app" data-t="pular">Skip to content</a>
