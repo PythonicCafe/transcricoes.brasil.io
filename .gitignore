@@ -8,3 +8,4 @@ docs-medicao.json
 .tags
 activate.sh
 *.patch
+.ruff_cache/

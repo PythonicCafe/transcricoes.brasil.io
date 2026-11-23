@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 # Ambiente de desenvolvimento: dependências Python do pipeline e da medição do site, ffmpeg, Chromium e Deno.
 # gcc e libc6-dev existem só para compilar o webrtcvad, que não tem pacote pronto.
 # O código não entra na imagem; monte o repositório em /app ao rodar (veja o README).
@@ -13,8 +14,11 @@ RUN python -c "import io, sys, urllib.request, zipfile; zipfile.ZipFile(io.Bytes
     && chmod 755 /usr/local/bin/deno \
     && deno --version
 
-COPY requirements.txt requirements-dev.txt /tmp/
-RUN pip install --no-cache-dir -r /tmp/requirements.txt -r /tmp/requirements-dev.txt
+# As dependências vêm dos grupos do pyproject.toml; `--group` precisa de pip 25.1 ou mais novo.
+COPY pyproject.toml /tmp/pyproject.toml
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install --cache-dir /root/.cache/pip --upgrade pip \
+    && pip install --cache-dir /root/.cache/pip --group /tmp/pyproject.toml:dev
 
 # Usuário comum com o mesmo UID de quem monta o repositório, para os arquivos gerados não saírem como root.
 ARG UID=1000

@@ -62,10 +62,10 @@ help:                   # List all make commands
 	@awk -F ':.*#' '/^[a-zA-Z_-]+:.*?#/ { printf "\033[36m%-20s\033[0m %s\n", $$1, $$2 }' $(MAKEFILE_LIST) | sort
 
 lint:                   # Format and lint the code in the development container
-	$(OFFLINE_RUN) bash -c 'ruff check --fix --exclude groq.py . && ruff format --line-length 120 --exclude groq.py .'
+	$(OFFLINE_RUN) bash -c 'ruff check --fix . && ruff format .'
 
 lint-check:             # Check formatting and lint without modifying files
-	$(OFFLINE_RUN) bash -c 'ruff check --exclude groq.py . && ruff format --check --line-length 120 --exclude groq.py .'
+	$(OFFLINE_RUN) bash -c 'ruff check . && ruff format --check .'
 
 measure:                # Measure the generated site in Chromium (no network) and write docs-medicao.json
 	$(OFFLINE_RUN) python mede_site.py docs --saida docs-medicao.json

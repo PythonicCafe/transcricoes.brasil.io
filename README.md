@@ -25,7 +25,7 @@ are machine-generated, were not reviewed by people and contain errors.
 ## Running
 
 ```sh
-pip install -r requirements.txt   # also needs ffmpeg
+pip install --group dev   # pip 25.1 or newer; also needs ffmpeg
 export YOUTUBE_API_KEY=...        # secrets only through environment variables
 
 # local models: digue (whisper.cpp) and ollama

@@ -1,0 +1,27 @@
+# Este repositório não é um pacote instalável: são scripts na raiz. Por isso só há grupos de dependências
+# (`pip install --group dev`, pip 25.1 ou mais novo) e a configuração das ferramentas.
+[dependency-groups]
+pipeline = [
+    "tqdm",
+    "youtool",
+    "yt-dlp[default]",
+    # groq.py (transcrição pela API da Groq)
+    "audioop-lts; python_version >= '3.13'",
+    "numpy",
+    "pydub",
+    "requests",
+    "setuptools<82.0.0",
+    "webrtcvad",
+]
+dev = [
+    {include-group = "pipeline"},
+    "coverage",
+    "playwright",  # transcripts.py measure
+    "pytest",
+    "ruff",
+]
+
+[tool.ruff]
+line-length = 120
+# O groq.py veio de outro projeto e mantém o estilo original.
+extend-exclude = ["groq.py"]
