@@ -1,4 +1,4 @@
-/* Seleção múltipla com <details>: funciona com teclado e sem biblioteca. */
+/* Multiple selection with <details>: works with the keyboard and without a library. */
 .multi-select {
   position: relative;
 }

@@ -1,260 +1,263 @@
-// Ponto de entrada do site: estado, rotas (pelo hash da URL) e desenho das páginas.
-import { TEXTOS } from "./modules/textos.js";
-import { busca, destaca, escapa, falasQueCasam, normaliza, termosDaConsulta } from "./modules/busca.js";
-import { dataLegivel, duracaoLegivel, relogio } from "./modules/formato.js";
+// Entry point of the site: state, routes (in the URL fragment) and the drawing of the pages.
+import { TEXTS } from "./modules/texts.js";
+import { escapeHtml, highlight, matchingLines, normalize, queryTerms, search } from "./modules/search.js";
+import { clock, readableDate, readableDuration } from "./modules/format.js";
 
-function guardado(chave, padrao) {
-  try { return localStorage.getItem(chave) || padrao; } catch (erro) { return padrao; }
+function stored(key, fallback) {
+  try { return localStorage.getItem(key) || fallback; } catch (error) { return fallback; }
 }
-function guarda(chave, valor) {
-  try { localStorage.setItem(chave, valor); } catch (erro) { /* a escolha vale só nesta visita */ }
+function store(key, value) {
+  try { localStorage.setItem(key, value); } catch (error) { /* the choice lasts only for this visit */ }
 }
 
-let idioma = guardado("idioma", "en");
-if (!TEXTOS[idioma]) idioma = "en";
-let temaVisual = guardado("tema", "sistema");
-let indice = null;          // {config, sessoes: [...]}: a lista enxuta de `dados/itens.json`, já decodificada
-let dadosDaBusca = null;    // `dados/busca.json`: {falas: {id: [[segundos, texto], ...]}, palavras_chave: {id: [...]}}
-let carregando = null;
-const itensCompletos = new Map();    // id -> promessa do `dados/itens/<id>.json` (a sessão completa)
-const cacheDeLinhas = {};
-const estado = { consulta: "", casas: new Set(), tema: "", de: "", ate: "", pagina: 1 };
-const POR_PAGINA = 20;     // cartões desenhados por vez, na lista e nos resultados da busca
+let language = stored("language", "en");
+if (!TEXTS[language]) language = "en";
+let colorTheme = stored("color-theme", "system");
+let list = null;            // {config, sessions: [...]}: the slim list of `data/items.json`, decoded
+let searchData = null;      // `data/search.json`: {lines: {id: [[seconds, text], ...]}, keywords: {id: [...]}}
+let loadingSearch = null;
+const fullItems = new Map();    // id -> promise of `data/items/<id>.json` (the complete session)
+const lineCache = {};
+const state = { query: "", houses: new Set(), theme: "", from: "", to: "", page: 1 };
+const PER_PAGE = 20;       // cards drawn at a time, in the list and in the search results
 
-const t = (chave, valores = {}) => {
-  let texto = TEXTOS[idioma][chave] ?? chave;
-  for (const [nome, valor] of Object.entries(valores)) texto = texto.replaceAll(`{${nome}}`, valor);
-  return texto;
+const t = (key, values = {}) => {
+  let text = TEXTS[language][key] ?? key;
+  for (const [name, value] of Object.entries(values)) text = text.replaceAll(`{${name}}`, value);
+  return text;
 };
-const data = (iso) => dataLegivel(iso, TEXTOS[idioma].local);
+const date = (iso) => readableDate(iso, TEXTS[language].locale);
 const app = () => document.getElementById("app");
+const sessionHash = (id, seconds = null) => `#/v/${encodeURIComponent(id)}` + (seconds === null ? "" : `/${Math.floor(seconds)}`);
 
-function aplicaTemaVisual() {
-  const escuro = temaVisual === "escuro" || (temaVisual === "sistema" && window.matchMedia("(prefers-color-scheme: dark)").matches);
-  document.documentElement.setAttribute("data-bs-theme", escuro ? "dark" : "light");
-}
-
-// Baixa o `busca.json` em pedaços, para avisar quanto já chegou: o arquivo é grande e a primeira busca espera por ele.
-// `aoAvancar` recebe a fração de 0 a 1; o total vem do `itens.json`, porque o navegador só conhece o tamanho comprimido.
-let avisaProgresso = () => {};
-function carregaBusca() {
-  if (!carregando) {
-    carregando = fetch("dados/busca.json").then(async (resposta) => {
-      if (!resposta.ok) throw new Error(String(resposta.status));
-      const total = indice.config.busca_bytes;
-      if (!resposta.body || !total) return resposta.json();
-      const leitor = resposta.body.getReader();
-      const decodificador = new TextDecoder();
-      const pedacos = [];
-      let recebido = 0;
-      for (;;) {
-        const { done, value } = await leitor.read();
-        if (done) break;
-        pedacos.push(decodificador.decode(value, { stream: true }));
-        recebido += value.length;
-        avisaProgresso(Math.min(recebido / total, 1));
-      }
-      pedacos.push(decodificador.decode());
-      return JSON.parse(pedacos.join(""));
-    }).then((dados) => { dadosDaBusca = dados; });
-    carregando.catch(() => { carregando = null; });
-  }
-  return carregando;
-}
-
-// A sessão completa (metadados, resumo, participantes, decisões e falas); a promessa falha se o id não existir.
-function carregaItem(id) {
-  if (!itensCompletos.has(id)) {
-    itensCompletos.set(id, fetch(`dados/itens/${encodeURIComponent(id)}.json`).then((r) => { if (!r.ok) throw new Error(String(r.status)); return r.json(); }));
-  }
-  return itensCompletos.get(id);
-}
-
-const miniatura = (id) => indice.config.sem_miniatura.includes(id) ? `https://i.ytimg.com/vi/${encodeURIComponent(id)}/mqdefault.jpg` : `miniaturas/${encodeURIComponent(id)}.webp`;
-
-// Cada linha de `itens.json` segue a ordem de `campos`; casa, UF, tipo e temas vêm como posição nas listas de opções.
-function decodificaLista(dados) {
-  const opcoes = { casa: dados.casas, uf: dados.ufs, tipo: dados.tipos };
-  const sessoes = dados.itens.map((linha) => {
-    const sessao = {};
-    dados.campos.forEach((campo, posicao) => {
-      const valor = linha[posicao];
-      if (opcoes[campo]) sessao[campo] = opcoes[campo][valor];
-      else if (campo === "temas") sessao.temas = valor.map((tema) => dados.temas[tema]);
-      else sessao[campo] = valor;
+// Each row of `items.json` follows the order of `fields`; house, state, type and themes are positions in the lists
+// of options, so each name is written once.
+function decodeList(data) {
+  const options = { house: data.houses, state: data.states, type: data.types };
+  const sessions = data.items.map((row) => {
+    const session = {};
+    data.fields.forEach((field, position) => {
+      const value = row[position];
+      if (options[field]) session[field] = options[field][value];
+      else if (field === "themes") session.themes = value.map((theme) => data.themes[theme]);
+      else session[field] = value;
     });
-    return sessao;
+    return session;
   });
-  return { config: dados.config, sessoes };
+  return { config: data.config, sessions };
 }
 
-function sessoesFiltradas() {
-  return indice.sessoes.filter((sessao) =>
-    (!estado.casas.size || estado.casas.has(sessao.casa)) &&
-    (!estado.tema || sessao.temas.includes(estado.tema)) &&
-    (!estado.de || sessao.data >= estado.de) &&
-    (!estado.ate || sessao.data <= estado.ate));
+function applyColorTheme() {
+  const dark = colorTheme === "dark" || (colorTheme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+  document.documentElement.setAttribute("data-bs-theme", dark ? "dark" : "light");
 }
 
-const origem = (sessao) => `${escapa(sessao.casa)}${sessao.uf ? " (" + escapa(sessao.uf) + ")" : ""}`;
-const temasHtml = (sessao) => sessao.temas.map((tema) => `<span class="theme-badge" lang="pt-BR">${escapa(tema)}</span>`).join(" ");
+// Download `search.json` in chunks, to tell how much has arrived: the file is big and the first search waits for it.
+// `onProgress` gets the fraction from 0 to 1; the total comes from `items.json`, because the browser only knows the
+// compressed size.
+let onProgress = () => {};
+function loadSearch() {
+  if (!loadingSearch) {
+    loadingSearch = fetch("data/search.json").then(async (response) => {
+      if (!response.ok) throw new Error(String(response.status));
+      const total = list.config.search_bytes;
+      if (!response.body || !total) return response.json();
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      const chunks = [];
+      let received = 0;
+      for (;;) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        chunks.push(decoder.decode(value, { stream: true }));
+        received += value.length;
+        onProgress(Math.min(received / total, 1));
+      }
+      chunks.push(decoder.decode());
+      return JSON.parse(chunks.join(""));
+    }).then((data) => { searchData = data; });
+    loadingSearch.catch(() => { loadingSearch = null; });
+  }
+  return loadingSearch;
+}
 
-function cartao(sessao, termos, extra = "") {
-  const destino = `#/v/${encodeURIComponent(sessao.id)}`;
+// The complete session (metadata, summary, participants, decisions and lines); the promise fails if the id is unknown.
+function loadItem(id) {
+  if (!fullItems.has(id)) {
+    fullItems.set(id, fetch(`data/items/${encodeURIComponent(id)}.json`).then((response) => { if (!response.ok) throw new Error(String(response.status)); return response.json(); }));
+  }
+  return fullItems.get(id);
+}
+
+const thumbnail = (id) => list.config.without_thumbnail.includes(id) ? `https://i.ytimg.com/vi/${encodeURIComponent(id)}/mqdefault.jpg` : `thumbnails/${encodeURIComponent(id)}.webp`;
+
+function filteredSessions() {
+  return list.sessions.filter((session) =>
+    (!state.houses.size || state.houses.has(session.house)) &&
+    (!state.theme || session.themes.includes(state.theme)) &&
+    (!state.from || session.date >= state.from) &&
+    (!state.to || session.date <= state.to));
+}
+
+const source = (session) => `${escapeHtml(session.house)}${session.state ? " (" + escapeHtml(session.state) + ")" : ""}`;
+const themesHtml = (session) => session.themes.map((theme) => `<span class="theme-badge" lang="pt-BR">${escapeHtml(theme)}</span>`).join(" ");
+
+function card(session, terms, extra = "") {
+  const target = sessionHash(session.id);
   return `<article class="result-card">
-    <a class="result-card__thumb" href="${destino}" tabindex="-1" aria-hidden="true"><img class="result-card__image" src="${escapa(miniatura(sessao.id))}" width="320" height="180" loading="lazy" alt=""></a>
+    <a class="result-card__thumb" href="${target}" tabindex="-1" aria-hidden="true"><img class="result-card__image" src="${escapeHtml(thumbnail(session.id))}" width="320" height="180" loading="lazy" alt=""></a>
     <div class="result-card__body">
-      <h2 class="result-card__title" lang="pt-BR"><a href="${destino}">${destaca(sessao.titulo, termos)}</a></h2>
-      <p class="result-card__meta"><span class="result-card__source" lang="pt-BR">${origem(sessao)}</span>, ${t("publicado")} ${data(sessao.data)} · <span lang="pt-BR">${escapa(sessao.tipo)}</span></p>
-      <p class="result-card__label">${t("sumarizacao")}</p>
-      <p class="result-card__summary" lang="pt-BR">${destaca(sessao.resumo, termos)}</p>
-      <p class="result-card__footer"><span>${duracaoLegivel(sessao.duracao)}</span> ${temasHtml(sessao)}</p>
+      <h2 class="result-card__title" lang="pt-BR"><a href="${target}">${highlight(session.title, terms)}</a></h2>
+      <p class="result-card__meta"><span class="result-card__source" lang="pt-BR">${source(session)}</span>, ${t("published")} ${date(session.date)} · <span lang="pt-BR">${escapeHtml(session.type)}</span></p>
+      <p class="result-card__label">${t("card_summary")}</p>
+      <p class="result-card__summary" lang="pt-BR">${highlight(session.summary, terms)}</p>
+      <p class="result-card__footer"><span>${readableDuration(session.duration)}</span> ${themesHtml(session)}</p>
       ${extra}
     </div></article>`;
 }
 
-function rotuloCasas() {
-  if (!estado.casas.size) return t("todas_casas");
-  return estado.casas.size === 1 ? escapa([...estado.casas][0]) : t("casas_escolhidas", { n: estado.casas.size });
+function housesLabel() {
+  if (!state.houses.size) return t("all_houses");
+  return state.houses.size === 1 ? escapeHtml([...state.houses][0]) : t("chosen_houses", { n: state.houses.size });
 }
 
-function desenhaInicio() {
-  const casas = [...new Set(indice.sessoes.map((s) => s.casa))].sort((a, b) => a.localeCompare(b, "pt"));
-  const temas = [...new Set(indice.sessoes.flatMap((s) => s.temas))].sort((a, b) => a.localeCompare(b, "pt"));
-  const horas = Math.round(indice.sessoes.reduce((soma, s) => soma + s.duracao, 0) / 3600);
+function drawHome() {
+  const houses = [...new Set(list.sessions.map((session) => session.house))].sort((first, second) => first.localeCompare(second, "pt"));
+  const themes = [...new Set(list.sessions.flatMap((session) => session.themes))].sort((first, second) => first.localeCompare(second, "pt"));
+  const hours = Math.round(list.sessions.reduce((sum, session) => sum + session.duration, 0) / 3600);
   app().innerHTML = `
-    <h1 class="page-title">${t("titulo")}</h1>
-    <p class="page-lead">${t("subtitulo", { sessoes: indice.sessoes.length, casas: casas.length, horas })}</p>
-    <form class="search-form" id="formulario" role="search">
+    <h1 class="page-title">${t("title")}</h1>
+    <p class="page-lead">${t("lead", { sessions: list.sessions.length, houses: houses.length, hours })}</p>
+    <form class="search-form" id="search-form" role="search">
       <div class="search-form__query">
-        <label class="visually-hidden" for="consulta">${t("rotulo_busca")}</label>
-        <input id="consulta" class="form-control form-control-lg" type="search" placeholder="${escapa(t("buscar"))}" value="${escapa(estado.consulta)}">
+        <label class="visually-hidden" for="query">${t("search_label")}</label>
+        <input id="query" class="form-control form-control-lg" type="search" placeholder="${escapeHtml(t("search_placeholder"))}" value="${escapeHtml(state.query)}">
       </div>
-      <button class="btn btn-lg search-form__submit" type="submit">${t("botao_buscar")}</button>
-      <details class="multi-select search-form__filter" id="casas">
-        <summary class="form-select multi-select__summary" id="casas-rotulo">${rotuloCasas()}</summary>
+      <button class="btn btn-lg search-form__submit" type="submit">${t("search_button")}</button>
+      <details class="multi-select search-form__filter" id="houses">
+        <summary class="form-select multi-select__summary" id="houses-label">${housesLabel()}</summary>
         <fieldset class="multi-select__options">
-          <legend class="visually-hidden">${t("todas_casas")}</legend>
-          ${casas.map((casa) => `<label class="form-check multi-select__option"><input class="form-check-input" type="checkbox" value="${escapa(casa)}" ${estado.casas.has(casa) ? "checked" : ""}> <span class="form-check-label" lang="pt-BR">${escapa(casa)}</span></label>`).join("")}
+          <legend class="visually-hidden">${t("all_houses")}</legend>
+          ${houses.map((house) => `<label class="form-check multi-select__option"><input class="form-check-input" type="checkbox" value="${escapeHtml(house)}" ${state.houses.has(house) ? "checked" : ""}> <span class="form-check-label" lang="pt-BR">${escapeHtml(house)}</span></label>`).join("")}
         </fieldset>
       </details>
       <div class="search-form__filter">
-        <label class="visually-hidden" for="tema">${t("todos_temas")}</label>
-        <select id="tema" class="form-select"><option value="">${t("todos_temas")}</option>${temas.map((c) => `<option ${c === estado.tema ? "selected" : ""}>${escapa(c)}</option>`).join("")}</select>
+        <label class="visually-hidden" for="theme">${t("all_themes")}</label>
+        <select id="theme" class="form-select"><option value="">${t("all_themes")}</option>${themes.map((theme) => `<option ${theme === state.theme ? "selected" : ""}>${escapeHtml(theme)}</option>`).join("")}</select>
       </div>
-      <div class="input-group search-form__date"><label class="input-group-text" for="de">${t("de")}</label><input id="de" class="form-control" type="date" value="${escapa(estado.de)}"></div>
-      <div class="input-group search-form__date"><label class="input-group-text" for="ate">${t("ate")}</label><input id="ate" class="form-control" type="date" value="${escapa(estado.ate)}"></div>
+      <div class="input-group search-form__date"><label class="input-group-text" for="from">${t("from")}</label><input id="from" class="form-control" type="date" value="${escapeHtml(state.from)}"></div>
+      <div class="input-group search-form__date"><label class="input-group-text" for="to">${t("to")}</label><input id="to" class="form-control" type="date" value="${escapeHtml(state.to)}"></div>
     </form>
-    <div id="resultados" aria-live="polite" tabindex="-1"></div>`;
-  const aplica = (evento) => {
-    if (evento && evento.type === "submit") evento.preventDefault();
-    estado.consulta = document.getElementById("consulta").value.trim();
-    estado.tema = document.getElementById("tema").value;
-    estado.de = document.getElementById("de").value;
-    estado.ate = document.getElementById("ate").value;
-    estado.casas = new Set([...document.querySelectorAll("#casas input:checked")].map((caixa) => caixa.value));
-    estado.pagina = 1;
-    document.getElementById("casas-rotulo").innerHTML = rotuloCasas();
-    desenhaResultados();
+    <div id="results" aria-live="polite" tabindex="-1"></div>`;
+  const apply = (event) => {
+    if (event && event.type === "submit") event.preventDefault();
+    state.query = document.getElementById("query").value.trim();
+    state.theme = document.getElementById("theme").value;
+    state.from = document.getElementById("from").value;
+    state.to = document.getElementById("to").value;
+    state.houses = new Set([...document.querySelectorAll("#houses input:checked")].map((box) => box.value));
+    state.page = 1;
+    document.getElementById("houses-label").innerHTML = housesLabel();
+    drawResults();
   };
-  document.getElementById("formulario").addEventListener("submit", aplica);
-  for (const id of ["tema", "de", "ate", "casas"]) document.getElementById(id).addEventListener("change", aplica);
-  desenhaResultados();
+  document.getElementById("search-form").addEventListener("submit", apply);
+  for (const id of ["theme", "from", "to", "houses"]) document.getElementById(id).addEventListener("change", apply);
+  drawResults();
 }
 
-function trechosHtml(sessao, trechos, termos) {
-  return trechos.map((trecho) => `<li class="passage-list__item"><a class="time-link" href="#/v/${encodeURIComponent(sessao.id)}/${Math.floor(trecho.segundos)}">▶ ${relogio(trecho.segundos)}</a> <span lang="pt-BR">${destaca(trecho.texto, termos)}</span></li>`).join("");
+function passagesHtml(session, passages, terms) {
+  return passages.map((passage) => `<li class="passage-list__item"><a class="time-link" href="${sessionHash(session.id, passage.seconds)}">▶ ${clock(passage.seconds)}</a> <span lang="pt-BR">${highlight(passage.text, terms)}</span></li>`).join("");
 }
 
-// Botões de página: primeira, última e as vizinhas da atual, com reticências nos saltos. Vazio se há uma página só.
-function paginacaoHtml(paginas) {
-  if (paginas < 2) return "";
-  const atual = estado.pagina;
-  const numeros = [...new Set([1, atual - 1, atual, atual + 1, paginas])].filter((n) => n >= 1 && n <= paginas).sort((a, b) => a - b);
-  const botoes = numeros.map((n, posicao) =>
-    `${posicao && n - numeros[posicao - 1] > 1 ? '<li class="page-nav__gap" aria-hidden="true">…</li>' : ""}<li><button class="page-nav__button" type="button" data-pagina="${n}" aria-label="${escapa(t("pagina", { n }))}"${n === atual ? ' aria-current="page"' : ""}>${n}</button></li>`).join("");
-  return `<nav aria-label="${escapa(t("paginacao"))}"><ul class="page-nav">
-    <li><button class="page-nav__button" type="button" data-pagina="${atual - 1}"${atual === 1 ? " disabled" : ""}>${t("anterior")}</button></li>
-    ${botoes}
-    <li><button class="page-nav__button" type="button" data-pagina="${atual + 1}"${atual === paginas ? " disabled" : ""}>${t("proxima")}</button></li>
+// Page buttons: the first, the last and the neighbours of the current one, with an ellipsis in the jumps. Empty when
+// there is only one page.
+function paginationHtml(current, pages) {
+  if (pages < 2) return "";
+  const numbers = [...new Set([1, current - 1, current, current + 1, pages])].filter((number) => number >= 1 && number <= pages).sort((first, second) => first - second);
+  const buttons = numbers.map((number, position) =>
+    `${position && number - numbers[position - 1] > 1 ? '<li class="page-nav__gap" aria-hidden="true">…</li>' : ""}<li><button class="page-nav__button" type="button" data-page="${number}" aria-label="${escapeHtml(t("page", { n: number }))}"${number === current ? ' aria-current="page"' : ""}>${number}</button></li>`).join("");
+  return `<nav aria-label="${escapeHtml(t("pagination"))}"><ul class="page-nav">
+    <li><button class="page-nav__button" type="button" data-page="${current - 1}"${current === 1 ? " disabled" : ""}>${t("previous")}</button></li>
+    ${buttons}
+    <li><button class="page-nav__button" type="button" data-page="${current + 1}"${current === pages ? " disabled" : ""}>${t("next")}</button></li>
   </ul></nav>`;
 }
 
-// Recorta a página atual de `itens` (a busca e os filtros continuam valendo para todos; só o desenho é paginado).
-function recortaPagina(itens) {
-  const paginas = Math.max(1, Math.ceil(itens.length / POR_PAGINA));
-  estado.pagina = Math.min(Math.max(1, estado.pagina), paginas);
-  const inicio = (estado.pagina - 1) * POR_PAGINA;
-  const posicao = paginas > 1 ? ` · ${t("pagina_de", { n: estado.pagina, total: paginas })}` : "";
-  return { visiveis: itens.slice(inicio, inicio + POR_PAGINA), posicao, navegacao: paginacaoHtml(paginas) };
+// The current page of `items` (search and filters still apply to all of them; only the drawing is paged).
+function currentPage(items) {
+  const pages = Math.max(1, Math.ceil(items.length / PER_PAGE));
+  state.page = Math.min(Math.max(1, state.page), pages);
+  const start = (state.page - 1) * PER_PAGE;
+  const position = pages > 1 ? ` · ${t("page_of", { n: state.page, total: pages })}` : "";
+  return { visible: items.slice(start, start + PER_PAGE), position, navigation: paginationHtml(state.page, pages) };
 }
 
-function ligaPaginacao(alvo) {
-  alvo.querySelectorAll("[data-pagina]").forEach((botao) => botao.addEventListener("click", () => {
-    estado.pagina = Number(botao.dataset.pagina);
-    desenhaResultados();
-    alvo.scrollIntoView({ behavior: "instant" });
-    alvo.focus({ preventScroll: true });
+function bindPagination(target) {
+  target.querySelectorAll("[data-page]").forEach((button) => button.addEventListener("click", () => {
+    state.page = Number(button.dataset.page);
+    drawResults();
+    target.scrollIntoView({ behavior: "instant" });
+    target.focus({ preventScroll: true });
   }));
 }
 
-function desenhaResultados() {
-  const alvo = document.getElementById("resultados");
-  const termos = termosDaConsulta(estado.consulta);
-  if (!termos.length) {
-    const sessoes = sessoesFiltradas();
-    const { visiveis, posicao, navegacao } = recortaPagina(sessoes);
-    alvo.innerHTML = `<p class="result-count">${sessoes.length} ${t("sessoes")}${posicao}</p>` + visiveis.map((sessao) => cartao(sessao, [])).join("") + navegacao;
-    ligaPaginacao(alvo);
+function drawResults() {
+  const target = document.getElementById("results");
+  const terms = queryTerms(state.query);
+  if (!terms.length) {
+    const sessions = filteredSessions();
+    const { visible, position, navigation } = currentPage(sessions);
+    target.innerHTML = `<p class="result-count">${sessions.length} ${t("sessions")}${position}</p>` + visible.map((session) => card(session, [])).join("") + navigation;
+    bindPagination(target);
     return;
   }
-  if (!dadosDaBusca) {
-    alvo.innerHTML = `<div class="load-status" role="status">
-        <p class="load-status__text">${t("carregando_busca")} <span id="carga-porcento"></span></p>
-        <progress class="load-status__bar" id="carga-barra" max="100" value="0" aria-label="${escapa(t("carregando_busca"))}"></progress>
+  if (!searchData) {
+    target.innerHTML = `<div class="load-status" role="status">
+        <p class="load-status__text">${t("loading_search")} <span id="load-percent"></span></p>
+        <progress class="load-status__bar" id="load-bar" max="100" value="0" aria-label="${escapeHtml(t("loading_search"))}"></progress>
       </div>`;
-    avisaProgresso = (fracao) => {
-      const barra = document.getElementById("carga-barra");
-      if (!barra) return;
-      barra.value = Math.round(fracao * 100);
-      document.getElementById("carga-porcento").textContent = `${Math.round(fracao * 100)}%`;
+    onProgress = (fraction) => {
+      const bar = document.getElementById("load-bar");
+      if (!bar) return;
+      bar.value = Math.round(fraction * 100);
+      document.getElementById("load-percent").textContent = `${Math.round(fraction * 100)}%`;
     };
-    carregaBusca().then(desenhaResultados).catch(() => {
-      const atual = document.getElementById("resultados");
-      if (atual) atual.innerHTML = `<p class="empty-state">${t("erro_busca")}</p>`;
+    loadSearch().then(drawResults).catch(() => {
+      const current = document.getElementById("results");
+      if (current) current.innerHTML = `<p class="empty-state">${t("search_error")}</p>`;
     });
     return;
   }
-  const resultados = busca(sessoesFiltradas(), dadosDaBusca, termos, cacheDeLinhas);
-  const total = resultados.reduce((soma, r) => soma + r.trechos.length, 0);
-  if (!resultados.length) { alvo.innerHTML = `<p class="empty-state">${t("nenhum")}</p>`; return; }
-  const { visiveis, posicao, navegacao } = recortaPagina(resultados);
-  alvo.innerHTML = `<p class="result-count">${t("resultados", { trechos: total, sessoes: resultados.length })} <strong>${escapa(estado.consulta)}</strong>${posicao}</p>` +
-    visiveis.map(({ sessao, trechos }, numero) => cartao(sessao, termos, `
-        <p class="result-card__label">${trechos.length ? trechos.length + " " + t("trechos") : t("so_resumo")}</p>
-        <ul class="passage-list" id="trechos-${numero}">${trechosHtml(sessao, trechos.slice(0, 5), termos)}</ul>
-        ${trechos.length > 5 ? `<button class="btn btn-link btn-sm passage-list__more" type="button" data-mais="${numero}">${t("mais", { n: trechos.length })}</button>` : ""}`)).join("") + navegacao;
-  ligaPaginacao(alvo);
-  alvo.querySelectorAll("[data-mais]").forEach((botao) => botao.addEventListener("click", () => {
-    const { sessao, trechos } = visiveis[Number(botao.dataset.mais)];
-    document.getElementById(`trechos-${botao.dataset.mais}`).innerHTML = trechosHtml(sessao, trechos, termos);
-    botao.remove();
+  const results = search(filteredSessions(), searchData, terms, lineCache);
+  const total = results.reduce((sum, result) => sum + result.passages.length, 0);
+  if (!results.length) { target.innerHTML = `<p class="empty-state">${t("no_results")}</p>`; return; }
+  const { visible, position, navigation } = currentPage(results);
+  target.innerHTML = `<p class="result-count">${t("results", { passages: total, sessions: results.length })} <strong>${escapeHtml(state.query)}</strong>${position}</p>` +
+    visible.map(({ session, passages }, number) => card(session, terms, `
+        <p class="result-card__label">${passages.length ? passages.length + " " + t("passages") : t("summary_only")}</p>
+        <ul class="passage-list" id="passages-${number}">${passagesHtml(session, passages.slice(0, 5), terms)}</ul>
+        ${passages.length > 5 ? `<button class="btn btn-link btn-sm passage-list__more" type="button" data-more="${number}">${t("show_all", { n: passages.length })}</button>` : ""}`)).join("") + navigation;
+  bindPagination(target);
+  target.querySelectorAll("[data-more]").forEach((button) => button.addEventListener("click", () => {
+    const { session, passages } = visible[Number(button.dataset.more)];
+    document.getElementById(`passages-${button.dataset.more}`).innerHTML = passagesHtml(session, passages, terms);
+    button.remove();
   }));
 }
 
-// `enablejsapi` e `origin` permitem que a API de iframe do YouTube informe o tempo atual do vídeo.
-function enderecoPlayer(id, segundos, tocar) {
-  return `https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}?start=${Math.floor(segundos)}${tocar ? "&autoplay=1" : ""}&enablejsapi=1&origin=${encodeURIComponent(location.origin)}`;
+// `enablejsapi` and `origin` let YouTube's iframe API report the current time of the video.
+function playerUrl(id, seconds, autoplay) {
+  return `https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}?start=${Math.floor(seconds)}${autoplay ? "&autoplay=1" : ""}&enablejsapi=1&origin=${encodeURIComponent(location.origin)}`;
 }
 
-let apiDoPlayer = null;     // promessa da API de iframe do YouTube, carregada na primeira sessão aberta
-let player = null;          // player da sessão aberta, quando a API está pronta
-let relogioDoPlayer = null; // intervalo que acompanha o tempo do vídeo
-let sessaoAberta = 0;       // muda a cada sessão desenhada, para descartar respostas de uma sessão anterior
+let playerApi = null;       // promise of YouTube's iframe API, loaded on the first session opened
+let player = null;          // player of the open session, once the API is ready
+let playerClock = null;     // interval that follows the time of the video
+let openSession = 0;        // changes on every session drawn, to drop answers meant for a previous session
 
-function carregaApiDoPlayer() {
-  if (!apiDoPlayer) {
-    apiDoPlayer = new Promise((resolve, reject) => {
+function loadPlayerApi() {
+  if (!playerApi) {
+    playerApi = new Promise((resolve, reject) => {
       window.onYouTubeIframeAPIReady = () => resolve(window.YT);
       const script = document.createElement("script");
       script.src = "https://www.youtube.com/iframe_api";
@@ -262,181 +265,184 @@ function carregaApiDoPlayer() {
       document.head.appendChild(script);
     });
   }
-  return apiDoPlayer;
+  return playerApi;
 }
 
-function paraPlayer() {
-  clearInterval(relogioDoPlayer);
-  relogioDoPlayer = null;
+function stopPlayer() {
+  clearInterval(playerClock);
+  playerClock = null;
   player = null;
-  sessaoAberta++;
+  openSession++;
 }
 
-function desenhaSessao(id, segundos) {
-  const vez = sessaoAberta;
-  app().innerHTML = `<p class="result-count">${t("carregando")}</p>`;
-  carregaItem(id).then((sessao) => { if (vez === sessaoAberta) desenhaSessaoCarregada(sessao, segundos, vez); })
-    .catch(() => { itensCompletos.delete(id); if (vez === sessaoAberta) location.hash = "#/"; });
+function drawSession(id, seconds) {
+  const turn = openSession;
+  app().innerHTML = `<p class="result-count">${t("loading")}</p>`;
+  loadItem(id).then((session) => { if (turn === openSession) drawLoadedSession(session, seconds, turn); })
+    .catch(() => { fullItems.delete(id); if (turn === openSession) location.hash = "#/"; });
 }
 
-function desenhaSessaoCarregada(sessao, segundos, vez) {
-  const id = sessao.id;
-  const erro = `${indice.config.repositorio}/issues/new?title=${encodeURIComponent("Erro em " + id + ": " + sessao.titulo)}`;
-  const lista = (itens) => itens.length ? `<ul class="machine-box__list" lang="pt-BR">${itens.map((item) => `<li>${item}</li>`).join("")}</ul>` : "";
-  // O YouTube recusa o player (erro 153) quando a página não envia o cabeçalho Referer; daí o referrerpolicy.
+function drawLoadedSession(session, seconds, turn) {
+  const id = session.id;
+  const issue = `${list.config.repository}/issues/new?title=${encodeURIComponent("Erro em " + id + ": " + session.title)}`;
+  const bullets = (items) => items.length ? `<ul class="machine-box__list" lang="pt-BR">${items.map((item) => `<li>${item}</li>`).join("")}</ul>` : "";
+  // YouTube refuses the player (error 153) when the page sends no Referer header; hence the referrerpolicy.
   app().innerHTML = `
-    <p><a href="#/">${t("voltar")}</a></p>
-    <h1 class="page-title page-title--session" lang="pt-BR">${escapa(sessao.titulo)}</h1>
-    <p class="page-lead"><span lang="pt-BR">${origem(sessao)}</span>, ${t("publicado")} ${data(sessao.data)} · ${duracaoLegivel(sessao.duracao)} · <span lang="pt-BR">${escapa(sessao.tipo)}</span> ·
-      <a href="https://www.youtube.com/watch?v=${encodeURIComponent(id)}" target="_blank" rel="noopener">${t("ver_youtube")}</a> · <a href="legendas/${encodeURIComponent(id)}.vtt" download>${t("baixar_legenda")}</a> · <a href="${escapa(erro)}" target="_blank" rel="noopener">${t("erro")}</a></p>
+    <p><a href="#/">${t("back")}</a></p>
+    <h1 class="page-title page-title--session" lang="pt-BR">${escapeHtml(session.title)}</h1>
+    <p class="page-lead"><span lang="pt-BR">${source(session)}</span>, ${t("published")} ${date(session.date)} · ${readableDuration(session.duration)} · <span lang="pt-BR">${escapeHtml(session.type)}</span> ·
+      <a href="https://www.youtube.com/watch?v=${encodeURIComponent(id)}" target="_blank" rel="noopener">${t("open_youtube")}</a> · <a href="captions/${encodeURIComponent(id)}.vtt" download>${t("download_captions")}</a> · <a href="${escapeHtml(issue)}" target="_blank" rel="noopener">${t("report_error")}</a></p>
     <div class="session-layout">
       <div class="session-layout__main">
-        <div class="video-player ratio ratio-16x9"><iframe id="player" src="${enderecoPlayer(id, segundos || 0, segundos !== null)}" title="YouTube: ${escapa(sessao.titulo)}" referrerpolicy="strict-origin-when-cross-origin" allow="autoplay; encrypted-media; picture-in-picture; web-share" allowfullscreen></iframe></div>
-        <section class="machine-box" aria-labelledby="titulo-resumo">
-          <h2 class="machine-box__label" id="titulo-resumo">${t("resumo_maquina")} · ${t("modelo")} ${escapa(sessao.modelo)}</h2>
-          <p lang="pt-BR">${escapa(sessao.resumo)}</p>
-          <p>${temasHtml(sessao)}</p>
-          ${sessao.palavras_chave.length ? `<p class="machine-box__detail"><strong>${t("palavras")}:</strong> <span lang="pt-BR">${sessao.palavras_chave.map(escapa).join(", ")}</span></p>` : ""}
-          ${sessao.participantes.length ? `<div class="machine-box__detail"><strong>${t("participantes")}:</strong>${lista(sessao.participantes.map((p) => `${escapa(p.nome)}${p.papel ? " (" + escapa(p.papel) + ")" : ""}`))}</div>` : ""}
-          <div class="machine-box__detail"><strong>${t("decisoes")}:</strong> ${sessao.decisoes.length ? lista(sessao.decisoes.map(escapa)) : t("sem_decisoes")}</div>
-          <p class="machine-box__warning">${t("aviso_maquina")}</p>
+        <div class="video-player ratio ratio-16x9"><iframe id="player" src="${playerUrl(id, seconds || 0, seconds !== null)}" title="YouTube: ${escapeHtml(session.title)}" referrerpolicy="strict-origin-when-cross-origin" allow="autoplay; encrypted-media; picture-in-picture; web-share" allowfullscreen></iframe></div>
+        <section class="machine-box" aria-labelledby="summary-title">
+          <h2 class="machine-box__label" id="summary-title">${t("machine_summary")} · ${t("model")} ${escapeHtml(session.model)}</h2>
+          <p lang="pt-BR">${escapeHtml(session.summary)}</p>
+          <p>${themesHtml(session)}</p>
+          ${session.keywords.length ? `<p class="machine-box__detail"><strong>${t("keywords")}:</strong> <span lang="pt-BR">${session.keywords.map(escapeHtml).join(", ")}</span></p>` : ""}
+          ${session.participants.length ? `<div class="machine-box__detail"><strong>${t("participants")}:</strong>${bullets(session.participants.map((person) => `${escapeHtml(person.name)}${person.role ? " (" + escapeHtml(person.role) + ")" : ""}`))}</div>` : ""}
+          <div class="machine-box__detail"><strong>${t("decisions")}:</strong> ${session.decisions.length ? bullets(session.decisions.map(escapeHtml)) : t("no_decisions")}</div>
+          <p class="machine-box__warning">${t("machine_warning")}</p>
         </section>
       </div>
-      <section class="session-layout__side" aria-labelledby="titulo-transcricao">
-        <h2 class="machine-box__label" id="titulo-transcricao">${t("transcricao_maquina")}</h2>
+      <section class="session-layout__side" aria-labelledby="transcript-title">
+        <h2 class="machine-box__label" id="transcript-title">${t("machine_transcript")}</h2>
         <div class="transcript-search">
-          <label class="visually-hidden" for="busca-sessao">${t("buscar_sessao")}</label>
-          <input id="busca-sessao" class="form-control" type="search" placeholder="${escapa(t("buscar_sessao"))}" value="${escapa(estado.consulta)}">
-          <span class="transcript-search__count" id="contagem-sessao" aria-live="polite"></span>
+          <label class="visually-hidden" for="session-search">${t("search_session")}</label>
+          <input id="session-search" class="form-control" type="search" placeholder="${escapeHtml(t("search_session"))}" value="${escapeHtml(state.query)}">
+          <span class="transcript-search__count" id="session-count" aria-live="polite"></span>
         </div>
-        <p class="transcript-hint">${t("clique")}</p>
-        <ol class="transcript-list" id="transcricao" tabindex="0" lang="pt-BR"></ol>
+        <p class="transcript-hint">${t("click_hint")}</p>
+        <ol class="transcript-list" id="transcript" tabindex="0" lang="pt-BR"></ol>
       </section>
     </div>`;
-  const linhas = sessao.falas;
-  const alvo = document.getElementById("transcricao");
-  const normalizadas = cacheDeLinhas[id] ??= linhas.map((linha) => normaliza(linha[1]));
-  const campo = document.getElementById("busca-sessao");
-  const contagem = document.getElementById("contagem-sessao");
-  let atual = -1;
-  if (segundos !== null) linhas.forEach((linha, posicao) => { if (linha[0] <= segundos) atual = posicao; });
-  // Marca a fala `posicao` como atual, se ela estiver na lista (com filtro, pode não estar). A lista só rola
-  // sozinha quando o ponteiro não está sobre ela, para não brigar com quem está lendo.
-  const marca = (posicao, rolar) => {
-    atual = posicao;
-    const anterior = alvo.querySelector(".is-current");
-    const nova = alvo.querySelector(`[data-linha="${posicao}"]`);
-    if (anterior === nova) return;
-    if (anterior) anterior.classList.remove("is-current");
-    if (!nova) return;
-    nova.classList.add("is-current");
-    if (rolar && !alvo.matches(":hover")) alvo.scrollTop = nova.offsetTop - alvo.offsetTop - 60;
+  const lines = session.lines;
+  const target = document.getElementById("transcript");
+  const normalized = lineCache[id] ??= lines.map((line) => normalize(line[1]));
+  const field = document.getElementById("session-search");
+  const count = document.getElementById("session-count");
+  let current = -1;
+  if (seconds !== null) lines.forEach((line, position) => { if (line[0] <= seconds) current = position; });
+  // Mark line `position` as the current one, if it is in the list (with a filter it may not be). The list only
+  // scrolls by itself when the pointer is not over it, so it does not fight with whoever is reading.
+  const mark = (position, scroll) => {
+    current = position;
+    const previous = target.querySelector(".is-current");
+    const next = target.querySelector(`[data-line="${position}"]`);
+    if (previous === next) return;
+    if (previous) previous.classList.remove("is-current");
+    if (!next) return;
+    next.classList.add("is-current");
+    if (scroll && !target.matches(":hover")) target.scrollTop = next.offsetTop - target.offsetTop - 60;
   };
-  // Com termos no campo, a lista mostra só as falas que casam (e a seguinte, quando o trecho passa de uma fala).
-  const desenhaLinhas = () => {
-    const termos = termosDaConsulta(campo.value);
-    let posicoes = linhas.map((_, posicao) => posicao);
-    if (termos.length) {
-      const achadas = falasQueCasam(normalizadas, termos);
-      posicoes = achadas.flatMap(({ posicao, inteira }) => inteira ? [posicao] : [posicao, posicao + 1]);
-      contagem.textContent = t("ocorrencias", { n: achadas.length });
+  // With terms in the field, the list shows only the matching lines (and the next one, when the passage spans two).
+  const drawLines = () => {
+    const terms = queryTerms(field.value);
+    let positions = lines.map((_, position) => position);
+    if (terms.length) {
+      const found = matchingLines(normalized, terms);
+      positions = found.flatMap(({ position, whole }) => whole ? [position] : [position, position + 1]);
+      count.textContent = t("matches", { n: found.length });
     } else {
-      contagem.textContent = "";
+      count.textContent = "";
     }
-    alvo.innerHTML = posicoes.length
-      ? posicoes.map((posicao) => `<li class="transcript-list__line" data-linha="${posicao}"><button class="time-link" type="button" data-segundos="${linhas[posicao][0]}" data-posicao="${posicao}">▶ ${relogio(linhas[posicao][0])}</button> ${destaca(linhas[posicao][1], termos)}</li>`).join("")
-      : `<li>${t("nenhum_na_sessao")}</li>`;
-    alvo.scrollTop = 0;
-    marca(atual, true);
+    target.innerHTML = positions.length
+      ? positions.map((position) => `<li class="transcript-list__line" data-line="${position}"><button class="time-link" type="button" data-seconds="${lines[position][0]}" data-position="${position}">▶ ${clock(lines[position][0])}</button> ${highlight(lines[position][1], terms)}</li>`).join("")
+      : `<li>${t("no_session_matches")}</li>`;
+    target.scrollTop = 0;
+    mark(current, true);
   };
-  campo.addEventListener("input", () => { estado.consulta = campo.value.trim(); desenhaLinhas(); });
-  alvo.addEventListener("click", (evento) => {
-    const botao = evento.target.closest("[data-segundos]");
-    if (!botao) return;
-    const inicioDaFala = Number(botao.dataset.segundos);
+  field.addEventListener("input", () => { state.query = field.value.trim(); drawLines(); });
+  target.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-seconds]");
+    if (!button) return;
+    const lineStart = Number(button.dataset.seconds);
     if (player) {
-      player.seekTo(inicioDaFala, true);
+      player.seekTo(lineStart, true);
       player.playVideo();
     } else {
-      document.getElementById("player").src = enderecoPlayer(id, inicioDaFala, true);
+      document.getElementById("player").src = playerUrl(id, lineStart, true);
     }
-    marca(Number(botao.dataset.posicao), false);
+    mark(Number(button.dataset.position), false);
   });
-  desenhaLinhas();
+  drawLines();
 
-  // Enquanto o vídeo toca, acompanha o tempo e marca a fala correspondente. Sem a API do YouTube (bloqueada,
-  // por exemplo), o resto da página segue funcionando, só sem a marcação automática.
-  carregaApiDoPlayer().then((YT) => {
-    if (vez !== sessaoAberta || !document.getElementById("player")) return;
-    const novo = new YT.Player("player", { events: { onReady: () => { if (vez === sessaoAberta) player = novo; } } });
-    relogioDoPlayer = setInterval(() => {
-      if (vez !== sessaoAberta || !player || player.getPlayerState() !== YT.PlayerState.PLAYING) return;
-      const agora = player.getCurrentTime();
-      let primeira = 0, ultima = linhas.length - 1, posicao = -1;
-      while (primeira <= ultima) {
-        const meio = (primeira + ultima) >> 1;
-        if (linhas[meio][0] <= agora) { posicao = meio; primeira = meio + 1; } else { ultima = meio - 1; }
+  // While the video plays, follow its time and mark the matching line. Without YouTube's API (blocked, for example)
+  // the rest of the page keeps working, only without the automatic marking.
+  loadPlayerApi().then((YT) => {
+    if (turn !== openSession || !document.getElementById("player")) return;
+    const created = new YT.Player("player", { events: { onReady: () => { if (turn === openSession) player = created; } } });
+    playerClock = setInterval(() => {
+      if (turn !== openSession || !player || player.getPlayerState() !== YT.PlayerState.PLAYING) return;
+      const now = player.getCurrentTime();
+      let low = 0, high = lines.length - 1, position = -1;
+      while (low <= high) {
+        const middle = (low + high) >> 1;
+        if (lines[middle][0] <= now) { position = middle; low = middle + 1; } else { high = middle - 1; }
       }
-      if (posicao !== atual) marca(posicao, true);
+      if (position !== current) mark(position, true);
     }, 500);
   }).catch(() => {});
 }
 
-function desenhaSobre() {
-  const casas = new Set(indice.sessoes.map((s) => s.casa)).size;
-  const horas = Math.round(indice.sessoes.reduce((soma, s) => soma + s.duracao, 0) / 3600);
-  const modelos = indice.config.modelos.map((modelo) => `${escapa(modelo)} (${t("pesos_abertos")})`).join(", ");
-  const valores = { sessoes: indice.sessoes.length, horas, casas, modelos, repo: escapa(indice.config.repositorio) };
-  app().innerHTML = `<p><a href="#/">${t("voltar")}</a></p><h1 class="page-title">${t("sobre_titulo")}</h1><div class="prose-block">` +
-    TEXTOS[idioma].sobre.map((paragrafo) => {
-      let texto = paragrafo;
-      for (const [nome, valor] of Object.entries(valores)) texto = texto.replaceAll(`{${nome}}`, valor);
-      return `<p>${texto}</p>`;
+function drawAbout() {
+  const houses = new Set(list.sessions.map((session) => session.house)).size;
+  const hours = Math.round(list.sessions.reduce((sum, session) => sum + session.duration, 0) / 3600);
+  const models = list.config.models.map((model) => `${escapeHtml(model)} (${t("open_weights")})`).join(", ");
+  const values = { sessions: list.sessions.length, hours, houses, models, repo: escapeHtml(list.config.repository) };
+  app().innerHTML = `<p><a href="#/">${t("back")}</a></p><h1 class="page-title">${t("about_title")}</h1><div class="prose-block">` +
+    TEXTS[language].about.map((paragraph) => {
+      let text = paragraph;
+      for (const [name, value] of Object.entries(values)) text = text.replaceAll(`{${name}}`, value);
+      return `<p>${text}</p>`;
     }).join("") + "</div>";
 }
 
-function desenha() {
-  document.documentElement.lang = TEXTOS[idioma].local;
-  document.title = `${t("marca")} - Brasil.IO`;
-  document.querySelectorAll("[data-t]").forEach((el) => { el.textContent = t(el.dataset.t); });
-  document.querySelectorAll("[data-t-rotulo]").forEach((el) => { el.setAttribute("aria-label", t(el.dataset.tRotulo)); });
-  document.querySelectorAll("[data-idioma]").forEach((botao) => { botao.setAttribute("aria-pressed", String(botao.dataset.idioma === idioma)); });
-  document.querySelectorAll("[data-tema-visual]").forEach((botao) => { botao.setAttribute("aria-pressed", String(botao.dataset.temaVisual === temaVisual)); });
-  if (!indice) return;
-  document.getElementById("link-repo").href = indice.config.repositorio;
-  const partes = decodeURIComponent(location.hash.replace(/^#\/?/, "")).split("/");
+// The route in the fragment: `#/`, `#/v/<id>[/<seconds>]` or `#/sobre`.
+const routeParts = () => decodeURIComponent(location.hash.replace(/^#\/?/, "")).split("/");
+
+function draw() {
+  document.documentElement.lang = TEXTS[language].locale;
+  document.title = `${t("brand")} - Brasil.IO`;
+  document.querySelectorAll("[data-t]").forEach((element) => { element.textContent = t(element.dataset.t); });
+  document.querySelectorAll("[data-t-label]").forEach((element) => { element.setAttribute("aria-label", t(element.dataset.tLabel)); });
+  document.querySelectorAll("[data-language]").forEach((button) => { button.setAttribute("aria-pressed", String(button.dataset.language === language)); });
+  document.querySelectorAll("[data-color-theme]").forEach((button) => { button.setAttribute("aria-pressed", String(button.dataset.colorTheme === colorTheme)); });
+  if (!list) return;
+  document.getElementById("repository-link").href = list.config.repository;
   window.scrollTo(0, 0);
-  paraPlayer();
-  if (partes[0] === "v" && partes[1]) desenhaSessao(partes[1], partes[2] !== undefined && partes[2] !== "" ? Number(partes[2]) : null);
-  else if (partes[0] === "sobre") desenhaSobre();
-  else desenhaInicio();
+  stopPlayer();
+  const parts = routeParts();
+  if (parts[0] === "v" && parts[1]) drawSession(parts[1], parts[2] !== undefined && parts[2] !== "" ? Number(parts[2]) : null);
+  else if (parts[0] === "sobre") drawAbout();
+  else drawHome();
 }
 
-window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", aplicaTemaVisual);
-document.addEventListener("click", (evento) => {
-  const botaoIdioma = evento.target.closest("[data-idioma]");
-  if (botaoIdioma) {
-    idioma = botaoIdioma.dataset.idioma;
-    guarda("idioma", idioma);
-    desenha();
+window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", applyColorTheme);
+document.addEventListener("click", (event) => {
+  const languageButton = event.target.closest("[data-language]");
+  if (languageButton) {
+    language = languageButton.dataset.language;
+    store("language", language);
+    draw();
     return;
   }
-  const botaoTema = evento.target.closest("[data-tema-visual]");
-  if (botaoTema) {
-    temaVisual = botaoTema.dataset.temaVisual;
-    guarda("tema", temaVisual);
-    aplicaTemaVisual();
-    document.querySelectorAll("[data-tema-visual]").forEach((botao) => { botao.setAttribute("aria-pressed", String(botao === botaoTema)); });
+  const themeButton = event.target.closest("[data-color-theme]");
+  if (themeButton) {
+    colorTheme = themeButton.dataset.colorTheme;
+    store("color-theme", colorTheme);
+    applyColorTheme();
+    document.querySelectorAll("[data-color-theme]").forEach((button) => { button.setAttribute("aria-pressed", String(button === themeButton)); });
     return;
   }
-  const aberto = document.querySelector("details.multi-select[open]");
-  if (aberto && !aberto.contains(evento.target)) aberto.removeAttribute("open");
+  const open = document.querySelector("details.multi-select[open]");
+  if (open && !open.contains(event.target)) open.removeAttribute("open");
 });
-window.addEventListener("hashchange", desenha);
-aplicaTemaVisual();
-desenha();
-// Num link direto para uma sessão, o arquivo dela começa a baixar junto com a lista, sem esperar por ela.
-const rotaInicial = decodeURIComponent(location.hash.replace(/^#\/?/, "")).split("/");
-if (rotaInicial[0] === "v" && rotaInicial[1]) carregaItem(rotaInicial[1]).catch(() => {});
-fetch("dados/itens.json").then((r) => r.json()).then((dados) => { indice = decodificaLista(dados); desenha(); })
-  .catch(() => { app().innerHTML = "<p class=\"empty-state\">Could not load dados/itens.json.</p>"; });
+window.addEventListener("hashchange", draw);
+applyColorTheme();
+draw();
+// On a direct link to a session, its file starts downloading together with the list, without waiting for it.
+const firstRoute = routeParts();
+if (firstRoute[0] === "v" && firstRoute[1]) loadItem(firstRoute[1]).catch(() => {});
+fetch("data/items.json").then((response) => response.json()).then((data) => { list = decodeList(data); draw(); })
+  .catch(() => { app().innerHTML = "<p class=\"empty-state\">Could not load data/items.json.</p>"; });

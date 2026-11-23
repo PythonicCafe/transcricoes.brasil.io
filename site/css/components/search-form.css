@@ -1,4 +1,4 @@
-/* Formulário de busca: consulta e botão na primeira linha, filtros na segunda. */
+/* Search form: query and button on the first row, filters on the second. */
 .search-form {
   display: grid;
   grid-template-columns: minmax(0, 1fr);

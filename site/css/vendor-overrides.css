@@ -1,6 +1,6 @@
-/* Ajustes sobre o Bootstrap, todos aqui. */
+/* Overrides of Bootstrap, all of them here. */
 
-/* Links dentro de texto corrido precisam de algo além da cor (WCAG, link-in-text-block). */
+/* Links inside running text need something besides color (WCAG, link-in-text-block). */
 .prose-block a,
 .page-lead a,
 .site-footer a {

@@ -1,4 +1,4 @@
-/* Marca de tempo clicável (link nos resultados, botão na transcrição). Área mínima de 24px, como pede a WCAG 2.2. */
+/* Clickable timestamp (a link in the results, a button in the transcript). Minimum target of 24px, as WCAG 2.2 asks. */
 .time-link {
   display: inline-block;
   min-height: 1.5rem;

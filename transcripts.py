@@ -1233,20 +1233,20 @@ def command_capture(args: argparse.Namespace) -> int:
 # `.txt`, and `data/summaries/<id>.json`. Output, all inside the output directory:
 # - `index.html`, `js/`, `vendor/` and the logo: a copy of `site/`;
 # - `css/app.css`: the files of `site/css/` joined in one, without comments;
-# - `legendas/<id>.vtt`: captions of each session, for download;
-# - `miniaturas/<id>.webp`: thumbnail of each video, downloaded from YouTube once, converted and served by the site;
-# - `dados/itens.json`: slim list for the home page and the filters (rows follow `campos`; house, state, type and
+# - `captions/<id>.vtt`: captions of each session, for download;
+# - `thumbnails/<id>.webp`: thumbnail of each video, downloaded from YouTube once, converted and served by the site;
+# - `data/items.json`: slim list for the home page and the filters (rows follow `fields`; house, state, type and
 #   themes are positions in the option lists);
-# - `dados/busca.json`: what the search scans, `{"falas": {id: [[seconds, text], ...]}, "palavras_chave": {...}}`;
-# - `dados/itens/<id>.json`: one complete session (metadata, summary, participants, decisions and lines);
+# - `data/search.json`: what the search scans, `{"lines": {id: [[seconds, text], ...]}, "keywords": {...}}`;
+# - `data/items/<id>.json`: one complete session (metadata, summary, participants, decisions and lines);
 # - `CNAME` and `.nojekyll`.
-# The file names and JSON keys are in Portuguese because the site's JavaScript reads them.
+# The summaries in `data/summaries/` keep the Portuguese keys of the prompt's schema; here they become English keys.
 
 MODEL_NAMES = {"s5-nano": "S5-nano", "s5": "S5"}
 WEBP_QUALITY = 70
-# Fields of each row of `itens.json`, in order; the CATEGORICAL ones and the themes go as a position in their list.
-LIST_FIELDS = ["id", "titulo", "casa", "uf", "data", "duracao", "tipo", "temas", "resumo"]
-CATEGORICAL = {"casa": "casas", "uf": "ufs", "tipo": "tipos"}
+# Fields of each row of `items.json`, in order; the CATEGORICAL ones and the themes go as a position in their list.
+LIST_FIELDS = ["id", "title", "house", "state", "date", "duration", "type", "themes", "summary"]
+CATEGORICAL = {"house": "houses", "state": "states", "type": "types"}
 IMPORT_RE = re.compile(r'@import url\("([^"]+)"\);')
 
 
@@ -1279,7 +1279,7 @@ def display_model_name(model: str) -> str:
 
 
 def read_houses(path: Path | None) -> dict[str, dict[str, str]]:
-    """Map video id -> {"casa", "uf"} from the videos CSV; an empty dict without a CSV."""
+    """Map video id -> {"house", "state"} from the videos CSV (columns in Portuguese); an empty dict without a CSV."""
     if path is None:
         return {}
     houses = {}
@@ -1290,8 +1290,8 @@ def read_houses(path: Path | None) -> dict[str, dict[str, str]]:
             if video_id:
                 federal = row.get("esfera", "").lower() == "federal"
                 houses[video_id] = {
-                    "casa": row.get("orgao") or row.get("casa") or "",
-                    "uf": "" if federal else row.get("uf", ""),
+                    "house": row.get("orgao") or row.get("casa") or "",
+                    "state": "" if federal else row.get("uf", ""),
                 }
     return houses
 
@@ -1331,9 +1331,9 @@ def fetch_thumbnail(video_id: str, directory: Path) -> bool:
 
 
 def slim_list(sessions: list[dict], config: dict) -> dict:
-    """Build `itens.json`: only what the home page and the filters use, without repeating categorical strings."""
+    """Build `items.json`: only what the home page and the filters use, without repeating categorical strings."""
     options = {name: sorted({session[field] for session in sessions}) for field, name in CATEGORICAL.items()}
-    options["temas"] = sorted({theme for session in sessions for theme in session["temas"]})
+    options["themes"] = sorted({theme for session in sessions for theme in session["themes"]})
     positions = {name: {value: position for position, value in enumerate(values)} for name, values in options.items()}
     rows = []
     for session in sessions:
@@ -1341,12 +1341,12 @@ def slim_list(sessions: list[dict], config: dict) -> dict:
         for field in LIST_FIELDS:
             if field in CATEGORICAL:
                 row.append(positions[CATEGORICAL[field]][session[field]])
-            elif field == "temas":
-                row.append([positions["temas"][theme] for theme in session["temas"]])
+            elif field == "themes":
+                row.append([positions["themes"][theme] for theme in session["themes"]])
             else:
                 row.append(session[field])
         rows.append(row)
-    return {"config": config, **options, "campos": LIST_FIELDS, "itens": rows}
+    return {"config": config, **options, "fields": LIST_FIELDS, "items": rows}
 
 
 def minify_css(css: str) -> str:
@@ -1376,22 +1376,24 @@ def join_css(directory: Path) -> None:
 
 
 def session_record(video_id: str, record: dict, analysis: dict, house: dict, lines: list[list]) -> dict:
-    """One session as the site stores it."""
+    """One session as the site stores it: English keys from the summary's Portuguese ones."""
     return {
         "id": video_id,
-        "titulo": record.get("title") or video_id,
-        "canal": record.get("channel_title") or "",
-        "casa": house.get("casa") or record.get("channel_title") or "",
-        "uf": house.get("uf", ""),
-        "data": video_date(record),
-        "duracao": record.get("duration") or lines[-1][0],
-        "resumo": analysis["resumo"],
-        "tipo": analysis["tipo_sessao"],
-        "temas": analysis["temas"],
-        "palavras_chave": analysis["palavras_chave"],
-        "participantes": analysis["participantes"],
-        "decisoes": analysis["decisoes"],
-        "modelo": display_model_name(analysis.get("_meta", {}).get("modelo", "")),
+        "title": record.get("title") or video_id,
+        "channel": record.get("channel_title") or "",
+        "house": house.get("house") or record.get("channel_title") or "",
+        "state": house.get("state", ""),
+        "date": video_date(record),
+        "duration": record.get("duration") or lines[-1][0],
+        "summary": analysis["resumo"],
+        "type": analysis["tipo_sessao"],
+        "themes": analysis["temas"],
+        "keywords": analysis["palavras_chave"],
+        "participants": [
+            {"name": person.get("nome", ""), "role": person.get("papel", "")} for person in analysis["participantes"]
+        ],
+        "decisions": analysis["decisoes"],
+        "model": display_model_name(analysis.get("_meta", {}).get("modelo", "")),
     }
 
 
@@ -1402,9 +1404,9 @@ def command_site(args: argparse.Namespace) -> int:
     houses = read_houses(args.csv)
     excluded = {video_id.strip() for video_id in args.exclude.split(",") if video_id.strip()}
 
-    thumbnails_dir = args.output / "miniaturas"
+    thumbnails_dir = args.output / "thumbnails"
     thumbnails_dir.mkdir(parents=True, exist_ok=True)
-    captions_dir = args.output / "legendas"
+    captions_dir = args.output / "captions"
     captions_dir.mkdir(parents=True, exist_ok=True)
     sessions = []
     transcripts = {}
@@ -1431,42 +1433,44 @@ def command_site(args: argparse.Namespace) -> int:
         shutil.copyfile(vtt, captions_dir / f"{video_id}.vtt")
     if not sessions:
         raise CommandError(f"no video with the complete pipeline in {DATA_DIR}")
-    sessions.sort(key=lambda session: (session["data"], session["id"]), reverse=True)
+    sessions.sort(key=lambda session: (session["date"], session["id"]), reverse=True)
 
-    site_data_dir = args.output / "dados"
+    site_data_dir = args.output / "data"
     site_data_dir.mkdir(parents=True, exist_ok=True)
+    # The copied directories (js/, css/, vendor/) are replaced, so no file renamed or removed in `site/` is left.
+    for source in SITE_SOURCE_DIR.iterdir():
+        if source.is_dir() and (args.output / source.name).is_dir():
+            shutil.rmtree(args.output / source.name)
     shutil.copytree(SITE_SOURCE_DIR, args.output, dirs_exist_ok=True)
     join_css(args.output / "css")
     status("writing the search file...")
     search = {
-        "palavras_chave": {session["id"]: session["palavras_chave"] for session in sessions},
-        "falas": transcripts,
+        "keywords": {session["id"]: session["keywords"] for session in sessions},
+        "lines": transcripts,
     }
-    write_json(site_data_dir / "busca.json", search)
+    write_json(site_data_dir / "search.json", search)
     config = {
-        "repositorio": args.repository.rstrip("/"),
-        "modelos": sorted({session["modelo"] for session in sessions}),
-        "sem_miniatura": without_thumbnail,
-        # Size of busca.json, so the site can show download progress (the browser only knows the compressed size).
-        "busca_bytes": (site_data_dir / "busca.json").stat().st_size,
+        "repository": args.repository.rstrip("/"),
+        "models": sorted({session["model"] for session in sessions}),
+        "without_thumbnail": without_thumbnail,
+        # Size of search.json, so the site can show download progress (the browser only knows the compressed size).
+        "search_bytes": (site_data_dir / "search.json").stat().st_size,
     }
-    write_json(site_data_dir / "itens.json", slim_list(sessions, config))
-    # One file per session; the directory is rebuilt so no excluded session is left. Old format files are removed.
-    items_dir = site_data_dir / "itens"
+    write_json(site_data_dir / "items.json", slim_list(sessions, config))
+    # One file per session; the directory is rebuilt so no excluded session is left.
+    items_dir = site_data_dir / "items"
     if items_dir.exists():
         shutil.rmtree(items_dir)
     items_dir.mkdir()
     for session in tqdm(sessions, desc="writing items   ", unit="session", file=sys.stderr):
-        write_json(items_dir / f"{session['id']}.json", {**session, "falas": transcripts[session["id"]]})
-    for old in ("indice.json", "transcricoes.json"):
-        (site_data_dir / old).unlink(missing_ok=True)
+        write_json(items_dir / f"{session['id']}.json", {**session, "lines": transcripts[session["id"]]})
     (args.output / ".nojekyll").write_text("", encoding="utf-8")
     if args.domain:
         (args.output / "CNAME").write_text(args.domain + "\n", encoding="utf-8")
 
-    hours = sum(session["duracao"] for session in sessions) / 3600
-    list_size = (site_data_dir / "itens.json").stat().st_size / 1024
-    search_size = (site_data_dir / "busca.json").stat().st_size / 1024 / 1024
+    hours = sum(session["duration"] for session in sessions) / 3600
+    list_size = (site_data_dir / "items.json").stat().st_size / 1024
+    search_size = (site_data_dir / "search.json").stat().st_size / 1024 / 1024
     status(
         f"{len(sessions)} sessions, {hours:.1f} h of video, list with {list_size:.0f} KB,"
         f" search with {search_size:.1f} MB -> {args.output}/"
@@ -1508,7 +1512,7 @@ PAGE_STATE = """() => ({
 HOME_READY = "() => document.querySelectorAll('.result-card').length > 0"
 SESSION_READY = "() => document.querySelectorAll('.transcript-list__line').length > 0"
 SEARCH_READY = "() => !!document.querySelector('.result-count strong, .empty-state')"
-PAGE_2_READY = "() => !!document.querySelector('.page-nav__button[aria-current=page][data-pagina=\\'2\\']')"
+PAGE_2_READY = "() => !!document.querySelector('.page-nav__button[aria-current=page][data-page=\\'2\\']')"
 ABOUT_READY = "() => !!document.querySelector('.prose-block p')"
 
 
@@ -1624,8 +1628,8 @@ class Meter:
         """Step: type a query and wait for its results."""
 
         def action() -> None:
-            self.page.fill("#consulta", query)
-            self.page.press("#consulta", "Enter")
+            self.page.fill("#query", query)
+            self.page.press("#query", "Enter")
             # The loading state has no <strong>; the final count or the empty notice do.
             self.page.wait_for_function(
                 "(query) => { const strong = document.querySelector('.result-count strong');"
@@ -1642,11 +1646,11 @@ class Meter:
         def action() -> None:
             self.page.evaluate(
                 """([house, theme, since]) => {
-                    const box = [...document.querySelectorAll('#casas input')].find((item) => item.value === house);
+                    const box = [...document.querySelectorAll('#houses input')].find((item) => item.value === house);
                     box.checked = true;
-                    document.getElementById('tema').value = theme;
-                    document.getElementById('de').value = since;
-                    document.getElementById('de').dispatchEvent(new Event('change', {bubbles: true}));
+                    document.getElementById('theme').value = theme;
+                    document.getElementById('from').value = since;
+                    document.getElementById('from').dispatchEvent(new Event('change', {bubbles: true}));
                 }""",
                 [house, theme, since],
             )
@@ -1719,11 +1723,11 @@ def scenarios(session: str) -> dict:
 
     def about_page(meter: Meter) -> None:
         meter.open_home()
-        meter.click("about", "a[href='#/sobre']", ABOUT_READY)
+        meter.click("about", "#about-link", ABOUT_READY)
 
     def second_page_then_session(meter: Meter) -> None:
         meter.open_home()
-        meter.click("go to page 2", "[data-pagina='2']", PAGE_2_READY)
+        meter.click("go to page 2", "[data-page='2']", PAGE_2_READY)
         meter.open_first_session()
 
     return {
@@ -1742,9 +1746,9 @@ def scenarios(session: str) -> dict:
 
 def median_session(site: Path) -> str:
     """Id of the session whose JSON has the median size, so direct links measure a typical one."""
-    sizes = sorted((path.stat().st_size, path.stem) for path in (site / "dados" / "itens").glob("*.json"))
+    sizes = sorted((path.stat().st_size, path.stem) for path in (site / "data" / "items").glob("*.json"))
     if not sizes:
-        raise CommandError(f"{site}/dados/itens/ is empty; build the site first or pass --session")
+        raise CommandError(f"{site}/data/items/ is empty; build the site first or pass --session")
     return sizes[len(sizes) // 2][1]
 
 

@@ -1,5 +1,5 @@
-/* Grupo de opções da barra do topo (idioma e tema): botões visíveis no lugar de um seletor.
- * A opção ativa tem fundo sólido e sublinhado, para não depender só de cor. */
+/* Option group of the top bar (language and color theme): visible buttons instead of a select.
+ * The active option has a solid background and an underline, so it does not rely on color alone. */
 .option-group {
   display: inline-flex;
   align-items: center;

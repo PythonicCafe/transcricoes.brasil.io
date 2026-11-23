@@ -1,4 +1,4 @@
-/* Elementos HTML puros: tipografia, links, foco e preferência por menos movimento. */
+/* Bare HTML elements: typography, links, focus and the reduced motion preference. */
 body {
   font-family: var(--font-family-base);
 }

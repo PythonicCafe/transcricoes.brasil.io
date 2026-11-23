@@ -1,5 +1,5 @@
-/* Tokens do projeto. Cores da marca vêm do Brasil.IO (índigo e verde); o resto aponta para o Bootstrap.
- * Pares de texto e fundo foram conferidos contra WCAG 2.2 AA (4.5:1) nos dois temas. */
+/* Project tokens. Brand colors come from Brasil.IO (indigo and green); the rest points to Bootstrap.
+ * Text and background pairs were checked against WCAG 2.2 AA (4.5:1) in both color themes. */
 :root {
   --color-brand: #3f51b5;
   --color-brand-contrast: #fff;

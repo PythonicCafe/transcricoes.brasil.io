@@ -1,4 +1,4 @@
-/* Esqueleto das páginas: títulos, rodapé e a grade da página de sessão. */
+/* Page skeleton: titles, footer and the grid of the session page. */
 .page-title {
   margin-bottom: var(--space-sm);
   font-size: var(--font-size-xl);

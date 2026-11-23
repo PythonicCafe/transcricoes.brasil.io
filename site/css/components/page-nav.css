@@ -1,5 +1,5 @@
-/* Paginação da lista de sessões e dos resultados da busca. A página atual tem fundo sólido e `aria-current`,
- * para não depender só de cor. */
+/* Pagination of the session list and of the search results. The current page has a solid background and
+ * `aria-current`, so it does not rely on color alone. */
 .page-nav {
   display: flex;
   flex-wrap: wrap;
@@ -44,7 +44,7 @@
   color: var(--color-text-secondary);
 }
 
-/* A lista recebe o foco ao trocar de página, para o leitor de tela recomeçar dali; ela não é um controle. */
+/* The list gets the focus when the page changes, so screen readers start again from there; it is not a control. */
 #resultados:focus {
   outline: none;
 }

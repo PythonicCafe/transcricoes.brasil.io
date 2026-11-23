@@ -37,8 +37,9 @@ gerados por máquina, não foram revisados por pessoas e contêm erros.
 | `measure` | Mede o site gerado num navegador de verdade (tempo, rede e memória). |
 | `compare` | Compara duas medições. |
 
-Os dados da captura ficam em `data/`, que o git ignora. Os nomes dos arquivos de dados e as chaves dos JSON estão
-em português, como as próprias sessões; o código e a interface da linha de comando estão em inglês.
+Os dados da captura ficam em `data/`, que o git ignora. O código, a linha de comando, os arquivos do site e as chaves
+dos JSON do site estão em inglês. A exceção são os resumos em `data/summaries/`: as chaves seguem o esquema em
+português pedido ao modelo (`resumo`, `temas`, `palavras_chave`...), e o subcomando `site` as converte.
 
 ## Como usar
 

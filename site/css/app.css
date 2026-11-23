@@ -1,4 +1,4 @@
-/* Agregador: importa as camadas na ordem tokens, base, layout, componentes e ajustes de terceiros. */
+/* Aggregator: imports the layers in order: tokens, base, layout, components and third-party overrides. */
 @import url("tokens.css");
 @import url("base.css");
 @import url("layout.css");

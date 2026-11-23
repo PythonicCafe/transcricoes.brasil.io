@@ -10,8 +10,8 @@ import transcripts
 
 @pytest.fixture
 def data_dir(tmp_path, monkeypatch):
-    """An empty data directory used instead of the repository's `dados/`."""
-    directory = tmp_path / "dados"
+    """An empty data directory used instead of the repository's `data/`."""
+    directory = tmp_path / "data"
     directory.mkdir()
     monkeypatch.setattr(transcripts, "DATA_DIR", directory)
     return directory
@@ -580,25 +580,25 @@ def test_read_houses_blanks_the_state_of_federal_houses(tmp_path):
         encoding="utf-8",
     )
     assert transcripts.read_houses(path) == {
-        "aaa": {"casa": "Câmara", "uf": ""},
-        "bbb": {"casa": "Alece", "uf": "CE"},
+        "aaa": {"house": "Câmara", "state": ""},
+        "bbb": {"house": "Alece", "state": "CE"},
     }
     assert transcripts.read_houses(None) == {}
 
 
 def test_slim_list_replaces_categorical_values_with_positions():
     sessions = [
-        {"id": "a", "titulo": "A", "casa": "Senado", "uf": "", "data": "2025-01-02", "duracao": 60, "tipo": "Outro",
-         "temas": ["Saúde", "Economia"], "resumo": "ra"},
-        {"id": "b", "titulo": "B", "casa": "Alece", "uf": "CE", "data": "2025-01-01", "duracao": 30, "tipo": "Outro",
-         "temas": ["Economia"], "resumo": "rb"},
+        {"id": "a", "title": "A", "house": "Senado", "state": "", "date": "2025-01-02", "duration": 60, "type": "Outro",
+         "themes": ["Saúde", "Economia"], "summary": "ra"},
+        {"id": "b", "title": "B", "house": "Alece", "state": "CE", "date": "2025-01-01", "duration": 30, "type": "Outro",
+         "themes": ["Economia"], "summary": "rb"},
     ]  # fmt: skip
     slim = transcripts.slim_list(sessions, {"x": 1})
-    assert slim["casas"] == ["Alece", "Senado"]
-    assert slim["temas"] == ["Economia", "Saúde"]
-    assert slim["campos"] == ["id", "titulo", "casa", "uf", "data", "duracao", "tipo", "temas", "resumo"]
-    assert slim["itens"][0] == ["a", "A", 1, 0, "2025-01-02", 60, 0, [1, 0], "ra"]
-    assert slim["itens"][1] == ["b", "B", 0, 1, "2025-01-01", 30, 0, [0], "rb"]
+    assert slim["houses"] == ["Alece", "Senado"]
+    assert slim["themes"] == ["Economia", "Saúde"]
+    assert slim["fields"] == ["id", "title", "house", "state", "date", "duration", "type", "themes", "summary"]
+    assert slim["items"][0] == ["a", "A", 1, 0, "2025-01-02", 60, 0, [1, 0], "ra"]
+    assert slim["items"][1] == ["b", "B", 0, 1, "2025-01-01", 30, 0, [0], "rb"]
     assert slim["config"] == {"x": 1}
 
 
@@ -650,32 +650,37 @@ def test_site_builds_the_data_files_for_complete_sessions(captured_data, tmp_pat
     csv_path = tmp_path / "videos.csv"
     csv_path.write_text("url,esfera,uf,orgao\nhttps://youtu.be/new,estadual,CE,Alece\n", encoding="utf-8")
     output = tmp_path / "docs"
-    (output / "dados" / "itens").mkdir(parents=True)
-    (output / "dados" / "itens" / "stale.json").write_text("{}", encoding="utf-8")
-    (output / "dados" / "indice.json").write_text("{}", encoding="utf-8")
+    (output / "data" / "items").mkdir(parents=True)
+    (output / "data" / "items" / "stale.json").write_text("{}", encoding="utf-8")
+    (output / "js" / "modules").mkdir(parents=True)
+    (output / "js" / "modules" / "renamed.js").write_text("", encoding="utf-8")
 
     assert transcripts.main(["site", "--csv", str(csv_path), "--output", str(output)]) == 0
 
-    items = json.loads((output / "dados" / "itens.json").read_text(encoding="utf-8"))
-    assert [row[0] for row in items["itens"]] == ["new", "old"]
-    assert items["casas"] == ["Alece", "TV Câmara"]
-    assert items["config"]["modelos"] == ["S5-nano"]
-    assert items["config"]["sem_miniatura"] == ["old"]
-    assert items["config"]["busca_bytes"] == (output / "dados" / "busca.json").stat().st_size
-    search = json.loads((output / "dados" / "busca.json").read_text(encoding="utf-8"))
-    assert search["falas"]["new"] == [[1, "fala de new sobre orçamento"], [600, "segunda fala"]]
-    assert search["palavras_chave"] == {"new": ["pl 123"], "old": ["pl 123"]}
-    session = json.loads((output / "dados" / "itens" / "new.json").read_text(encoding="utf-8"))
-    assert (session["casa"], session["uf"], session["data"], session["modelo"]) == (
+    items = json.loads((output / "data" / "items.json").read_text(encoding="utf-8"))
+    assert [row[0] for row in items["items"]] == ["new", "old"]
+    assert items["houses"] == ["Alece", "TV Câmara"]
+    assert items["config"]["models"] == ["S5-nano"]
+    assert items["config"]["without_thumbnail"] == ["old"]
+    assert items["config"]["search_bytes"] == (output / "data" / "search.json").stat().st_size
+    search = json.loads((output / "data" / "search.json").read_text(encoding="utf-8"))
+    assert search["lines"]["new"] == [[1, "fala de new sobre orçamento"], [600, "segunda fala"]]
+    assert search["keywords"] == {"new": ["pl 123"], "old": ["pl 123"]}
+    session = json.loads((output / "data" / "items" / "new.json").read_text(encoding="utf-8"))
+    assert (session["house"], session["state"], session["date"], session["model"]) == (
         "Alece",
         "CE",
         "2025-03-05",
         "S5-nano",
     )
-    assert session["falas"] == search["falas"]["new"]
-    assert sorted(path.name for path in (output / "dados" / "itens").iterdir()) == ["new.json", "old.json"]
-    assert not (output / "dados" / "indice.json").exists()
-    assert sorted(path.name for path in (output / "legendas").iterdir()) == ["new.vtt", "old.vtt"]
+    assert session["participants"] == [
+        {"name": person["nome"], "role": person.get("papel", "")} for person in VALID_ANALYSIS["participantes"]
+    ]
+    assert session["lines"] == search["lines"]["new"]
+    assert sorted(path.name for path in (output / "data" / "items").iterdir()) == ["new.json", "old.json"]
+    assert not (output / "js" / "modules" / "renamed.js").exists()
+    assert (output / "js" / "app.js").exists()
+    assert sorted(path.name for path in (output / "captions").iterdir()) == ["new.vtt", "old.vtt"]
     assert sorted(path.name for path in (output / "css").iterdir()) == ["app.css"]
     assert "@import" not in (output / "css" / "app.css").read_text(encoding="utf-8")
     assert (output / "CNAME").read_text(encoding="utf-8") == "transcricoes.brasil.io\n"
@@ -687,8 +692,8 @@ def test_site_can_exclude_videos_and_skip_the_cname(captured_data, tmp_path, mon
     monkeypatch.setattr(transcripts, "fetch_thumbnail", lambda video_id, directory: True)
     output = tmp_path / "docs"
     assert transcripts.main(["site", "--exclude", "old, half", "--domain", "", "--output", str(output)]) == 0
-    items = json.loads((output / "dados" / "itens.json").read_text(encoding="utf-8"))
-    assert [row[0] for row in items["itens"]] == ["new"]
+    items = json.loads((output / "data" / "items.json").read_text(encoding="utf-8"))
+    assert [row[0] for row in items["items"]] == ["new"]
     assert not (output / "CNAME").exists()
 
 
@@ -763,7 +768,7 @@ def test_compare_command_prints_the_tables(tmp_path, capsys):
 
 
 def test_median_session_picks_a_typical_one(tmp_path):
-    items = tmp_path / "dados" / "itens"
+    items = tmp_path / "data" / "items"
     items.mkdir(parents=True)
     for name, size in (("small", 10), ("medium", 100), ("large", 1000)):
         (items / f"{name}.json").write_text("x" * size, encoding="utf-8")

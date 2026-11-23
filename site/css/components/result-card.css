@@ -1,4 +1,4 @@
-/* Resultado de busca ou item da lista de sessões: miniatura à esquerda, texto à direita. */
+/* Search result or item of the session list: thumbnail on the left, text on the right. */
 .result-card {
   display: flex;
   flex-direction: column;

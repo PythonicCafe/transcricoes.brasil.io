@@ -5,11 +5,11 @@ O site é a pasta `docs/`, gerada pelo `make site` (subcomando `site` do `transc
 ## 1. Repositório
 
 - [ ] Criar `PythonicCafe/transcricoes.brasil.io` no GitHub, **público** e vazio (sem README nem licença)
-- [ ] Gerar o site e conferir que `docs/dados/` entrou no commit (2 arquivos JSON e a pasta `itens/`):
+- [ ] Gerar o site e conferir que `docs/data/` entrou no commit (2 arquivos JSON e a pasta `items/`):
 
 ```sh
 make build && make site
-git add docs && git status --short docs   # precisa listar docs/dados/itens.json, docs/dados/busca.json e docs/dados/itens/
+git add docs && git status --short docs   # precisa listar docs/data/items.json, docs/data/search.json e docs/data/items/
 git commit -m "Gera o site"
 git remote add origin git@github.com:PythonicCafe/transcricoes.brasil.io.git
 git push -u origin main                   # ou: git push -f origin main, se o histórico foi refeito

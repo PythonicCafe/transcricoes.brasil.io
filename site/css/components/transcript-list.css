@@ -1,4 +1,4 @@
-/* Transcrição com rolagem própria; a fala atual tem fundo e contorno fino. */
+/* Transcript with its own scroll; the current line has a background and a thin outline. */
 .transcript-search {
   display: flex;
   align-items: center;

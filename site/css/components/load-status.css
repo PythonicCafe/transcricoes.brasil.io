@@ -1,4 +1,4 @@
-/* Aviso de carregamento do arquivo de busca, com barra de progresso. */
+/* Loading notice of the search file, with a progress bar. */
 .load-status {
   max-width: 32rem;
   margin: var(--space-lg) 0;
