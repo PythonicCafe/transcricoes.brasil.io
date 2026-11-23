@@ -3,8 +3,8 @@
 # O código não entra na imagem; monte o repositório em /app ao rodar (veja o README).
 FROM python:3.13-slim-trixie
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends chromium ffmpeg gcc libc6-dev \
+RUN apt update \
+    && apt install -y --no-install-recommends chromium ffmpeg gcc libc6-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # O yt-dlp precisa de um runtime de JavaScript para os desafios do YouTube; o Deno é um binário único.
