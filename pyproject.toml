@@ -25,3 +25,15 @@ dev = [
 line-length = 120
 # O groq.py veio de outro projeto e mantém o estilo original.
 extend-exclude = ["groq.py"]
+
+[tool.coverage.run]
+include = ["transcripts.py"]
+
+[tool.coverage.report]
+show_missing = true
+skip_empty = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-p no:cacheprovider"

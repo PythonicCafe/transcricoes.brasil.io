@@ -9,3 +9,5 @@ docs-medicao.json
 activate.sh
 *.patch
 .ruff_cache/
+.pytest_cache/
+.coverage
