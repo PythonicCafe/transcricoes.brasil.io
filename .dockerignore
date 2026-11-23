@@ -1,5 +1,5 @@
 .git
-dados
+data
 docs
 __pycache__
 *.pyc

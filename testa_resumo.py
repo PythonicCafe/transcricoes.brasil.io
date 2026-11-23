@@ -1,9 +1,9 @@
 """Refaz o resumo de vídeos já transcritos em modelos da API da Maritaca, para comparar com o resumo local.
 
-Para cada vídeo e cada modelo de `--modelos`, usa o mesmo prompt e a mesma técnica do `pipeline.py` (importado daqui,
-então os dois arquivos precisam estar na mesma pasta) e grava `dados/resumo-teste/<modelo>/<id>.json`. Não refaz o
-que já existe. No fim, junta tudo em `dados/resumo-teste/comparacao.json`: por vídeo, o contexto de metadados que o
-modelo recebeu, a transcrição, o resumo local (`dados/resumo/<id>.json`) e o de cada modelo testado.
+Para cada vídeo e cada modelo de `--modelos`, usa o mesmo prompt e a mesma técnica do `transcripts.py capture`
+(importado daqui, então os dois arquivos precisam estar na mesma pasta) e grava `data/summary-test/<modelo>/<id>.json`. Não refaz o
+que já existe. No fim, junta tudo em `data/summary-test/comparacao.json`: por vídeo, o contexto de metadados que o
+modelo recebeu, a transcrição, o resumo local (`data/summaries/<id>.json`) e o de cada modelo testado.
 
 Uma chamada por vez. A chave vem só de `MARITACA_API_KEY`.
 """
@@ -20,15 +20,17 @@ from pathlib import Path
 
 from tqdm import tqdm
 
-from pipeline import (
+from transcripts import (
     MARITACA_URL,
-    PASTA_DADOS,
-    ErroLLM,
-    GeradorMaritaca,
-    analisa,
-    contexto_video,
-    le_jsonl,
+    LLMError,
+    MaritacaGenerator,
+    analyze,
+    data_path,
+    read_jsonl,
+    video_context,
 )
+
+PASTA_DADOS = data_path()
 
 # Resumos avaliados em 20/11/2026: os três primeiros ficaram piores no S5-nano local quantizado; os demais, bons.
 IDS_PADRAO = [
@@ -73,7 +75,6 @@ def main() -> None:
     parser.add_argument("--lista-modelos", action="store_true", help="só lista os modelos da API e sai")
     parser.add_argument("--max-palavras", type=int, default=8000)
     parser.add_argument("--linhas-sobrepostas", type=int, default=10)
-    parser.add_argument("--temperatura", type=float, default=0.3)
     parser.add_argument("--timeout", type=float, default=300, help="timeout por chamada, em segundos")
     args = parser.parse_args()
 
@@ -82,18 +83,18 @@ def main() -> None:
         return
 
     modelos = [modelo.strip() for modelo in args.modelos.split(",") if modelo.strip()]
-    metadados = le_jsonl(PASTA_DADOS / "videos.jsonl")
-    pasta_saida = PASTA_DADOS / "resumo-teste"
+    metadados = read_jsonl(PASTA_DADOS / "videos.jsonl")
+    pasta_saida = PASTA_DADOS / "summary-test"
     ids = []
     for video_id in args.ids:
-        if (PASTA_DADOS / "transcricao" / f"{video_id}.txt").exists():
+        if (PASTA_DADOS / "transcripts" / f"{video_id}.txt").exists():
             ids.append(video_id)
         else:
             print(f"AVISO: sem transcrição para {video_id}, ignorado")
 
     try:
         for modelo in modelos:
-            gerador = GeradorMaritaca(args.maritaca_url, modelo, args.timeout, args.temperatura)
+            gerador = MaritacaGenerator(args.maritaca_url, modelo, args.timeout)
             pasta = pasta_saida / re.sub(r"[^A-Za-z0-9._-]", "_", modelo)
             pasta.mkdir(parents=True, exist_ok=True)
             with tqdm(ids, desc=f"{modelo:10}", unit="vídeo") as progresso:
@@ -101,11 +102,18 @@ def main() -> None:
                     destino = pasta / f"{video_id}.json"
                     if destino.exists():
                         continue
-                    transcricao = (PASTA_DADOS / "transcricao" / f"{video_id}.txt").read_text(encoding="utf-8")
+                    transcricao = (PASTA_DADOS / "transcripts" / f"{video_id}.txt").read_text(encoding="utf-8")
                     inicio = time.perf_counter()
                     try:
-                        analise, info = analisa(gerador, transcricao, metadados.get(video_id), args, progresso)
-                    except ErroLLM as erro:
+                        analise, info = analyze(
+                            gerador,
+                            transcricao,
+                            metadados.get(video_id),
+                            args.max_palavras,
+                            args.linhas_sobrepostas,
+                            progresso,
+                        )
+                    except LLMError as erro:
                         tqdm.write(f"ERRO em {modelo} / {video_id}: {erro}")
                         continue
                     analise["_meta"] = {
@@ -126,9 +134,9 @@ def main() -> None:
     comparacao = {}
     for video_id in ids:
         comparacao[video_id] = {
-            "contexto_enviado_ao_modelo": contexto_video(metadados.get(video_id)),
-            "transcricao": (PASTA_DADOS / "transcricao" / f"{video_id}.txt").read_text(encoding="utf-8"),
-            "local": le_json(PASTA_DADOS / "resumo" / f"{video_id}.json"),
+            "contexto_enviado_ao_modelo": video_context(metadados.get(video_id)),
+            "transcricao": (PASTA_DADOS / "transcripts" / f"{video_id}.txt").read_text(encoding="utf-8"),
+            "local": le_json(PASTA_DADOS / "summaries" / f"{video_id}.json"),
             **{
                 modelo: le_json(pasta_saida / re.sub(r"[^A-Za-z0-9._-]", "_", modelo) / f"{video_id}.json")
                 for modelo in modelos

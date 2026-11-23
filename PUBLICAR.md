@@ -1,6 +1,6 @@
 # Publicar o site em transcricoes.brasil.io (GitHub Pages)
 
-O site é a pasta `docs/`, gerada pelo `gera_site.py`. O GitHub Pages serve essa pasta direto do branch `main`.
+O site é a pasta `docs/`, gerada pelo `make site` (subcomando `site` do `transcripts.py`). O GitHub Pages serve essa pasta direto do branch `main`.
 
 ## 1. Repositório
 
@@ -40,7 +40,7 @@ Gerar sem o arquivo `CNAME` e usar o endereço padrão do GitHub. Os caminhos do
 igual:
 
 ```sh
-python gera_site.py --dominio "" ...      # mesmos argumentos de antes
+make bash   # e, dentro do contêiner: python transcripts.py site --csv videos.csv --domain ""
 git rm --cached -q docs/CNAME; rm -f docs/CNAME
 git add docs && git commit -m "Publica sem domínio próprio" && git push
 ```
@@ -50,7 +50,7 @@ git add docs && git commit -m "Publica sem domínio próprio" && git push
 
 ## 6. Atualizar o site
 
-Sempre que o pipeline terminar mais vídeos: rodar o `gera_site.py` de novo, `git add docs`, commit e push. O Pages
+Sempre que a captura terminar mais vídeos: `make site`, conferir com `make serve` e `make publish`. O Pages
 publica em cerca de um minuto.
 
 ## Player do YouTube (erro 153)

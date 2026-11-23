@@ -1,4 +1,4 @@
-# Ambiente de desenvolvimento. O repositório inteiro é montado em /app, com a pasta dados/ dentro dele.
+# Ambiente de desenvolvimento. O repositório inteiro é montado em /app, com a pasta data/ dentro dele.
 services:
   main:
     user: "${UID:-1000}:${GID:-1000}"

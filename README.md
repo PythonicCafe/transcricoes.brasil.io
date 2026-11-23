@@ -1,71 +1,75 @@
 # transcricoes.brasil.io
 
-First public version of open, searchable transcripts of Brazil's public legislative sessions (Chamber of Deputies, Senate and state
-assemblies), by [Pythonic Café](https://pythonic.cafe/) and [Brasil.IO](https://brasil.io/).
+Primeira versão pública de transcrições abertas e pesquisáveis das sessões públicas do Legislativo brasileiro (Câmara
+dos Deputados, Senado Federal e assembleias estaduais), feita pela [Pythonic Café](https://pythonic.cafe/) e pelo
+[Brasil.IO](https://brasil.io/).
 
 Site: <https://transcricoes.brasil.io/>
 
-Everything here runs with open models: Whisper for transcription and S5-nano (4 billion parameters, by Maritaca AI)
-for summaries and themes. Each video is processed once, in batch; searching uses no AI. Transcripts and summaries
-are machine-generated, were not reviewed by people and contain errors.
+Tudo aqui roda com modelos abertos: Whisper para a transcrição e S5-nano (4 bilhões de parâmetros, da Maritaca AI)
+para resumos e temas. Cada vídeo é processado uma vez, em lote; a busca não usa IA. Transcrições e resumos são
+gerados por máquina, não foram revisados por pessoas e contêm erros.
 
-## What is in this repository
+## O que há neste repositório
 
-| File | What it does |
+| Arquivo | O que faz |
 |---|---|
-| `pipeline.py` | For each video in a CSV: metadata (YouTube API through [youtool](https://github.com/PythonicCafe/youtool)), audio download (`yt-dlp`), transcription (local, through `digue`/whisper.cpp, or `groq.py`) and summary (S5-nano through ollama or Maritaca's API). Resumable: nothing is done twice. |
-| `groq.py` | Transcribes audio with Whisper on Groq's API, with voice activity detection. |
-| `gera_site.py` | Builds the static site in `docs/` from the pipeline output. Only videos with the full pipeline done are included. Each session also gets its captions as a WebVTT file for download. |
-| `site/` | The site itself: HTML, CSS with design tokens and plain JavaScript modules, no build step. Search runs in the browser over all transcripts. |
-| `canais_horas.py` | Measures how many hours of video each legislative YouTube channel has (`canais.csv`). |
-| `testa_resumo.py` | Runs the same summary prompt on other models, to compare results. |
-| `videos.csv` | The videos chosen for this first version. |
-| `mede_site.py`, `compara.py` | Measure the generated site in a real browser (time, network, memory) and compare two measurements. |
+| `transcripts.py` | A ferramenta de linha de comando, com um subcomando por etapa do trabalho (veja abaixo). |
+| `groq.py` | Transcreve áudio com o Whisper pela API da Groq, com detecção de voz. |
+| `site/` | O site: HTML, CSS com _design tokens_ e módulos de JavaScript puro, sem etapa de _build_. A busca roda no navegador, sobre todas as transcrições. |
+| `docs/` | O site gerado, que o GitHub Pages publica. |
+| `videos.csv` | Os vídeos escolhidos para esta versão. |
+| `canais.csv` | Os canais do YouTube de cada casa legislativa. |
+| `testa_resumo.py` | Refaz resumos em outros modelos, para comparar resultados. |
+| `PUBLICAR.md` | Passo a passo da publicação no GitHub Pages. |
 
-## Running
+## Subcomandos
 
-```sh
-pip install --group dev   # pip 25.1 or newer; also needs ffmpeg
-export YOUTUBE_API_KEY=...        # secrets only through environment variables
+`python transcripts.py --help` lista os subcomandos, e cada um tem o seu `--help`.
 
-# local models: digue (whisper.cpp) and ollama
-python pipeline.py --modelo s5-nano:4b-q8-256k videos.csv
+| Subcomando | O que faz |
+|---|---|
+| `channels` | Conta as horas de vídeo no canal de cada casa legislativa, pela API do YouTube (por meio da [youtool](https://github.com/PythonicCafe/youtool)). |
+| `select` | Escolhe mais sessões plenárias para a captura, em rodízio entre as casas, sem usar a API. |
+| `capture` | Para cada vídeo de um CSV: metadados, áudio (`yt-dlp`), transcrição (local, com `digue`/whisper.cpp, ou pelo `groq.py`) e resumo (S5-nano no ollama ou na API da Maritaca). Retoma de onde parou: nada é feito duas vezes. |
+| `site` | Monta o site estático em `docs/` a partir do que foi capturado. Só entram vídeos com todas as etapas concluídas. |
+| `measure` | Mede o site gerado num navegador de verdade (tempo, rede e memória). |
+| `compare` | Compara duas medições. |
 
-# same open models on rented inference, to go faster
-export GROQ_API_KEY=... MARITACA_API_KEY=...
-python pipeline.py --transcritor groq --backend maritaca --modelo S5-nano videos.csv
+Os dados da captura ficam em `data/`, que o git ignora. Os nomes dos arquivos de dados e as chaves dos JSON estão
+em português, como as próprias sessões; o código e a interface da linha de comando estão em inglês.
 
-python gera_site.py --csv videos.csv   # writes docs/
-```
+## Como usar
 
-This version searches in the browser so it can be a static site. The production version will use PostgreSQL full-text
-search on Brasil.IO.
-
-## Development
-
-Everything runs inside a development container (Python dependencies, ffmpeg, Chromium and Deno), so the code and its
-dependencies do not run on your machine. The repository is mounted, not copied, and the pipeline data lives in
-`dados/`, which git ignores. `make` alone lists every command:
+Tudo roda dentro de um contêiner de desenvolvimento (dependências Python, ffmpeg, Chromium e Deno), então o código e
+as dependências não rodam direto na sua máquina. O repositório é montado no contêiner, não copiado. O `make` sozinho
+lista todos os comandos:
 
 ```sh
-make build              # build the image, once
-make select HOURS=100   # add new sessions to videos.csv (make select-dry-run only shows them)
-make capture            # download, transcribe and summarize what is missing
-make site               # write docs/
-make serve              # check it at http://localhost:8000
-make publish            # commit docs/ and videos.csv, then push
-make measure            # measure the site in Chromium, without network
+make build              # constrói a imagem, uma vez
+make select HOURS=100   # acrescenta sessões novas ao videos.csv (make select-dry-run só mostra)
+make capture            # baixa, transcreve e resume o que falta
+make site               # gera docs/
+make serve              # para conferir em http://localhost:8000
+make publish            # faz o commit de docs/ e do videos.csv e envia para o GitHub
+make lint               # formata e verifica o código
+make measure            # mede o site no Chromium, sem rede
 ```
 
-`make capture` reads `GROQ_API_KEY`, `MARITACA_API_KEY` and `YOUTUBE_API_KEY` from the environment. By default the
-container cannot see your browser; `make capture COOKIES=1` mounts the Firefox profile read-only, for when YouTube
-asks for a login. `python compara.py before.json after.json` compares two measurements.
+O `make capture` lê `GROQ_API_KEY`, `MARITACA_API_KEY` e `YOUTUBE_API_KEY` do ambiente; as chaves nunca ficam em
+arquivo. Por padrão o contêiner não enxerga o seu navegador. O `make capture COOKIES=1` monta o perfil do Firefox só
+para leitura, para quando o YouTube pedir login.
 
-In `site/` the CSS is split by layer and component; `gera_site.py` joins it into a single `docs/css/app.css`.
+Valores que mudam de máquina para máquina podem ir num `config.mk`, que o git ignora. As dependências estão em grupos
+no `pyproject.toml`.
 
-## License
+Em `site/` o CSS é dividido por camada e por componente; o subcomando `site` junta tudo num só `docs/css/app.css`.
+Esta versão busca no navegador para poder ser um site estático. A versão de produção vai usar a busca textual do
+PostgreSQL no Brasil.IO.
+
+## Licença
 
 Copyright (c) 2026 Pythonic Café.
 
-GNU Lesser General Public License, version 3 or later (LGPL-3.0-or-later). See `LICENSE` (LGPL) and `LICENSE.GPL`
-(the GPL text it builds on). Bootstrap, in `site/vendor/`, is distributed under its own MIT license.
+GNU Lesser General Public License, versão 3 ou posterior (LGPL-3.0-or-later). Veja `LICENSE` (LGPL) e `LICENSE.GPL`
+(o texto da GPL em que ela se apoia). O Bootstrap, em `site/vendor/`, é distribuído sob a sua própria licença MIT.
