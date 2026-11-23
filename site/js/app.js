@@ -2,6 +2,7 @@
 import { TEXTS } from "./modules/texts.js";
 import { escapeHtml, highlight, matchingLines, normalize, queryTerms, search } from "./modules/search.js";
 import { clock, readableDate, readableDuration } from "./modules/format.js";
+import { parseRoute, routeHash } from "./modules/routes.js";
 
 function stored(key, fallback) {
   try { return localStorage.getItem(key) || fallback; } catch (error) { return fallback; }
@@ -28,7 +29,6 @@ const t = (key, values = {}) => {
 };
 const date = (iso) => readableDate(iso, TEXTS[language].locale);
 const app = () => document.getElementById("app");
-const sessionHash = (id, seconds = null) => `#/v/${encodeURIComponent(id)}` + (seconds === null ? "" : `/${Math.floor(seconds)}`);
 
 // Each row of `items.json` follows the order of `fields`; house, state, type and themes are positions in the lists
 // of options, so each name is written once.
@@ -103,7 +103,7 @@ const source = (session) => `${escapeHtml(session.house)}${session.state ? " (" 
 const themesHtml = (session) => session.themes.map((theme) => `<span class="theme-badge" lang="pt-BR">${escapeHtml(theme)}</span>`).join(" ");
 
 function card(session, terms, extra = "") {
-  const target = sessionHash(session.id);
+  const target = routeHash({ page: "session", id: session.id, seconds: null });
   return `<article class="result-card">
     <a class="result-card__thumb" href="${target}" tabindex="-1" aria-hidden="true"><img class="result-card__image" src="${escapeHtml(thumbnail(session.id))}" width="320" height="180" loading="lazy" alt=""></a>
     <div class="result-card__body">
@@ -166,7 +166,7 @@ function drawHome() {
 }
 
 function passagesHtml(session, passages, terms) {
-  return passages.map((passage) => `<li class="passage-list__item"><a class="time-link" href="${sessionHash(session.id, passage.seconds)}">▶ ${clock(passage.seconds)}</a> <span lang="pt-BR">${highlight(passage.text, terms)}</span></li>`).join("");
+  return passages.map((passage) => `<li class="passage-list__item"><a class="time-link" href="${routeHash({ page: "session", id: session.id, seconds: passage.seconds })}">▶ ${clock(passage.seconds)}</a> <span lang="pt-BR">${highlight(passage.text, terms)}</span></li>`).join("");
 }
 
 // Page buttons: the first, the last and the neighbours of the current one, with an ellipsis in the jumps. Empty when
@@ -279,7 +279,7 @@ function drawSession(id, seconds) {
   const turn = openSession;
   app().innerHTML = `<p class="result-count">${t("loading")}</p>`;
   loadItem(id).then((session) => { if (turn === openSession) drawLoadedSession(session, seconds, turn); })
-    .catch(() => { fullItems.delete(id); if (turn === openSession) location.hash = "#/"; });
+    .catch(() => { fullItems.delete(id); if (turn === openSession) location.hash = routeHash({ page: "home" }); });
 }
 
 function drawLoadedSession(session, seconds, turn) {
@@ -288,7 +288,7 @@ function drawLoadedSession(session, seconds, turn) {
   const bullets = (items) => items.length ? `<ul class="machine-box__list" lang="pt-BR">${items.map((item) => `<li>${item}</li>`).join("")}</ul>` : "";
   // YouTube refuses the player (error 153) when the page sends no Referer header; hence the referrerpolicy.
   app().innerHTML = `
-    <p><a href="#/">${t("back")}</a></p>
+    <p><a href="${routeHash({ page: "home" })}">${t("back")}</a></p>
     <h1 class="page-title page-title--session" lang="pt-BR">${escapeHtml(session.title)}</h1>
     <p class="page-lead"><span lang="pt-BR">${source(session)}</span>, ${t("published")} ${date(session.date)} · ${readableDuration(session.duration)} · <span lang="pt-BR">${escapeHtml(session.type)}</span> ·
       <a href="https://www.youtube.com/watch?v=${encodeURIComponent(id)}" target="_blank" rel="noopener">${t("open_youtube")}</a> · <a href="captions/${encodeURIComponent(id)}.vtt" download>${t("download_captions")}</a> · <a href="${escapeHtml(issue)}" target="_blank" rel="noopener">${t("report_error")}</a></p>
@@ -390,16 +390,13 @@ function drawAbout() {
   const hours = Math.round(list.sessions.reduce((sum, session) => sum + session.duration, 0) / 3600);
   const models = list.config.models.map((model) => `${escapeHtml(model)} (${t("open_weights")})`).join(", ");
   const values = { sessions: list.sessions.length, hours, houses, models, repo: escapeHtml(list.config.repository) };
-  app().innerHTML = `<p><a href="#/">${t("back")}</a></p><h1 class="page-title">${t("about_title")}</h1><div class="prose-block">` +
+  app().innerHTML = `<p><a href="${routeHash({ page: "home" })}">${t("back")}</a></p><h1 class="page-title">${t("about_title")}</h1><div class="prose-block">` +
     TEXTS[language].about.map((paragraph) => {
       let text = paragraph;
       for (const [name, value] of Object.entries(values)) text = text.replaceAll(`{${name}}`, value);
       return `<p>${text}</p>`;
     }).join("") + "</div>";
 }
-
-// The route in the fragment: `#/`, `#/v/<id>[/<seconds>]` or `#/sobre`.
-const routeParts = () => decodeURIComponent(location.hash.replace(/^#\/?/, "")).split("/");
 
 function draw() {
   document.documentElement.lang = TEXTS[language].locale;
@@ -408,13 +405,17 @@ function draw() {
   document.querySelectorAll("[data-t-label]").forEach((element) => { element.setAttribute("aria-label", t(element.dataset.tLabel)); });
   document.querySelectorAll("[data-language]").forEach((button) => { button.setAttribute("aria-pressed", String(button.dataset.language === language)); });
   document.querySelectorAll("[data-color-theme]").forEach((button) => { button.setAttribute("aria-pressed", String(button.dataset.colorTheme === colorTheme)); });
+  document.getElementById("about-link").href = routeHash({ page: "about" }, language);
+  const route = parseRoute(location.hash);
+  // The about page in another language (a shared link, or the language just changed) gets the current language's
+  // address; replaceState changes the address without a new history entry and without firing `hashchange`.
+  if (route.page === "about" && route.language !== language) history.replaceState(null, "", routeHash(route, language));
   if (!list) return;
   document.getElementById("repository-link").href = list.config.repository;
   window.scrollTo(0, 0);
   stopPlayer();
-  const parts = routeParts();
-  if (parts[0] === "v" && parts[1]) drawSession(parts[1], parts[2] !== undefined && parts[2] !== "" ? Number(parts[2]) : null);
-  else if (parts[0] === "sobre") drawAbout();
+  if (route.page === "session") drawSession(route.id, route.seconds);
+  else if (route.page === "about") drawAbout();
   else drawHome();
 }
 
@@ -442,7 +443,7 @@ window.addEventListener("hashchange", draw);
 applyColorTheme();
 draw();
 // On a direct link to a session, its file starts downloading together with the list, without waiting for it.
-const firstRoute = routeParts();
-if (firstRoute[0] === "v" && firstRoute[1]) loadItem(firstRoute[1]).catch(() => {});
+const firstRoute = parseRoute(location.hash);
+if (firstRoute.page === "session") loadItem(firstRoute.id).catch(() => {});
 fetch("data/items.json").then((response) => response.json()).then((data) => { list = decodeList(data); draw(); })
   .catch(() => { app().innerHTML = "<p class=\"empty-state\">Could not load data/items.json.</p>"; });

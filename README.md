@@ -41,6 +41,10 @@ Os dados da captura ficam em `data/`, que o git ignora. O código, a linha de co
 dos JSON do site estão em inglês. A exceção são os resumos em `data/summaries/`: as chaves seguem o esquema em
 português pedido ao modelo (`resumo`, `temas`, `palavras_chave`...), e o subcomando `site` as converte.
 
+As rotas do site ficam no fragmento da URL (`#/v/<id>/<segundos>` para uma sessão). A página "Como foi feito" tem um
+endereço por idioma (`#/about`, `#/sobre`, `#/acerca-de`); qualquer um deles abre a página, que passa a mostrar o do
+idioma escolhido.
+
 ## Como usar
 
 Tudo roda dentro de um contêiner de desenvolvimento (dependências Python, ffmpeg, Chromium e Deno), então o código e
