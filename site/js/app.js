@@ -2,6 +2,7 @@
 import { TEXTS } from "./modules/texts.js";
 import { escapeHtml, highlight, matchingLines, normalize, queryTerms, search } from "./modules/search.js";
 import { clock, readableDate, readableDuration } from "./modules/format.js";
+import { decodeList, pageSlice, visiblePages } from "./modules/list.js";
 import { parseRoute, routeHash } from "./modules/routes.js";
 
 function stored(key, fallback) {
@@ -29,23 +30,6 @@ const t = (key, values = {}) => {
 };
 const date = (iso) => readableDate(iso, TEXTS[language].locale);
 const app = () => document.getElementById("app");
-
-// Each row of `items.json` follows the order of `fields`; house, state, type and themes are positions in the lists
-// of options, so each name is written once.
-function decodeList(data) {
-  const options = { house: data.houses, state: data.states, type: data.types };
-  const sessions = data.items.map((row) => {
-    const session = {};
-    data.fields.forEach((field, position) => {
-      const value = row[position];
-      if (options[field]) session[field] = options[field][value];
-      else if (field === "themes") session.themes = value.map((theme) => data.themes[theme]);
-      else session[field] = value;
-    });
-    return session;
-  });
-  return { config: data.config, sessions };
-}
 
 function applyColorTheme() {
   const dark = colorTheme === "dark" || (colorTheme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
@@ -173,7 +157,7 @@ function passagesHtml(session, passages, terms) {
 // there is only one page.
 function paginationHtml(current, pages) {
   if (pages < 2) return "";
-  const numbers = [...new Set([1, current - 1, current, current + 1, pages])].filter((number) => number >= 1 && number <= pages).sort((first, second) => first - second);
+  const numbers = visiblePages(current, pages);
   const buttons = numbers.map((number, position) =>
     `${position && number - numbers[position - 1] > 1 ? '<li class="page-nav__gap" aria-hidden="true">…</li>' : ""}<li><button class="page-nav__button" type="button" data-page="${number}" aria-label="${escapeHtml(t("page", { n: number }))}"${number === current ? ' aria-current="page"' : ""}>${number}</button></li>`).join("");
   return `<nav aria-label="${escapeHtml(t("pagination"))}"><ul class="page-nav">
@@ -185,11 +169,10 @@ function paginationHtml(current, pages) {
 
 // The current page of `items` (search and filters still apply to all of them; only the drawing is paged).
 function currentPage(items) {
-  const pages = Math.max(1, Math.ceil(items.length / PER_PAGE));
-  state.page = Math.min(Math.max(1, state.page), pages);
-  const start = (state.page - 1) * PER_PAGE;
-  const position = pages > 1 ? ` · ${t("page_of", { n: state.page, total: pages })}` : "";
-  return { visible: items.slice(start, start + PER_PAGE), position, navigation: paginationHtml(state.page, pages) };
+  const { page, pages, visible } = pageSlice(items, state.page, PER_PAGE);
+  state.page = page;
+  const position = pages > 1 ? ` · ${t("page_of", { n: page, total: pages })}` : "";
+  return { visible, position, navigation: paginationHtml(page, pages) };
 }
 
 function bindPagination(target) {
