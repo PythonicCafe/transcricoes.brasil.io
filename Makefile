@@ -37,7 +37,7 @@ ifneq ($(strip $(COOKIES)),)
 	YT_DLP_COOKIES := --cookies-from-browser firefox
 endif
 
-.PHONY: bash bash-root build build-no-cache capture container-clean help lint lint-check measure publish select select-dry-run serve site test test-py
+.PHONY: bash bash-root build build-no-cache capture container-clean help lint lint-check measure publish select select-dry-run serve site test test-js test-py
 
 bash:                   # Open a Bash shell in the development container
 	$(MAIN_RUN) bash
@@ -90,7 +90,10 @@ serve:                  # Serve docs/ at http://localhost:8000 (PORT=8000), reac
 site:                   # Generate the site in docs/
 	$(MAIN_RUN) python transcripts.py site --csv $(CSV) --output docs --exclude "$(EXCLUDE)"
 
-test: test-py           # Run all the tests
+test: test-py test-js   # Run all the tests
+
+test-js:                # Run the JavaScript tests of the site with Deno in the development container, without network
+	$(OFFLINE_RUN) deno test tests/js/
 
 test-py:                # Run the Python tests with coverage in the development container, without network
 	$(OFFLINE_RUN) bash -c 'coverage run -m pytest && coverage report'

@@ -20,7 +20,7 @@ gerados por máquina, não foram revisados por pessoas e contêm erros.
 | `docs/` | O site gerado, que o GitHub Pages publica. |
 | `videos.csv` | Os vídeos escolhidos para esta versão. |
 | `canais.csv` | Os canais do YouTube de cada casa legislativa. |
-| `tests/` | Testes da linha de comando. |
+| `tests/` | Testes da linha de comando (Python) e dos módulos do site (`tests/js/`, JavaScript). |
 | `testa_resumo.py` | Refaz resumos em outros modelos, para comparar resultados. |
 | `PUBLICAR.md` | Passo a passo da publicação no GitHub Pages. |
 
@@ -58,7 +58,7 @@ make capture            # baixa, transcreve e resume o que falta
 make site               # gera docs/
 make serve              # para conferir em http://localhost:8000
 make publish            # faz o commit de docs/ e do videos.csv e envia para o GitHub
-make test               # roda os testes
+make test               # roda os testes (make test-py e make test-js rodam cada parte)
 make lint               # formata e verifica o código
 make measure            # mede o site no Chromium, sem rede
 ```
