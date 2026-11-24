@@ -41,6 +41,10 @@ Os dados da captura ficam em `data/`, que o git ignora. O código, a linha de co
 dos JSON do site estão em inglês. A exceção são os resumos em `data/summaries/`: as chaves seguem o esquema em
 português pedido ao modelo (`resumo`, `temas`, `palavras_chave`...), e o subcomando `site` as converte.
 
+Cada documento (hoje, cada vídeo) tem um ID próprio, que não depende do YouTube: o UUIDv5 (namespace URL) da sua URL
+canônica, como no DocSearch. Para vídeos do YouTube a URL canônica é `https://youtube.com/watch?v=<id>`. Os arquivos
+em `data/` e em `docs/` têm esse ID no nome, e cada linha do `data/videos.jsonl` traz o `uuid` e a `url`.
+
 As rotas do site ficam no fragmento da URL (`#/v/<id>/<segundos>` para uma sessão). A página "Como foi feito" tem um
 endereço por idioma (`#/about`, `#/sobre`, `#/acerca-de`); qualquer um deles abre a página, que passa a mostrar o do
 idioma escolhido.

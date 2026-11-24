@@ -33,6 +33,7 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
+import uuid
 from collections import defaultdict
 from pathlib import Path
 
@@ -229,15 +230,42 @@ def video_id_from_url(url: str) -> str | None:
     return None
 
 
-def read_jsonl(path: Path) -> dict[str, dict]:
-    """Read a JSONL file into `{id: record}`; a missing file is an empty dict."""
+def youtube_url(video_id: str) -> str:
+    """Canonical URL of a YouTube video, the one its document id comes from."""
+    return f"https://youtube.com/watch?v={video_id}"
+
+
+def document_id(url: str) -> str:
+    """Our id for a document: UUIDv5 of its canonical URL, as in DocSearch. Does not depend on where it came from."""
+    return str(uuid.uuid5(uuid.NAMESPACE_URL, url))
+
+
+def document_from_youtube(record: dict) -> dict:
+    """A YouTube metadata record with the document's `uuid` and canonical `url` in front."""
+    url = youtube_url(record["id"])
+    return {"uuid": document_id(url), "url": url, **record}
+
+
+def document_id_from(text: str) -> str:
+    """Document id from a UUID, a YouTube URL or a bare YouTube video id."""
+    text = text.strip()
+    try:
+        return str(uuid.UUID(text))
+    except ValueError:
+        return document_id(youtube_url(video_id_from_url(text) or text))
+
+
+def read_jsonl(path: Path, key: str = "id") -> dict[str, dict]:
+    """Read a JSONL file into `{record[key]: record}`; a missing file is an empty dict."""
     records = {}
     if path.exists():
         with path.open(encoding="utf-8") as file:
-            for line in file:
+            for number, line in enumerate(file, start=1):
                 if line.strip():
                     record = json.loads(line)
-                    records[record["id"]] = record
+                    if key not in record:
+                        raise CommandError(f"{path}, line {number}: record without {key!r}")
+                    records[record[key]] = record
     return records
 
 
@@ -489,7 +517,7 @@ def csv_row_for(house: str, state: str, video: dict) -> dict:
     """Row for the videos CSV; the column names are the Portuguese ones the file already uses."""
     federal = state == "BR"
     return {
-        "url": f"https://www.youtube.com/watch?v={video['id']}",
+        "url": youtube_url(video["id"]),
         "prioridade": "C",
         "minutos": round((video.get("duration") or 0) / 60),
         "esfera": "federal" if federal else "estadual",
@@ -504,7 +532,7 @@ def command_select(args: argparse.Namespace) -> int:
     channels = read_jsonl(data_path("channels.jsonl"))
     videos = read_jsonl(data_path("channel_videos.jsonl"))
     metadata_path = data_path("videos.jsonl")
-    taken = set(read_jsonl(metadata_path))
+    taken = set(read_jsonl(metadata_path))  # YouTube ids, as in the channel listings
     with args.csv.open(encoding="utf-8-sig", newline="") as file:
         reader = csv.DictReader(file)
         columns = reader.fieldnames or []
@@ -543,7 +571,7 @@ def command_select(args: argparse.Namespace) -> int:
             row = csv_row_for(house, state, video)
             writer.writerow({column: row.get(column.strip().lower(), "") for column in columns})
             csv_file.flush()
-            append_jsonl(jsonl_file, video)
+            append_jsonl(jsonl_file, document_from_youtube(video))
     status(f"{len(chosen)} rows appended to {args.csv} and to {metadata_path}")
     return 0
 
@@ -561,45 +589,53 @@ def command_select(args: argparse.Namespace) -> int:
 # previous parts as context (the answer "NULL" drops parts with nothing relevant); a last call writes the final JSON
 # from the topics. A transcript that fits in one part goes straight to the final JSON. Without the model's
 # tokenizer, size is estimated in words (about 1.5 token per word in Portuguese).
+#
+# Every file is named after the document id (`document_id`), not after the YouTube id: `data/audio/<uuid>.mp3`,
+# `data/transcripts/<uuid>.vtt` and `.txt`, `data/summaries/<uuid>.json`. Each line of `data/videos.jsonl` carries
+# the `uuid` and the canonical `url` next to the YouTube metadata.
 
 CHUNK_MINUTES = 30
 
 
-def read_video_ids(path: Path) -> list[str]:
-    """Video ids in CSV order, without repetition. Uses the `url` column, or the first one when there is none."""
+def read_documents(path: Path) -> dict[str, str]:
+    """Documents of the CSV as `{uuid: canonical URL}`, in CSV order and without repetition.
+
+    Uses the `url` column, or the first one when there is none. Only YouTube URLs, for now.
+    """
     with path.open(encoding="utf-8-sig", newline="") as file:
         reader = csv.reader(file)
         header = [name.strip().lower() for name in next(reader)]
         column = header.index("url") if "url" in header else 0
-        ids = []
+        documents: dict[str, str] = {}
         for row in reader:
             if len(row) <= column or not row[column].strip():
                 continue
             video_id = video_id_from_url(row[column])
             if video_id is None:
                 status(f"WARNING: URL without a video id, ignored: {row[column]}")
-            elif video_id not in ids:
-                ids.append(video_id)
-    return ids
+            else:
+                url = youtube_url(video_id)
+                documents.setdefault(document_id(url), url)
+    return documents
 
 
-def remove_temporaries(directory: Path, video_id: str) -> None:
-    for temporary in directory.glob(f"{video_id}.tmp*"):
+def remove_temporaries(directory: Path, document: str) -> None:
+    for temporary in directory.glob(f"{document}.tmp*"):
         temporary.unlink()
 
 
-def video_minutes(metadata: dict[str, dict], video_id: str) -> float:
-    return (metadata.get(video_id, {}).get("duration") or 600) / 60
+def video_minutes(metadata: dict[str, dict], document: str) -> float:
+    return (metadata.get(document, {}).get("duration") or 600) / 60
 
 
-def collect_metadata(ids: list[str], path: Path) -> dict[str, dict]:
-    """Fetch from the YouTube API the videos missing from the JSONL file and return all records."""
+def collect_metadata(documents: dict[str, str], path: Path) -> dict[str, dict]:
+    """Fetch from the YouTube API the videos missing from the JSONL file and return all records, by document id."""
     from tqdm import tqdm
 
-    existing = read_jsonl(path)
-    missing = [video_id for video_id in ids if video_id not in existing]
+    existing = read_jsonl(path, key="uuid")
+    missing = {video_id_from_url(url): document for document, url in documents.items() if document not in existing}
     if not missing:
-        status(f"metadata: {len(ids)} videos already collected")
+        status(f"metadata: {len(documents)} videos already collected")
         return existing
     youtube = youtube_client()
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -607,18 +643,19 @@ def collect_metadata(ids: list[str], path: Path) -> dict[str, dict]:
         path.open("a", encoding="utf-8") as file,
         tqdm(total=len(missing), desc="metadata", unit="video", file=sys.stderr) as progress,
     ):
-        for record in youtube.videos_infos(missing):
-            existing[record["id"]] = append_jsonl(file, record)
+        for record in youtube.videos_infos(list(missing)):
+            record = document_from_youtube(record)
+            existing[record["uuid"]] = append_jsonl(file, record)
             progress.update(1)
-    for video_id in missing:
-        if video_id not in existing:
+    for video_id, document in missing.items():
+        if document not in existing:
             status(f"WARNING: the API did not return video {video_id} (private, removed or wrong id)")
     return existing
 
 
-def download_audio(video_id: str, directory: Path, extra_args: list[str]) -> None:
-    """Download only the audio, as MP3; raise RuntimeError on failure."""
-    remove_temporaries(directory, video_id)
+def download_audio(document: str, url: str, directory: Path, extra_args: list[str]) -> None:
+    """Download only the audio of `url` as `<document>.mp3`; raise RuntimeError on failure."""
+    remove_temporaries(directory, document)
     command = [
         "yt-dlp",
         "--no-playlist",
@@ -630,16 +667,16 @@ def download_audio(video_id: str, directory: Path, extra_args: list[str]) -> Non
         "--audio-format",
         "mp3",
         "--output",
-        str(directory / f"{video_id}.tmp.%(ext)s"),
+        str(directory / f"{document}.tmp.%(ext)s"),
         *extra_args,
         "--",
-        f"https://www.youtube.com/watch?v={video_id}",
+        url,
     ]
     try:
         run_command(command, timeout=3600)
-        (directory / f"{video_id}.tmp.mp3").rename(directory / f"{video_id}.mp3")
+        (directory / f"{document}.tmp.mp3").rename(directory / f"{document}.mp3")
     except (RuntimeError, OSError) as error:
-        remove_temporaries(directory, video_id)
+        remove_temporaries(directory, document)
         raise RuntimeError(str(error)) from error
 
 
@@ -686,7 +723,7 @@ def vtt_to_text(vtt: str) -> str:
     return "\n".join(lines) + "\n"
 
 
-def transcribe_with_groq(audio: Path, target: Path, groq_command: list[str], directory: Path, video_id: str) -> None:
+def transcribe_with_groq(audio: Path, target: Path, groq_command: list[str], directory: Path, document: str) -> None:
     """Cut the audio in 16 kHz mono chunks, transcribe one at a time and join everything in one VTT.
 
     The Groq script decodes the whole file in memory; with sessions of several hours the system kills the process
@@ -695,7 +732,7 @@ def transcribe_with_groq(audio: Path, target: Path, groq_command: list[str], dir
     """
     import tempfile
 
-    with tempfile.TemporaryDirectory(dir=directory, prefix=f"{video_id}.parts.") as temporary_name:
+    with tempfile.TemporaryDirectory(dir=directory, prefix=f"{document}.parts.") as temporary_name:
         temporary = Path(temporary_name)
         run_command(
             [
@@ -728,35 +765,35 @@ def transcribe_with_groq(audio: Path, target: Path, groq_command: list[str], dir
 
 
 def transcribe(
-    video_id: str,
+    document: str,
     audio_minutes: float,
     audio_dir: Path,
     directory: Path,
     groq_command: list[str] | None = None,
     delete_audio: bool = False,
 ) -> None:
-    """Write <id>.vtt and <id>.txt; raise RuntimeError on failure.
+    """Write <document>.vtt and <document>.txt; raise RuntimeError on failure.
 
     Without `groq_command` it uses digue (local). With it, runs `groq_command + [audio, vtt]` (the script that calls
     the Groq API) and converts the VTT to text here, without `digue convert`. With `delete_audio`, the MP3 is removed
     only after the .txt exists, so a failure never costs a new download.
     """
-    remove_temporaries(directory, video_id)
-    vtt = directory / f"{video_id}.vtt"
-    audio = audio_dir / f"{video_id}.mp3"
+    remove_temporaries(directory, document)
+    vtt = directory / f"{document}.vtt"
+    audio = audio_dir / f"{document}.mp3"
     try:
         if not vtt.exists():
-            temporary_vtt = directory / f"{video_id}.tmp.vtt"
+            temporary_vtt = directory / f"{document}.tmp.vtt"
             # Generous slack: twice the audio duration, at least 30 minutes.
             limit = max(1800, audio_minutes * 60 * 2)
             if groq_command is None:
                 run_command(["digue", "transcribe", "-f", "vtt", str(audio), "-o", str(temporary_vtt)], limit)
             else:
-                transcribe_with_groq(audio, temporary_vtt, groq_command, directory, video_id)
+                transcribe_with_groq(audio, temporary_vtt, groq_command, directory, document)
             if not temporary_vtt.exists() or not temporary_vtt.stat().st_size:
                 raise RuntimeError("the transcriber finished without writing the VTT")
             temporary_vtt.rename(vtt)
-        temporary_text = directory / f"{video_id}.tmp.txt"
+        temporary_text = directory / f"{document}.tmp.txt"
         if groq_command is None:
             run_command(["digue", "convert", str(vtt), str(temporary_text)], timeout=300)
         else:
@@ -764,9 +801,9 @@ def transcribe(
             if not text.strip():
                 raise RuntimeError("VTT without cues")
             temporary_text.write_text(text, encoding="utf-8")
-        temporary_text.rename(directory / f"{video_id}.txt")
+        temporary_text.rename(directory / f"{document}.txt")
     except (RuntimeError, OSError) as error:
-        remove_temporaries(directory, video_id)
+        remove_temporaries(directory, document)
         raise RuntimeError(str(error)) from error
     if delete_audio:
         audio.unlink(missing_ok=True)
@@ -1016,7 +1053,7 @@ def analyze(
 
 
 def summarize(
-    video_id: str,
+    document: str,
     record: dict | None,
     text_dir: Path,
     directory: Path,
@@ -1026,33 +1063,33 @@ def summarize(
     overlap_lines: int,
     progress=None,
 ) -> None:
-    """Write <id>.json with summary and themes; raise RuntimeError on failure."""
-    remove_temporaries(directory, video_id)
-    transcript = (text_dir / f"{video_id}.txt").read_text(encoding="utf-8")
+    """Write <document>.json with summary and themes; raise RuntimeError on failure."""
+    remove_temporaries(directory, document)
+    transcript = (text_dir / f"{document}.txt").read_text(encoding="utf-8")
     start = time.perf_counter()
     try:
         analysis, info = analyze(generator, transcript, record, max_words, overlap_lines, progress)
     except LLMError as error:
         raise RuntimeError(str(error)) from error
     analysis["_meta"] = {
-        "video_id": video_id,
-        "url": f"https://www.youtube.com/watch?v={video_id}",
+        "uuid": document,
+        "url": (record or {}).get("url"),
         "backend": backend,
         "modelo": generator.model,
         "palavras": len(transcript.split()),
         **info,
         "segundos": round(time.perf_counter() - start, 1),
     }
-    temporary = directory / f"{video_id}.tmp.json"
+    temporary = directory / f"{document}.tmp.json"
     temporary.write_text(json.dumps(analysis, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    temporary.rename(directory / f"{video_id}.json")
+    temporary.rename(directory / f"{document}.json")
 
 
 END = object()
 
 
 class Stage:
-    """One stage of the line: a thread that handles one video at a time and hands the id to the next stage.
+    """One stage of the line: a thread that handles one document at a time and hands its id to the next stage.
 
     `done(id)` tells whether the stage's final file already exists; `ready(id)` tells whether its input file exists;
     `work(id, progress)` does the job and raises RuntimeError when it fails.
@@ -1072,8 +1109,8 @@ class Stage:
     def run(self, ids: list[str], metadata: dict[str, dict], stop: threading.Event) -> None:
         from tqdm import tqdm
 
-        pending = [video_id for video_id in ids if not self.done(video_id)]
-        total = round(sum(video_minutes(metadata, video_id) for video_id in pending), 1)
+        pending = [document for document in ids if not self.done(document)]
+        total = round(sum(video_minutes(metadata, document) for document in pending), 1)
         failures_in_a_row = 0
         bar_format = "{desc}: {percentage:3.0f}%|{bar}| {n:.0f}/{total:.0f} min [{elapsed}<{remaining}{postfix}]"
         with tqdm(
@@ -1086,36 +1123,37 @@ class Stage:
         ) as progress:
             while not stop.is_set():
                 try:
-                    video_id = self.inbox.get(timeout=0.5)
+                    document = self.inbox.get(timeout=0.5)
                 except queue.Empty:
                     continue
-                if video_id is END:
+                if document is END:
                     break
-                if self.done(video_id):
+                if self.done(document):
                     self.skipped += 1
-                elif not self.ready(video_id):
+                elif not self.ready(document):
                     # The previous stage failed for this video (or was not asked for and the file does not exist).
-                    progress.update(round(video_minutes(metadata, video_id), 1))
+                    progress.update(round(video_minutes(metadata, document), 1))
                     continue
                 elif self.max_failures_in_a_row is not None and failures_in_a_row >= self.max_failures_in_a_row:
-                    progress.update(round(video_minutes(metadata, video_id), 1))
+                    progress.update(round(video_minutes(metadata, document), 1))
                     continue
                 else:
-                    progress.set_postfix_str(video_id)
+                    label = metadata.get(document, {}).get("url") or document
+                    progress.set_postfix_str(label)
                     try:
-                        self.work(video_id, progress)
+                        self.work(document, progress)
                         self.finished += 1
                         failures_in_a_row = 0
                     except RuntimeError as error:
                         self.failures += 1
                         failures_in_a_row += 1
-                        status(f"ERROR in {self.name} of {video_id}: {error}")
+                        status(f"ERROR in {self.name} of {label}: {error}")
                         if failures_in_a_row == self.max_failures_in_a_row:
                             status(f"{self.name}: {failures_in_a_row} failures in a row, stage stopped")
-                    progress.update(round(video_minutes(metadata, video_id), 1))
+                    progress.update(round(video_minutes(metadata, document), 1))
                     progress.set_postfix_str("")
                 if self.next is not None:
-                    self.next.inbox.put(video_id)
+                    self.next.inbox.put(document)
         if self.next is not None:
             self.next.inbox.put(END)
 
@@ -1124,8 +1162,8 @@ def run_stages(stages: list[Stage], ids: list[str], metadata: dict[str, dict]) -
     """Run the stages until every video went through all of them; KeyboardInterrupt stops the threads and is re-raised."""
     for current, following in itertools.pairwise(stages):
         current.next = following
-    for video_id in ids:
-        stages[0].inbox.put(video_id)
+    for document in ids:
+        stages[0].inbox.put(document)
     stages[0].inbox.put(END)
     stop = threading.Event()
     threads = [threading.Thread(target=stage.run, args=(ids, metadata, stop), daemon=True) for stage in stages]
@@ -1144,14 +1182,18 @@ def run_stages(stages: list[Stage], ids: list[str], metadata: dict[str, dict]) -
 
 
 def command_capture(args: argparse.Namespace) -> int:
-    ids = read_video_ids(args.csv)
+    documents = read_documents(args.csv)
+    ids = list(documents)
     status(f"{len(ids)} videos in {args.csv}")
     metadata_path = data_path("videos.jsonl")
     audio_dir = data_path("audio")
     transcript_dir = data_path("transcripts")
     summary_dir = data_path("summaries")
 
-    metadata = collect_metadata(ids, metadata_path) if "metadata" in args.steps else read_jsonl(metadata_path)
+    if "metadata" in args.steps:
+        metadata = collect_metadata(documents, metadata_path)
+    else:
+        metadata = read_jsonl(metadata_path, key="uuid")
     stages = []
     if "audio" in args.steps:
         audio_dir.mkdir(parents=True, exist_ok=True)
@@ -1161,11 +1203,11 @@ def command_capture(args: argparse.Namespace) -> int:
                 "audio",
                 len(stages),
                 # With --delete-audio the MP3 is gone after the transcription; a finished .txt needs no new download.
-                done=lambda video_id: (
-                    (audio_dir / f"{video_id}.mp3").exists() or (transcript_dir / f"{video_id}.txt").exists()
+                done=lambda document: (
+                    (audio_dir / f"{document}.mp3").exists() or (transcript_dir / f"{document}.txt").exists()
                 ),
-                ready=lambda video_id: True,
-                work=lambda video_id, progress: download_audio(video_id, audio_dir, extra_args),
+                ready=lambda document: True,
+                work=lambda document, progress: download_audio(document, documents[document], audio_dir, extra_args),
             )
         )
     if "transcript" in args.steps:
@@ -1183,11 +1225,11 @@ def command_capture(args: argparse.Namespace) -> int:
             Stage(
                 "transcript",
                 len(stages),
-                done=lambda video_id: (transcript_dir / f"{video_id}.txt").exists(),
-                ready=lambda video_id: (audio_dir / f"{video_id}.mp3").exists(),
-                work=lambda video_id, progress: transcribe(
-                    video_id,
-                    video_minutes(metadata, video_id),
+                done=lambda document: (transcript_dir / f"{document}.txt").exists(),
+                ready=lambda document: (audio_dir / f"{document}.mp3").exists(),
+                work=lambda document, progress: transcribe(
+                    document,
+                    video_minutes(metadata, document),
                     audio_dir,
                     transcript_dir,
                     groq_command,
@@ -1207,11 +1249,11 @@ def command_capture(args: argparse.Namespace) -> int:
             Stage(
                 "summary",
                 len(stages),
-                done=lambda video_id: (summary_dir / f"{video_id}.json").exists(),
-                ready=lambda video_id: (transcript_dir / f"{video_id}.txt").exists(),
-                work=lambda video_id, progress: summarize(
-                    video_id,
-                    metadata.get(video_id),
+                done=lambda document: (summary_dir / f"{document}.json").exists(),
+                ready=lambda document: (transcript_dir / f"{document}.txt").exists(),
+                work=lambda document, progress: summarize(
+                    document,
+                    metadata.get(document),
                     transcript_dir,
                     summary_dir,
                     generator,
@@ -1229,8 +1271,8 @@ def command_capture(args: argparse.Namespace) -> int:
 
 # --- site: build docs/ ---------------------------------------------------------------------------------------------
 #
-# Only videos with the complete pipeline go in: a line in `data/videos.jsonl`, `data/transcripts/<id>.vtt` and
-# `.txt`, and `data/summaries/<id>.json`. Output, all inside the output directory:
+# Only videos with the complete pipeline go in: a line in `data/videos.jsonl`, `data/transcripts/<uuid>.vtt` and
+# `.txt`, and `data/summaries/<uuid>.json`. Every file of the site is named after the document id, too. Output, all inside the output directory:
 # - `index.html`, `js/`, `vendor/` and the logo: a copy of `site/`;
 # - `css/app.css`: the files of `site/css/` joined in one, without comments;
 # - `captions/<id>.vtt`: captions of each session, for download;
@@ -1279,7 +1321,7 @@ def display_model_name(model: str) -> str:
 
 
 def read_houses(path: Path | None) -> dict[str, dict[str, str]]:
-    """Map video id -> {"house", "state"} from the videos CSV (columns in Portuguese); an empty dict without a CSV."""
+    """Map document id -> {"house", "state"} from the videos CSV (columns in Portuguese); empty without a CSV."""
     if path is None:
         return {}
     houses = {}
@@ -1289,23 +1331,23 @@ def read_houses(path: Path | None) -> dict[str, dict[str, str]]:
             video_id = video_id_from_url(row.get("url", ""))
             if video_id:
                 federal = row.get("esfera", "").lower() == "federal"
-                houses[video_id] = {
+                houses[document_id(youtube_url(video_id))] = {
                     "house": row.get("orgao") or row.get("casa") or "",
                     "state": "" if federal else row.get("uf", ""),
                 }
     return houses
 
 
-def fetch_thumbnail(video_id: str, directory: Path) -> bool:
-    """Make sure `<id>.webp` exists; False when the download fails (the site then uses YouTube's thumbnail).
+def fetch_thumbnail(document: str, video_id: str, directory: Path) -> bool:
+    """Make sure `<document>.webp` exists; False when the download fails (the site then uses YouTube's thumbnail).
 
-    YouTube serves JPEG; ffmpeg converts it to WebP, about a quarter smaller at this quality. An `<id>.jpg` left by
-    an older build is converted without a new download. The JPEG is removed after the conversion.
+    YouTube serves JPEG; ffmpeg converts it to WebP, about a quarter smaller at this quality. A `<document>.jpg`
+    left by an older build is converted without a new download. The JPEG is removed after the conversion.
     """
-    target = directory / f"{video_id}.webp"
+    target = directory / f"{document}.webp"
     if target.exists():
         return True
-    original = directory / f"{video_id}.jpg"
+    original = directory / f"{document}.jpg"
     if not original.exists():
         try:
             with urllib.request.urlopen(f"https://i.ytimg.com/vi/{video_id}/mqdefault.jpg", timeout=20) as response:
@@ -1314,7 +1356,7 @@ def fetch_thumbnail(video_id: str, directory: Path) -> bool:
             status(f"WARNING: thumbnail of {video_id} not downloaded ({error}); the site will use YouTube's")
             return False
         original.write_bytes(content)
-    temporary = directory / f"{video_id}.tmp.webp"
+    temporary = directory / f"{document}.tmp.webp"
     command = ["ffmpeg", "-loglevel", "error", "-y", "-i", str(original), "-c:v", "libwebp"]
     try:
         subprocess.run(
@@ -1375,11 +1417,12 @@ def join_css(directory: Path) -> None:
     aggregator.write_text(minify_css(joined) + "\n", encoding="utf-8")
 
 
-def session_record(video_id: str, record: dict, analysis: dict, house: dict, lines: list[list]) -> dict:
+def session_record(document: str, record: dict, analysis: dict, house: dict, lines: list[list]) -> dict:
     """One session as the site stores it: English keys from the summary's Portuguese ones."""
     return {
-        "id": video_id,
-        "title": record.get("title") or video_id,
+        "id": document,
+        "url": record["url"],
+        "title": record.get("title") or record["url"],
         "channel": record.get("channel_title") or "",
         "house": house.get("house") or record.get("channel_title") or "",
         "state": house.get("state", ""),
@@ -1400,9 +1443,9 @@ def session_record(video_id: str, record: dict, analysis: dict, house: dict, lin
 def command_site(args: argparse.Namespace) -> int:
     from tqdm import tqdm
 
-    metadata = read_jsonl(data_path("videos.jsonl"))
+    metadata = read_jsonl(data_path("videos.jsonl"), key="uuid")
     houses = read_houses(args.csv)
-    excluded = {video_id.strip() for video_id in args.exclude.split(",") if video_id.strip()}
+    excluded = {document_id_from(item) for item in args.exclude.split(",") if item.strip()}
 
     thumbnails_dir = args.output / "thumbnails"
     thumbnails_dir.mkdir(parents=True, exist_ok=True)
@@ -1414,26 +1457,27 @@ def command_site(args: argparse.Namespace) -> int:
     sessions = []
     transcripts = {}
     incomplete = []
-    without_thumbnail = []
-    for video_id, record in tqdm(metadata.items(), desc="reading sessions", unit="session", file=sys.stderr):
-        if video_id in excluded:
+    thumbnail_fallback = {}
+    for document, record in tqdm(metadata.items(), desc="reading sessions", unit="session", file=sys.stderr):
+        if document in excluded:
             continue
-        vtt = data_path("transcripts", f"{video_id}.vtt")
-        text = data_path("transcripts", f"{video_id}.txt")
-        summary = data_path("summaries", f"{video_id}.json")
+        vtt = data_path("transcripts", f"{document}.vtt")
+        text = data_path("transcripts", f"{document}.txt")
+        summary = data_path("summaries", f"{document}.json")
         if not (vtt.exists() and text.exists() and summary.exists()):
-            incomplete.append(video_id)
+            incomplete.append(record["url"])
             continue
         lines = read_transcript(text)
         if not lines:
-            incomplete.append(video_id)
+            incomplete.append(record["url"])
             continue
         analysis = json.loads(summary.read_text(encoding="utf-8"))
-        if not fetch_thumbnail(video_id, thumbnails_dir):
-            without_thumbnail.append(video_id)
-        sessions.append(session_record(video_id, record, analysis, houses.get(video_id, {}), lines))
-        transcripts[video_id] = lines
-        shutil.copyfile(vtt, captions_dir / f"{video_id}.vtt")
+        video_id = video_id_from_url(record["url"])
+        if not fetch_thumbnail(document, video_id, thumbnails_dir):
+            thumbnail_fallback[document] = f"https://i.ytimg.com/vi/{video_id}/mqdefault.jpg"
+        sessions.append(session_record(document, record, analysis, houses.get(document, {}), lines))
+        transcripts[document] = lines
+        shutil.copyfile(vtt, captions_dir / f"{document}.vtt")
     if not sessions:
         raise CommandError(f"no video with the complete pipeline in {DATA_DIR}")
     sessions.sort(key=lambda session: (session["date"], session["id"]), reverse=True)
@@ -1455,7 +1499,8 @@ def command_site(args: argparse.Namespace) -> int:
     config = {
         "repository": args.repository.rstrip("/"),
         "models": sorted({session["model"] for session in sessions}),
-        "without_thumbnail": without_thumbnail,
+        # Thumbnails that could not be downloaded: the site shows YouTube's.
+        "thumbnail_fallback": thumbnail_fallback,
         # Size of search.json, so the site can show download progress (the browser only knows the compressed size).
         "search_bytes": (site_data_dir / "search.json").stat().st_size,
     }
@@ -1482,7 +1527,7 @@ def command_site(args: argparse.Namespace) -> int:
         more = f" and {len(incomplete) - 10} more" if len(incomplete) > 10 else ""
         status(f"{len(incomplete)} videos left out, pipeline incomplete: {', '.join(incomplete[:10])}{more}")
     if excluded:
-        status(f"{len(excluded)} videos excluded on request: {', '.join(sorted(excluded))}")
+        status(f"{len(excluded)} documents excluded on request: {', '.join(sorted(excluded))}")
     return 0
 
 
@@ -2011,7 +2056,10 @@ def _configure_site(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         "-o", "--output", metavar="dir", type=Path, default=Path("docs"), help="Output directory (default: docs)"
     )
-    parser.add_argument("-x", "--exclude", metavar="ids", default="", help="Comma separated video ids to leave out")
+    parser.add_argument(
+        "-x", "--exclude", metavar="ids", default="",
+        help="Comma separated documents to leave out: UUIDs, YouTube URLs or YouTube video ids",
+    )  # fmt: skip
     parser.add_argument("-r", "--repository", metavar="url", default=REPOSITORY, help="Repository linked by the site")
     parser.add_argument(
         "-d", "--domain", metavar="domain", default=DOMAIN, help="GitHub Pages domain (empty to write no CNAME)"

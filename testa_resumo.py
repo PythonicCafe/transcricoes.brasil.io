@@ -26,6 +26,7 @@ from transcripts import (
     MaritacaGenerator,
     analyze,
     data_path,
+    document_id_from,
     read_jsonl,
     video_context,
 )
@@ -69,7 +70,9 @@ def le_json(caminho: Path) -> dict | None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("ids", nargs="*", default=IDS_PADRAO, help="ids dos vídeos (padrão: os 8 já avaliados)")
+    parser.add_argument(
+        "ids", nargs="*", default=IDS_PADRAO, help="UUIDs, URLs ou ids do YouTube (padrão: os 8 já avaliados)"
+    )
     parser.add_argument("--modelos", default="S5-nano,S5", help="nomes dos modelos na API, separados por vírgula")
     parser.add_argument("--maritaca-url", default=MARITACA_URL)
     parser.add_argument("--lista-modelos", action="store_true", help="só lista os modelos da API e sai")
@@ -83,14 +86,15 @@ def main() -> None:
         return
 
     modelos = [modelo.strip() for modelo in args.modelos.split(",") if modelo.strip()]
-    metadados = read_jsonl(PASTA_DADOS / "videos.jsonl")
+    metadados = read_jsonl(PASTA_DADOS / "videos.jsonl", key="uuid")
     pasta_saida = PASTA_DADOS / "summary-test"
     ids = []
-    for video_id in args.ids:
-        if (PASTA_DADOS / "transcripts" / f"{video_id}.txt").exists():
-            ids.append(video_id)
+    for pedido in args.ids:
+        documento = document_id_from(pedido)
+        if (PASTA_DADOS / "transcripts" / f"{documento}.txt").exists():
+            ids.append(documento)
         else:
-            print(f"AVISO: sem transcrição para {video_id}, ignorado")
+            print(f"AVISO: sem transcrição para {pedido}, ignorado")
 
     try:
         for modelo in modelos:
@@ -98,33 +102,33 @@ def main() -> None:
             pasta = pasta_saida / re.sub(r"[^A-Za-z0-9._-]", "_", modelo)
             pasta.mkdir(parents=True, exist_ok=True)
             with tqdm(ids, desc=f"{modelo:10}", unit="vídeo") as progresso:
-                for video_id in progresso:
-                    destino = pasta / f"{video_id}.json"
+                for documento in progresso:
+                    destino = pasta / f"{documento}.json"
                     if destino.exists():
                         continue
-                    transcricao = (PASTA_DADOS / "transcripts" / f"{video_id}.txt").read_text(encoding="utf-8")
+                    transcricao = (PASTA_DADOS / "transcripts" / f"{documento}.txt").read_text(encoding="utf-8")
                     inicio = time.perf_counter()
                     try:
                         analise, info = analyze(
                             gerador,
                             transcricao,
-                            metadados.get(video_id),
+                            metadados.get(documento),
                             args.max_palavras,
                             args.linhas_sobrepostas,
                             progresso,
                         )
                     except LLMError as erro:
-                        tqdm.write(f"ERRO em {modelo} / {video_id}: {erro}")
+                        tqdm.write(f"ERRO em {modelo} / {documento}: {erro}")
                         continue
                     analise["_meta"] = {
-                        "video_id": video_id,
+                        "uuid": documento,
                         "backend": "maritaca",
                         "modelo": modelo,
                         "palavras": len(transcricao.split()),
                         **info,
                         "segundos": round(time.perf_counter() - inicio, 1),
                     }
-                    temporario = pasta / f"{video_id}.tmp.json"
+                    temporario = pasta / f"{documento}.tmp.json"
                     temporario.write_text(json.dumps(analise, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
                     temporario.rename(destino)
     except KeyboardInterrupt:
@@ -132,13 +136,13 @@ def main() -> None:
         sys.exit(130)
 
     comparacao = {}
-    for video_id in ids:
-        comparacao[video_id] = {
-            "contexto_enviado_ao_modelo": video_context(metadados.get(video_id)),
-            "transcricao": (PASTA_DADOS / "transcripts" / f"{video_id}.txt").read_text(encoding="utf-8"),
-            "local": le_json(PASTA_DADOS / "summaries" / f"{video_id}.json"),
+    for documento in ids:
+        comparacao[documento] = {
+            "contexto_enviado_ao_modelo": video_context(metadados.get(documento)),
+            "transcricao": (PASTA_DADOS / "transcripts" / f"{documento}.txt").read_text(encoding="utf-8"),
+            "local": le_json(PASTA_DADOS / "summaries" / f"{documento}.json"),
             **{
-                modelo: le_json(pasta_saida / re.sub(r"[^A-Za-z0-9._-]", "_", modelo) / f"{video_id}.json")
+                modelo: le_json(pasta_saida / re.sub(r"[^A-Za-z0-9._-]", "_", modelo) / f"{documento}.json")
                 for modelo in modelos
             },
         }

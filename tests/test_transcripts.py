@@ -26,6 +26,16 @@ def write_jsonl(path, records):
     path.write_text("".join(json.dumps(record, ensure_ascii=False) + "\n" for record in records), encoding="utf-8")
 
 
+def doc(video_id):
+    """Document id of a YouTube video."""
+    return transcripts.document_id(transcripts.youtube_url(video_id))
+
+
+def youtube_record(video_id, **fields):
+    """A line of `data/videos.jsonl`: YouTube metadata with the document's uuid and url."""
+    return transcripts.document_from_youtube({"id": video_id, **fields})
+
+
 VALID_ANALYSIS = {
     "resumo": "Sessão deliberativa sobre o orçamento.",
     "tipo_sessao": "Plenário - sessão deliberativa",
@@ -85,6 +95,41 @@ def test_jsonl_round_trip_keeps_the_last_record_per_id(tmp_path):
     assert list(records) == ["a", "b"]
     assert records["b"]["title"] == "new"
     assert "Sessão" in path.read_text(encoding="utf-8")
+
+
+def test_read_jsonl_by_another_key_needs_it_in_every_line(tmp_path):
+    path = tmp_path / "videos.jsonl"
+    write_jsonl(path, [youtube_record("aaa")])
+    assert list(transcripts.read_jsonl(path, key="uuid")) == [doc("aaa")]
+    write_jsonl(path, [{"id": "aaa"}])
+    with pytest.raises(transcripts.CommandError, match="line 1: record without 'uuid'"):
+        transcripts.read_jsonl(path, key="uuid")
+
+
+def test_document_id_is_the_uuid5_of_the_canonical_url():
+    # The same id DocSearch gives this video: uuid5(NAMESPACE_URL, "https://youtube.com/watch?v=<id>").
+    assert transcripts.youtube_url("dQw4w9WgXcQ") == "https://youtube.com/watch?v=dQw4w9WgXcQ"
+    assert transcripts.document_id("https://youtube.com/watch?v=dQw4w9WgXcQ") == "56a157e6-37b5-55a6-bbbc-807e2e86de5f"
+
+
+def test_document_from_youtube_puts_uuid_and_url_in_front():
+    record = transcripts.document_from_youtube({"id": "dQw4w9WgXcQ", "title": "x"})
+    assert list(record) == ["uuid", "url", "id", "title"]
+    assert record["uuid"] == "56a157e6-37b5-55a6-bbbc-807e2e86de5f"
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "56a157e6-37b5-55a6-bbbc-807e2e86de5f",
+        " 56A157E637B555A6BBBC807E2E86DE5F ",
+        "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "https://youtu.be/dQw4w9WgXcQ",
+        "dQw4w9WgXcQ",
+    ],
+)
+def test_document_id_from_accepts_uuids_urls_and_video_ids(text):
+    assert transcripts.document_id_from(text) == "56a157e6-37b5-55a6-bbbc-807e2e86de5f"
 
 
 def test_read_jsonl_of_a_missing_file_is_empty(tmp_path):
@@ -209,7 +254,9 @@ def test_select_appends_rows_in_turns_newest_first(selection_data, data_dir):
     assert [row.split(",")[0].split("=")[1] for row in rows] == ["ce-new", "cam-new"]
     assert rows[0].split(",")[3:6] == ["estadual", "CE", "Alece"]
     assert rows[1].split(",")[3:6] == ["federal", "DF", "Câmara"]
-    assert list(transcripts.read_jsonl(data_dir / "videos.jsonl")) == ["ce-new", "cam-new"]
+    records = transcripts.read_jsonl(data_dir / "videos.jsonl", key="uuid")
+    assert list(records) == [doc("ce-new"), doc("cam-new")]
+    assert records[doc("ce-new")]["url"] == "https://youtube.com/watch?v=ce-new"
 
 
 def test_select_never_picks_the_same_video_twice(selection_data):
@@ -246,20 +293,23 @@ Tem a palavra o deputado.
 """
 
 
-def test_read_video_ids_uses_the_url_column_without_repeating(tmp_path):
+def test_read_documents_uses_the_url_column_without_repeating(tmp_path):
     path = tmp_path / "videos.csv"
     path.write_text(
         "orgao,URL\nCâmara,https://youtu.be/aaa\nSenado,https://www.youtube.com/watch?v=bbb\n"
-        "Câmara,https://youtu.be/aaa\nx,\ny,https://example.com/nothing\n",
+        "Câmara,https://www.youtube.com/live/aaa\nx,\ny,https://example.com/nothing\n",
         encoding="utf-8",
     )
-    assert transcripts.read_video_ids(path) == ["aaa", "bbb"]
+    assert transcripts.read_documents(path) == {
+        doc("aaa"): "https://youtube.com/watch?v=aaa",
+        doc("bbb"): "https://youtube.com/watch?v=bbb",
+    }
 
 
-def test_read_video_ids_falls_back_to_the_first_column(tmp_path):
+def test_read_documents_falls_back_to_the_first_column(tmp_path):
     path = tmp_path / "videos.csv"
     path.write_text("link\nhttps://youtu.be/aaa\n", encoding="utf-8")
-    assert transcripts.read_video_ids(path) == ["aaa"]
+    assert list(transcripts.read_documents(path)) == [doc("aaa")]
 
 
 def test_vtt_times():
@@ -388,11 +438,13 @@ def test_summarize_writes_the_json_with_processing_details(tmp_path):
     summary_dir.mkdir()
     (text_dir / "vid.txt").write_text("[00:00:01] uma fala qualquer\n", encoding="utf-8")
     (summary_dir / "vid.tmp.json").write_text("leftover", encoding="utf-8")
+    record = {"url": "https://youtube.com/watch?v=x"}
     transcripts.summarize(
-        "vid", None, text_dir, summary_dir, FakeGenerator([json.dumps(VALID_ANALYSIS)]), "ollama", 8000, 10
+        "vid", record, text_dir, summary_dir, FakeGenerator([json.dumps(VALID_ANALYSIS)]), "ollama", 8000, 10
     )
     written = json.loads((summary_dir / "vid.json").read_text(encoding="utf-8"))
     assert written["resumo"] == VALID_ANALYSIS["resumo"]
+    assert (written["_meta"]["uuid"], written["_meta"]["url"]) == ("vid", "https://youtube.com/watch?v=x")
     assert written["_meta"]["modelo"] == "fake-model"
     assert written["_meta"]["backend"] == "ollama"
     assert written["_meta"]["palavras"] == 4
@@ -540,20 +592,21 @@ def test_capture_needs_a_model_for_the_summary_step(data_dir, tmp_path, capsys):
 def test_capture_runs_only_the_asked_steps_and_resumes(data_dir, tmp_path, monkeypatch):
     csv_path = tmp_path / "videos.csv"
     csv_path.write_text("url\nhttps://youtu.be/aaa\nhttps://youtu.be/bbb\n", encoding="utf-8")
-    write_jsonl(data_dir / "videos.jsonl", [{"id": "aaa", "duration": 60}, {"id": "bbb", "duration": 60}])
+    write_jsonl(data_dir / "videos.jsonl", [youtube_record("aaa", duration=60), youtube_record("bbb", duration=60)])
     (data_dir / "transcripts").mkdir()
-    (data_dir / "transcripts" / "aaa.txt").write_text("[00:00:01] já transcrito\n", encoding="utf-8")
+    (data_dir / "transcripts" / f"{doc('aaa')}.txt").write_text("[00:00:01] já transcrito\n", encoding="utf-8")
     downloads = []
 
-    def fake_download(video_id, directory, extra_args):
-        downloads.append((video_id, extra_args))
-        (directory / f"{video_id}.mp3").write_bytes(b"mp3")
+    def fake_download(document, url, directory, extra_args):
+        downloads.append((url, extra_args))
+        (directory / f"{document}.mp3").write_bytes(b"mp3")
 
     monkeypatch.setattr(transcripts, "download_audio", fake_download)
     arguments = ["capture", "--steps", "audio", "--yt-dlp-args", "--sleep-interval 3", str(csv_path)]
     assert transcripts.main(arguments) == 0
     # "aaa" already has a transcript, so its audio is not downloaded again.
-    assert downloads == [("bbb", ["--sleep-interval", "3"])]
+    assert downloads == [("https://youtube.com/watch?v=bbb", ["--sleep-interval", "3"])]
+    assert (data_dir / "audio" / f"{doc('bbb')}.mp3").exists()
     assert transcripts.main(arguments) == 0
     assert len(downloads) == 1
 
@@ -580,8 +633,8 @@ def test_read_houses_blanks_the_state_of_federal_houses(tmp_path):
         encoding="utf-8",
     )
     assert transcripts.read_houses(path) == {
-        "aaa": {"house": "Câmara", "state": ""},
-        "bbb": {"house": "Alece", "state": "CE"},
+        doc("aaa"): {"house": "Câmara", "state": ""},
+        doc("bbb"): {"house": "Alece", "state": "CE"},
     }
     assert transcripts.read_houses(None) == {}
 
@@ -625,28 +678,28 @@ def captured_data(data_dir):
     write_jsonl(
         data_dir / "videos.jsonl",
         [
-            {"id": "old", "title": "Sessão antiga", "channel_title": "TV Câmara", "duration": 3600,
-             "published_at": "2025-01-10T10:00:00"},
-            {"id": "new", "title": "Sessão nova", "channel_title": "TV Alece", "duration": 1800,
-             "started_at": "2025-03-05T14:00:00", "published_at": "2025-03-06T00:00:00"},
-            {"id": "half", "title": "Incompleta", "channel_title": "TV", "duration": 60, "published_at": "2025-02-01"},
+            youtube_record("old", title="Sessão antiga", channel_title="TV Câmara", duration=3600,
+                           published_at="2025-01-10T10:00:00"),
+            youtube_record("new", title="Sessão nova", channel_title="TV Alece", duration=1800,
+                           started_at="2025-03-05T14:00:00", published_at="2025-03-06T00:00:00"),
+            youtube_record("half", title="Incompleta", channel_title="TV", duration=60, published_at="2025-02-01"),
         ],
     )  # fmt: skip
     (data_dir / "transcripts").mkdir()
     (data_dir / "summaries").mkdir()
     for video_id in ("old", "new", "half"):
-        (data_dir / "transcripts" / f"{video_id}.vtt").write_text(VTT, encoding="utf-8")
-        (data_dir / "transcripts" / f"{video_id}.txt").write_text(
+        (data_dir / "transcripts" / f"{doc(video_id)}.vtt").write_text(VTT, encoding="utf-8")
+        (data_dir / "transcripts" / f"{doc(video_id)}.txt").write_text(
             f"[00:00:01] fala de {video_id} sobre orçamento\n[00:10:00] segunda fala\n", encoding="utf-8"
         )
     for video_id in ("old", "new"):
         analysis = {**VALID_ANALYSIS, "_meta": {"modelo": "s5-nano:4b-q8-256k"}}
-        (data_dir / "summaries" / f"{video_id}.json").write_text(json.dumps(analysis), encoding="utf-8")
+        (data_dir / "summaries" / f"{doc(video_id)}.json").write_text(json.dumps(analysis), encoding="utf-8")
     return data_dir
 
 
 def test_site_builds_the_data_files_for_complete_sessions(captured_data, tmp_path, monkeypatch, capsys):
-    monkeypatch.setattr(transcripts, "fetch_thumbnail", lambda video_id, directory: video_id != "old")
+    monkeypatch.setattr(transcripts, "fetch_thumbnail", lambda document, video_id, directory: video_id != "old")
     csv_path = tmp_path / "videos.csv"
     csv_path.write_text("url,esfera,uf,orgao\nhttps://youtu.be/new,estadual,CE,Alece\n", encoding="utf-8")
     output = tmp_path / "docs"
@@ -660,15 +713,16 @@ def test_site_builds_the_data_files_for_complete_sessions(captured_data, tmp_pat
     assert transcripts.main(["site", "--csv", str(csv_path), "--output", str(output)]) == 0
 
     items = json.loads((output / "data" / "items.json").read_text(encoding="utf-8"))
-    assert [row[0] for row in items["items"]] == ["new", "old"]
+    assert [row[0] for row in items["items"]] == [doc("new"), doc("old")]
     assert items["houses"] == ["Alece", "TV Câmara"]
     assert items["config"]["models"] == ["S5-nano"]
-    assert items["config"]["without_thumbnail"] == ["old"]
+    assert items["config"]["thumbnail_fallback"] == {doc("old"): "https://i.ytimg.com/vi/old/mqdefault.jpg"}
     assert items["config"]["search_bytes"] == (output / "data" / "search.json").stat().st_size
     search = json.loads((output / "data" / "search.json").read_text(encoding="utf-8"))
-    assert search["lines"]["new"] == [[1, "fala de new sobre orçamento"], [600, "segunda fala"]]
-    assert search["keywords"] == {"new": ["pl 123"], "old": ["pl 123"]}
-    session = json.loads((output / "data" / "items" / "new.json").read_text(encoding="utf-8"))
+    assert search["lines"][doc("new")] == [[1, "fala de new sobre orçamento"], [600, "segunda fala"]]
+    assert search["keywords"] == {doc("new"): ["pl 123"], doc("old"): ["pl 123"]}
+    session = json.loads((output / "data" / "items" / f"{doc('new')}.json").read_text(encoding="utf-8"))
+    assert (session["id"], session["url"]) == (doc("new"), "https://youtube.com/watch?v=new")
     assert (session["house"], session["state"], session["date"], session["model"]) == (
         "Alece",
         "CE",
@@ -678,37 +732,42 @@ def test_site_builds_the_data_files_for_complete_sessions(captured_data, tmp_pat
     assert session["participants"] == [
         {"name": person["nome"], "role": person.get("papel", "")} for person in VALID_ANALYSIS["participantes"]
     ]
-    assert session["lines"] == search["lines"]["new"]
-    assert sorted(path.name for path in (output / "data" / "items").iterdir()) == ["new.json", "old.json"]
+    assert session["lines"] == search["lines"][doc("new")]
+    assert sorted(path.name for path in (output / "data" / "items").iterdir()) == sorted(
+        [f"{doc('new')}.json", f"{doc('old')}.json"]
+    )
     assert not (output / "js" / "modules" / "renamed.js").exists()
     assert (output / "js" / "app.js").exists()
-    assert sorted(path.name for path in (output / "captions").iterdir()) == ["new.vtt", "old.vtt"]
+    assert sorted(path.name for path in (output / "captions").iterdir()) == sorted(
+        [f"{doc('new')}.vtt", f"{doc('old')}.vtt"]
+    )
     assert sorted(path.name for path in (output / "css").iterdir()) == ["app.css"]
     assert "@import" not in (output / "css" / "app.css").read_text(encoding="utf-8")
     assert (output / "CNAME").read_text(encoding="utf-8") == "transcricoes.brasil.io\n"
     assert (output / "index.html").exists()
-    assert "1 videos left out, pipeline incomplete: half" in capsys.readouterr().err
+    assert "1 videos left out, pipeline incomplete: https://youtube.com/watch?v=half" in capsys.readouterr().err
 
 
 def test_site_can_exclude_videos_and_skip_the_cname(captured_data, tmp_path, monkeypatch):
-    monkeypatch.setattr(transcripts, "fetch_thumbnail", lambda video_id, directory: True)
+    monkeypatch.setattr(transcripts, "fetch_thumbnail", lambda document, video_id, directory: True)
     output = tmp_path / "docs"
-    assert transcripts.main(["site", "--exclude", "old, half", "--domain", "", "--output", str(output)]) == 0
+    excluded = f"old, {doc('half')}"
+    assert transcripts.main(["site", "--exclude", excluded, "--domain", "", "--output", str(output)]) == 0
     items = json.loads((output / "data" / "items.json").read_text(encoding="utf-8"))
-    assert [row[0] for row in items["items"]] == ["new"]
+    assert [row[0] for row in items["items"]] == [doc("new")]
     assert not (output / "CNAME").exists()
 
 
 def test_site_without_complete_videos_is_an_error(data_dir, tmp_path, capsys):
-    write_jsonl(data_dir / "videos.jsonl", [{"id": "half", "title": "x"}])
+    write_jsonl(data_dir / "videos.jsonl", [youtube_record("half", title="x")])
     assert transcripts.main(["site", "--output", str(tmp_path / "docs")]) == 1
     assert "no video with the complete pipeline" in capsys.readouterr().err
 
 
 def test_fetch_thumbnail_keeps_an_existing_webp_without_network(tmp_path, monkeypatch):
-    (tmp_path / "vid.webp").write_bytes(b"webp")
+    (tmp_path / "doc.webp").write_bytes(b"webp")
     monkeypatch.setattr(transcripts.urllib.request, "urlopen", lambda *arguments, **options: pytest.fail("network"))
-    assert transcripts.fetch_thumbnail("vid", tmp_path) is True
+    assert transcripts.fetch_thumbnail("doc", "vid", tmp_path) is True
 
 
 def test_fetch_thumbnail_reports_a_failed_download(tmp_path, monkeypatch, capsys):
@@ -716,7 +775,7 @@ def test_fetch_thumbnail_reports_a_failed_download(tmp_path, monkeypatch, capsys
         raise transcripts.urllib.error.URLError("offline")
 
     monkeypatch.setattr(transcripts.urllib.request, "urlopen", offline)
-    assert transcripts.fetch_thumbnail("vid", tmp_path) is False
+    assert transcripts.fetch_thumbnail("doc", "vid", tmp_path) is False
     assert list(tmp_path.iterdir()) == []
     assert "thumbnail of vid not downloaded" in capsys.readouterr().err
 
