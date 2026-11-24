@@ -1406,8 +1406,11 @@ def command_site(args: argparse.Namespace) -> int:
 
     thumbnails_dir = args.output / "thumbnails"
     thumbnails_dir.mkdir(parents=True, exist_ok=True)
+    # Rebuilt every time, so no caption of a session that left the site is kept.
     captions_dir = args.output / "captions"
-    captions_dir.mkdir(parents=True, exist_ok=True)
+    if captions_dir.exists():
+        shutil.rmtree(captions_dir)
+    captions_dir.mkdir(parents=True)
     sessions = []
     transcripts = {}
     incomplete = []

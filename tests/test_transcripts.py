@@ -652,6 +652,8 @@ def test_site_builds_the_data_files_for_complete_sessions(captured_data, tmp_pat
     output = tmp_path / "docs"
     (output / "data" / "items").mkdir(parents=True)
     (output / "data" / "items" / "stale.json").write_text("{}", encoding="utf-8")
+    (output / "captions").mkdir(parents=True)
+    (output / "captions" / "stale.vtt").write_text("", encoding="utf-8")
     (output / "js" / "modules").mkdir(parents=True)
     (output / "js" / "modules" / "renamed.js").write_text("", encoding="utf-8")
 
