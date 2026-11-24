@@ -2,6 +2,7 @@
 import { TEXTS } from "./modules/texts.js";
 import { escapeHtml, highlight, matchingLines, normalize, queryTerms, search } from "./modules/search.js";
 import { clock, readableDate, readableDuration } from "./modules/format.js";
+import { youtubeId } from "./modules/ids.js";
 import { decodeList, pageSlice, visiblePages } from "./modules/list.js";
 import { parseRoute, routeHash } from "./modules/routes.js";
 
@@ -73,7 +74,7 @@ function loadItem(id) {
   return fullItems.get(id);
 }
 
-const thumbnail = (id) => list.config.without_thumbnail.includes(id) ? `https://i.ytimg.com/vi/${encodeURIComponent(id)}/mqdefault.jpg` : `thumbnails/${encodeURIComponent(id)}.webp`;
+const thumbnail = (id) => list.config.thumbnail_fallback[id] ?? `thumbnails/${encodeURIComponent(id)}.webp`;
 
 function filteredSessions() {
   return list.sessions.filter((session) =>
@@ -229,8 +230,8 @@ function drawResults() {
 }
 
 // `enablejsapi` and `origin` let YouTube's iframe API report the current time of the video.
-function playerUrl(id, seconds, autoplay) {
-  return `https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}?start=${Math.floor(seconds)}${autoplay ? "&autoplay=1" : ""}&enablejsapi=1&origin=${encodeURIComponent(location.origin)}`;
+function playerUrl(videoId, seconds, autoplay) {
+  return `https://www.youtube-nocookie.com/embed/${encodeURIComponent(videoId)}?start=${Math.floor(seconds)}${autoplay ? "&autoplay=1" : ""}&enablejsapi=1&origin=${encodeURIComponent(location.origin)}`;
 }
 
 let playerApi = null;       // promise of YouTube's iframe API, loaded on the first session opened
@@ -267,17 +268,18 @@ function drawSession(id, seconds) {
 
 function drawLoadedSession(session, seconds, turn) {
   const id = session.id;
-  const issue = `${list.config.repository}/issues/new?title=${encodeURIComponent("Erro em " + id + ": " + session.title)}`;
+  const videoId = youtubeId(session.url);
+  const issue = `${list.config.repository}/issues/new?title=${encodeURIComponent("Erro em " + session.url + ": " + session.title)}`;
   const bullets = (items) => items.length ? `<ul class="machine-box__list" lang="pt-BR">${items.map((item) => `<li>${item}</li>`).join("")}</ul>` : "";
   // YouTube refuses the player (error 153) when the page sends no Referer header; hence the referrerpolicy.
   app().innerHTML = `
     <p><a href="${routeHash({ page: "home" })}">${t("back")}</a></p>
     <h1 class="page-title page-title--session" lang="pt-BR">${escapeHtml(session.title)}</h1>
     <p class="page-lead"><span lang="pt-BR">${source(session)}</span>, ${t("published")} ${date(session.date)} · ${readableDuration(session.duration)} · <span lang="pt-BR">${escapeHtml(session.type)}</span> ·
-      <a href="https://www.youtube.com/watch?v=${encodeURIComponent(id)}" target="_blank" rel="noopener">${t("open_youtube")}</a> · <a href="captions/${encodeURIComponent(id)}.vtt" download>${t("download_captions")}</a> · <a href="${escapeHtml(issue)}" target="_blank" rel="noopener">${t("report_error")}</a></p>
+      <a href="${escapeHtml(session.url)}" target="_blank" rel="noopener">${t("open_youtube")}</a> · <a href="captions/${encodeURIComponent(id)}.vtt" download>${t("download_captions")}</a> · <a href="${escapeHtml(issue)}" target="_blank" rel="noopener">${t("report_error")}</a></p>
     <div class="session-layout">
       <div class="session-layout__main">
-        <div class="video-player ratio ratio-16x9"><iframe id="player" src="${playerUrl(id, seconds || 0, seconds !== null)}" title="YouTube: ${escapeHtml(session.title)}" referrerpolicy="strict-origin-when-cross-origin" allow="autoplay; encrypted-media; picture-in-picture; web-share" allowfullscreen></iframe></div>
+        <div class="video-player ratio ratio-16x9"><iframe id="player" src="${playerUrl(videoId, seconds || 0, seconds !== null)}" title="YouTube: ${escapeHtml(session.title)}" referrerpolicy="strict-origin-when-cross-origin" allow="autoplay; encrypted-media; picture-in-picture; web-share" allowfullscreen></iframe></div>
         <section class="machine-box" aria-labelledby="summary-title">
           <h2 class="machine-box__label" id="summary-title">${t("machine_summary")} · ${t("model")} ${escapeHtml(session.model)}</h2>
           <p lang="pt-BR">${escapeHtml(session.summary)}</p>
@@ -344,7 +346,7 @@ function drawLoadedSession(session, seconds, turn) {
       player.seekTo(lineStart, true);
       player.playVideo();
     } else {
-      document.getElementById("player").src = playerUrl(id, lineStart, true);
+      document.getElementById("player").src = playerUrl(videoId, lineStart, true);
     }
     mark(Number(button.dataset.position), false);
   });
