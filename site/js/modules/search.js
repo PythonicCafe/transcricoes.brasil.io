@@ -1,4 +1,4 @@
-// Search in the browser: normalization, query parsing, term highlighting and the scan of the transcripts.
+// Text matching: normalization, query parsing, term highlighting and the lines of a transcript that match.
 
 export const escapeHtml = (text) => String(text ?? "").replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char]));
 
@@ -36,24 +36,4 @@ export function matchingLines(lines, terms) {
     }
   }
   return found;
-}
-
-// Look in every given session; `data` is `search.json` ({lines, keywords}, by id). A passage matches when all the
-// terms are in the same line or in two lines in a row. Sessions without passages are kept if the terms are in the
-// title, the summary or the keywords.
-export function search(sessions, data, terms, cache = {}) {
-  const results = [];
-  for (const session of sessions) {
-    const original = data.lines[session.id] || [];
-    const lines = cache[session.id] ??= original.map((line) => normalize(line[1]));
-    const passages = matchingLines(lines, terms).map(({ position, whole }) => ({
-      seconds: original[position][0],
-      text: whole ? original[position][1] : original[position][1] + " " + original[position + 1][1],
-    }));
-    const meta = normalize(`${session.title} ${session.summary} ${(data.keywords[session.id] || []).join(" ")}`);
-    const inSummary = terms.every((term) => meta.includes(term));
-    if (passages.length || inSummary) results.push({ session, passages, inSummary });
-  }
-  results.sort((first, second) => second.passages.length - first.passages.length);
-  return results;
 }

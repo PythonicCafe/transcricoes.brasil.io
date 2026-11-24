@@ -705,6 +705,8 @@ def test_site_builds_the_data_files_for_complete_sessions(captured_data, tmp_pat
     output = tmp_path / "docs"
     (output / "data" / "items").mkdir(parents=True)
     (output / "data" / "items" / "stale.json").write_text("{}", encoding="utf-8")
+    (output / "data" / "search.json").write_text("{}", encoding="utf-8")
+    (output / "data" / "index" / "oldversion").mkdir(parents=True)
     (output / "captions").mkdir(parents=True)
     (output / "captions" / "stale.vtt").write_text("", encoding="utf-8")
     (output / "js" / "modules").mkdir(parents=True)
@@ -717,10 +719,13 @@ def test_site_builds_the_data_files_for_complete_sessions(captured_data, tmp_pat
     assert items["houses"] == ["Alece", "TV Câmara"]
     assert items["config"]["models"] == ["S5-nano"]
     assert items["config"]["thumbnail_fallback"] == {doc("old"): "https://i.ytimg.com/vi/old/mqdefault.jpg"}
-    assert items["config"]["search_bytes"] == (output / "data" / "search.json").stat().st_size
-    search = json.loads((output / "data" / "search.json").read_text(encoding="utf-8"))
-    assert search["lines"][doc("new")] == [[1, "fala de new sobre orçamento"], [600, "segunda fala"]]
-    assert search["keywords"] == {doc("new"): ["pl 123"], doc("old"): ["pl 123"]}
+    index = items["config"]["index"]
+    assert [path.name for path in (output / "data" / "index").iterdir()] == [index["version"]]
+    files = sorted((output / "data" / "index" / index["version"]).iterdir())
+    assert [path.name for path in files] == [f"{number:04d}.json" for number in range(len(index["starts"]))]
+    assert [next(iter(json.loads(path.read_text(encoding="utf-8")))) for path in files] == index["starts"]
+    assert index["lengths"] == [7, 7] and index["block_seconds"] == 60
+    assert not (output / "data" / "search.json").exists()
     session = json.loads((output / "data" / "items" / f"{doc('new')}.json").read_text(encoding="utf-8"))
     assert (session["id"], session["url"]) == (doc("new"), "https://youtube.com/watch?v=new")
     assert (session["house"], session["state"], session["date"], session["model"]) == (
@@ -732,7 +737,7 @@ def test_site_builds_the_data_files_for_complete_sessions(captured_data, tmp_pat
     assert session["participants"] == [
         {"name": person["nome"], "role": person.get("papel", "")} for person in VALID_ANALYSIS["participantes"]
     ]
-    assert session["lines"] == search["lines"][doc("new")]
+    assert session["lines"] == [[1, "fala de new sobre orçamento"], [600, "segunda fala"]]
     assert sorted(path.name for path in (output / "data" / "items").iterdir()) == sorted(
         [f"{doc('new')}.json", f"{doc('old')}.json"]
     )
@@ -892,3 +897,44 @@ def test_ctrl_c_exits_with_code_130(monkeypatch, capsys):
     monkeypatch.setitem(transcripts.COMMANDS, "compare", ("help", lambda parser: None, interrupted))
     assert transcripts.main(["compare"]) == 130
     assert "interrupted" in capsys.readouterr().err
+
+
+def test_index_tokens_matches_the_javascript_of_the_site():
+    # tests/js/index.test.js has the same case.
+    assert transcripts.index_tokens("Orçamento: a CPI de 2025, é já!") == ["orcamento", "cpi", "de", "2025", "ja"]
+
+
+def test_build_index_counts_transcript_and_summary_and_keeps_the_blocks():
+    sessions = [
+        {"id": "a", "title": "Orçamento", "summary": "", "keywords": []},
+        {"id": "b", "title": "", "summary": "saúde", "keywords": ["orçamento público"]},
+    ]
+    lines = {"a": [[5, "orçamento e mais orçamento"], [130, "orçamento"]], "b": [[61, "saúde"]]}
+    postings, lengths = transcripts.build_index(sessions, lines)
+    assert lengths == [4, 1]
+    # [document - previous, tf, meta, number of blocks, first block, block - previous block, ...]
+    assert postings["orcamento"] == [0, 3, 1, 2, 0, 2, 1, 0, 1, 0]
+    assert postings["saude"] == [1, 1, 1, 1, 1]
+    assert postings["publico"] == [1, 0, 1, 0]
+    assert list(postings) == sorted(postings)
+
+
+def test_write_index_cuts_files_by_size_and_names_the_version_by_content(tmp_path):
+    postings = {f"termo{number:03d}": [0, 1, 0, 1, number] for number in range(100)}
+    first = transcripts.write_index(postings, [1], tmp_path / "index", 200)
+    files = sorted((tmp_path / "index" / first["version"]).iterdir())
+    assert len(files) == len(first["starts"]) > 1
+    assert all(len(path.read_bytes()) <= 200 for path in files)
+    joined = {}
+    for path in files:
+        joined.update(json.loads(path.read_text(encoding="utf-8")))
+    assert joined == postings
+    assert transcripts.write_index(postings, [1], tmp_path / "index", 200)["version"] == first["version"]
+    changed = transcripts.write_index({**postings, "outro": [0, 1, 0, 0]}, [1], tmp_path / "index", 200)
+    assert changed["version"] != first["version"]
+    assert [path.name for path in (tmp_path / "index").iterdir()] == [changed["version"]]
+
+
+def test_shard_terms_gives_a_big_term_a_file_of_its_own():
+    postings = {"a": [0] * 50, "b": [0], "c": [0]}
+    assert transcripts.shard_terms(postings, 30) == [["a"], ["b", "c"]]

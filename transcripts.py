@@ -18,6 +18,7 @@ Exit codes: 0 on success, 1 on error, 2 on invalid arguments, 130 when interrupt
 
 import argparse
 import csv
+import hashlib
 import io
 import itertools
 import json
@@ -30,6 +31,7 @@ import subprocess
 import sys
 import threading
 import time
+import unicodedata
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -1279,7 +1281,7 @@ def command_capture(args: argparse.Namespace) -> int:
 # - `thumbnails/<id>.webp`: thumbnail of each video, downloaded from YouTube once, converted and served by the site;
 # - `data/items.json`: slim list for the home page and the filters (rows follow `fields`; house, state, type and
 #   themes are positions in the option lists);
-# - `data/search.json`: what the search scans, `{"lines": {id: [[seconds, text], ...]}, "keywords": {...}}`;
+# - `data/index/<version>/<NNNN>.json`: the search index, cut in files of about the same size (see "search index");
 # - `data/items/<id>.json`: one complete session (metadata, summary, participants, decisions and lines);
 # - `CNAME` and `.nojekyll`.
 # The summaries in `data/summaries/` keep the Portuguese keys of the prompt's schema; here they become English keys.
@@ -1290,6 +1292,109 @@ WEBP_QUALITY = 70
 LIST_FIELDS = ["id", "title", "house", "state", "date", "duration", "type", "themes", "summary"]
 CATEGORICAL = {"house": "houses", "state": "states", "type": "types"}
 IMPORT_RE = re.compile(r'@import url\("([^"]+)"\);')
+
+
+# --- search index: what the browser downloads to search, a piece at a time (BUSCA.md explains it) ---
+#
+# An inverted index: for each term, the documents (by position in `items.json`) where it is, with how many times it
+# appears in the transcript (`tf`), how many times in the title, summary and keywords (`meta`) and the blocks of
+# INDEX_BLOCK_SECONDS where it appears in the transcript. Each term is a flat list of numbers, document after
+# document: `[document - previous document, tf, meta, number of blocks, first block, block - previous block, ...]`.
+#
+# The terms go in alphabetical order, cut in files of about INDEX_SHARD_BYTES; `items.json` keeps the first term of
+# each file (`config.index.starts`), so the browser finds by binary search the files of the words typed. The
+# directory is named after a hash of the contents (`config.index.version`): a cached `items.json` never mixes with
+# the files of another build.
+
+INDEX_BLOCK_SECONDS = 60
+INDEX_SHARD_BYTES = 40_000
+TOKEN_RE = re.compile(r"[a-z0-9]+")
+
+
+def normalize_text(text: str) -> str:
+    """Lower case without accents: the same `normalize` of the site's JavaScript (NFD, combining marks out)."""
+    decomposed = unicodedata.normalize("NFD", text)
+    return "".join(char for char in decomposed if not unicodedata.combining(char)).lower()
+
+
+def index_tokens(text: str) -> list[str]:
+    """Words of the index: letters and digits, two or more characters (one letter words are left out of searches)."""
+    return [token for token in TOKEN_RE.findall(normalize_text(text)) if len(token) > 1]
+
+
+def build_index(sessions: list[dict], transcripts: dict[str, list[list]]) -> tuple[dict[str, list[int]], list[int]]:
+    """Postings of every term, in alphabetical order, and the transcript length (in words) of each document."""
+    stats: dict[str, dict[int, list]] = defaultdict(dict)
+    lengths = []
+    for document, session in enumerate(sessions):
+        words_in_transcript = 0
+        for seconds, text in transcripts[session["id"]]:
+            words = index_tokens(text)
+            words_in_transcript += len(words)
+            block = int(seconds // INDEX_BLOCK_SECONDS)
+            for word in words:
+                entry = stats[word].setdefault(document, [0, 0, set()])
+                entry[0] += 1
+                entry[2].add(block)
+        for word in index_tokens(" ".join([session["title"], session["summary"], *session["keywords"]])):
+            stats[word].setdefault(document, [0, 0, set()])[1] += 1
+        lengths.append(words_in_transcript)
+    postings = {}
+    for term in sorted(stats):
+        flat: list[int] = []
+        previous = 0
+        for document in sorted(stats[term]):
+            tf, meta, blocks = stats[term][document]
+            blocks = sorted(blocks)
+            flat += [document - previous, tf, meta, len(blocks)]
+            flat += [first - before for before, first in zip([0, *blocks], blocks)]
+            previous = document
+        postings[term] = flat
+    return postings, lengths
+
+
+def compact_json(data: object) -> str:
+    return json.dumps(data, ensure_ascii=False, separators=(",", ":"))
+
+
+def shard_terms(postings: dict[str, list[int]], shard_bytes: int) -> list[list[str]]:
+    """Terms (already in order) cut in groups of about `shard_bytes`; a bigger term gets a group of its own."""
+    shards: list[list[str]] = []
+    current: list[str] = []
+    size = 0
+    for term, flat in postings.items():
+        term_size = len(compact_json({term: flat}).encode("utf-8"))
+        if current and size + term_size > shard_bytes:
+            shards.append(current)
+            current, size = [], 0
+        current.append(term)
+        size += term_size
+    if current:
+        shards.append(current)
+    return shards
+
+
+def write_index(postings: dict[str, list[int]], lengths: list[int], directory: Path, shard_bytes: int) -> dict:
+    """Write the files of the index under `directory/<version>/` and return what `items.json` keeps about it.
+
+    The whole `directory` is rebuilt: the files of a previous build are removed.
+    """
+    shards = shard_terms(postings, shard_bytes)
+    contents = [compact_json({term: postings[term] for term in shard}) for shard in shards]
+    version = hashlib.sha1("\n".join(contents).encode("utf-8")).hexdigest()[:12]
+    if directory.exists():
+        shutil.rmtree(directory)
+    target = directory / version
+    target.mkdir(parents=True)
+    for number, content in enumerate(contents):
+        (target / f"{number:04d}.json").write_text(content, encoding="utf-8")
+    return {
+        "version": version,
+        "block_seconds": INDEX_BLOCK_SECONDS,
+        "starts": [shard[0] for shard in shards],
+        "lengths": lengths,
+        "average_length": sum(lengths) / len(lengths) if lengths else 0,
+    }
 
 
 def mark_seconds(mark: str) -> int:
@@ -1490,19 +1595,16 @@ def command_site(args: argparse.Namespace) -> int:
             shutil.rmtree(args.output / source.name)
     shutil.copytree(SITE_SOURCE_DIR, args.output, dirs_exist_ok=True)
     join_css(args.output / "css")
-    status("writing the search file...")
-    search = {
-        "keywords": {session["id"]: session["keywords"] for session in sessions},
-        "lines": transcripts,
-    }
-    write_json(site_data_dir / "search.json", search)
+    status("writing the search index...")
+    (site_data_dir / "search.json").unlink(missing_ok=True)
+    postings, lengths = build_index(sessions, transcripts)
+    index = write_index(postings, lengths, site_data_dir / "index", args.shard_bytes)
     config = {
         "repository": args.repository.rstrip("/"),
         "models": sorted({session["model"] for session in sessions}),
         # Thumbnails that could not be downloaded: the site shows YouTube's.
         "thumbnail_fallback": thumbnail_fallback,
-        # Size of search.json, so the site can show download progress (the browser only knows the compressed size).
-        "search_bytes": (site_data_dir / "search.json").stat().st_size,
+        "index": index,
     }
     write_json(site_data_dir / "items.json", slim_list(sessions, config))
     # One file per session; the directory is rebuilt so no excluded session is left.
@@ -1518,10 +1620,11 @@ def command_site(args: argparse.Namespace) -> int:
 
     hours = sum(session["duration"] for session in sessions) / 3600
     list_size = (site_data_dir / "items.json").stat().st_size / 1024
-    search_size = (site_data_dir / "search.json").stat().st_size / 1024 / 1024
+    index_files = list((site_data_dir / "index" / index["version"]).iterdir())
+    index_size = sum(path.stat().st_size for path in index_files) / 1024 / 1024
     status(
         f"{len(sessions)} sessions, {hours:.1f} h of video, list with {list_size:.0f} KB,"
-        f" search with {search_size:.1f} MB -> {args.output}/"
+        f" index with {len(postings)} terms in {len(index_files)} files, {index_size:.1f} MB -> {args.output}/"
     )
     if incomplete:
         more = f" and {len(incomplete) - 10} more" if len(incomplete) > 10 else ""
@@ -2064,6 +2167,10 @@ def _configure_site(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         "-d", "--domain", metavar="domain", default=DOMAIN, help="GitHub Pages domain (empty to write no CNAME)"
     )
+    parser.add_argument(
+        "-b", "--shard-bytes", metavar="bytes", type=int, default=INDEX_SHARD_BYTES,
+        help=f"Size of each file of the search index, before compression (default: {INDEX_SHARD_BYTES})",
+    )  # fmt: skip
 
 
 def _configure_measure(parser: argparse.ArgumentParser) -> None:
