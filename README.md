@@ -16,7 +16,7 @@ gerados por máquina, não foram revisados por pessoas e contêm erros.
 |---|---|
 | `transcripts.py` | A ferramenta de linha de comando, com um subcomando por etapa do trabalho (veja abaixo). |
 | `groq.py` | Transcreve áudio com o Whisper pela API da Groq, com detecção de voz. |
-| `site/` | O site: HTML, CSS com _design tokens_ e módulos de JavaScript puro, sem etapa de _build_. A busca roda no navegador, sobre todas as transcrições. |
+| `site/` | O site: HTML, CSS com _design tokens_ e módulos de JavaScript puro, sem etapa de _build_. A busca roda no navegador, com um índice baixado aos pedaços ([BUSCA.md](BUSCA.md)). |
 | `docs/` | O site gerado, que o GitHub Pages publica. |
 | `videos.csv` | Os vídeos escolhidos para esta versão. |
 | `canais.csv` | Os canais do YouTube de cada casa legislativa. |
