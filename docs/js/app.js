@@ -1,8 +1,9 @@
 // Entry point of the site: state, routes (in the URL fragment) and the drawing of the pages.
 import { TEXTS } from "./modules/texts.js";
-import { escapeHtml, highlight, matchingLines, normalize, queryTerms, search } from "./modules/search.js";
+import { escapeHtml, highlight, matchingLines, normalize, queryTerms } from "./modules/search.js";
 import { clock, readableDate, readableDuration } from "./modules/format.js";
 import { youtubeId } from "./modules/ids.js";
+import { queryWords, rankDocuments, shardsFor } from "./modules/index.js";
 import { decodeList, pageSlice, visiblePages } from "./modules/list.js";
 import { parseRoute, routeHash } from "./modules/routes.js";
 
@@ -17,8 +18,7 @@ let language = stored("language", "en");
 if (!TEXTS[language]) language = "en";
 let colorTheme = stored("color-theme", "system");
 let list = null;            // {config, sessions: [...]}: the slim list of `data/items.json`, decoded
-let searchData = null;      // `data/search.json`: {lines: {id: [[seconds, text], ...]}, keywords: {id: [...]}}
-let loadingSearch = null;
+let searchTurn = 0;         // changes on every search drawn, to drop answers meant for a previous one
 const fullItems = new Map();    // id -> promise of `data/items/<id>.json` (the complete session)
 const lineCache = {};
 const state = { query: "", houses: new Set(), theme: "", from: "", to: "", page: 1 };
@@ -37,39 +37,48 @@ function applyColorTheme() {
   document.documentElement.setAttribute("data-bs-theme", dark ? "dark" : "light");
 }
 
-// Download `search.json` in chunks, to tell how much has arrived: the file is big and the first search waits for it.
-// `onProgress` gets the fraction from 0 to 1; the total comes from `items.json`, because the browser only knows the
-// compressed size.
-let onProgress = () => {};
-function loadSearch() {
-  if (!loadingSearch) {
-    loadingSearch = fetch("data/search.json").then(async (response) => {
-      if (!response.ok) throw new Error(String(response.status));
-      const total = list.config.search_bytes;
-      if (!response.body || !total) return response.json();
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      const chunks = [];
-      let received = 0;
-      for (;;) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        chunks.push(decoder.decode(value, { stream: true }));
-        received += value.length;
-        onProgress(Math.min(received / total, 1));
-      }
-      chunks.push(decoder.decode());
-      return JSON.parse(chunks.join(""));
-    }).then((data) => { searchData = data; });
-    loadingSearch.catch(() => { loadingSearch = null; });
+// Files of the search index, parsed, by `<version>/<number>`; shared by every search of the visit.
+const shards = new Map();
+
+function loadShard(version, number) {
+  const key = `${version}/${String(number).padStart(4, "0")}`;
+  if (!shards.has(key)) {
+    shards.set(key, fetch(`data/index/${key}.json`).then((response) => { if (!response.ok) throw new Error(String(response.status)); return response.json(); }));
+    shards.get(key).catch(() => shards.delete(key));
   }
-  return loadingSearch;
+  return shards.get(key);
+}
+
+// Documents of the index that match the words, ranked. If a file of the index is missing (the list in memory came
+// from an older build, kept by a cache), the list is downloaded again, past the cache, and the search tried once more.
+async function searchIndex(words, retry = true) {
+  const { version, starts } = list.config.index;
+  const numbers = [...new Set(words.flatMap((word) => shardsFor(starts, word.text, word.prefix)))];
+  try {
+    const loaded = await Promise.all(numbers.map((number) => loadShard(version, number)));
+    return rankDocuments(loaded, words, list.config.index);
+  } catch (error) {
+    if (!retry) throw error;
+    list = decodeList(await (await fetch("data/items.json", { cache: "reload" })).json());
+    return searchIndex(words, false);
+  }
 }
 
 // The complete session (metadata, summary, participants, decisions and lines); the promise fails if the id is unknown.
+// Each search keeps the sessions of its page, so only the last ITEMS_KEPT stay in memory.
+const ITEMS_KEPT = 60;
 function loadItem(id) {
-  if (!fullItems.has(id)) {
-    fullItems.set(id, fetch(`data/items/${encodeURIComponent(id)}.json`).then((response) => { if (!response.ok) throw new Error(String(response.status)); return response.json(); }));
+  if (fullItems.has(id)) {
+    const item = fullItems.get(id);
+    fullItems.delete(id);
+    fullItems.set(id, item);
+    return item;
+  }
+  fullItems.set(id, fetch(`data/items/${encodeURIComponent(id)}.json`).then((response) => { if (!response.ok) throw new Error(String(response.status)); return response.json(); }));
+  while (fullItems.size > ITEMS_KEPT) {
+    const oldest = fullItems.keys().next().value;
+    fullItems.delete(oldest);
+    delete lineCache[oldest];
   }
   return fullItems.get(id);
 }
@@ -195,35 +204,54 @@ function drawResults() {
     bindPagination(target);
     return;
   }
-  if (!searchData) {
-    target.innerHTML = `<div class="load-status" role="status">
-        <p class="load-status__text">${t("loading_search")} <span id="load-percent"></span></p>
-        <progress class="load-status__bar" id="load-bar" max="100" value="0" aria-label="${escapeHtml(t("loading_search"))}"></progress>
-      </div>`;
-    onProgress = (fraction) => {
-      const bar = document.getElementById("load-bar");
-      if (!bar) return;
-      bar.value = Math.round(fraction * 100);
-      document.getElementById("load-percent").textContent = `${Math.round(fraction * 100)}%`;
-    };
-    loadSearch().then(drawResults).catch(() => {
-      const current = document.getElementById("results");
-      if (current) current.innerHTML = `<p class="empty-state">${t("search_error")}</p>`;
-    });
-    return;
-  }
-  const results = search(filteredSessions(), searchData, terms, lineCache);
-  const total = results.reduce((sum, result) => sum + result.passages.length, 0);
-  if (!results.length) { target.innerHTML = `<p class="empty-state">${t("no_results")}</p>`; return; }
-  const { visible, position, navigation } = currentPage(results);
-  target.innerHTML = `<p class="result-count">${t("results", { passages: total, sessions: results.length })} <strong>${escapeHtml(state.query)}</strong>${position}</p>` +
-    visible.map(({ session, passages }, number) => card(session, terms, `
-        <p class="result-card__label">${passages.length ? passages.length + " " + t("passages") : t("summary_only")}</p>
-        <ul class="passage-list" id="passages-${number}">${passagesHtml(session, passages.slice(0, 5), terms)}</ul>
-        ${passages.length > 5 ? `<button class="btn btn-link btn-sm passage-list__more" type="button" data-more="${number}">${t("show_all", { n: passages.length })}</button>` : ""}`)).join("") + navigation;
+  const turn = ++searchTurn;
+  target.innerHTML = `<p class="load-status" role="status">${t("loading_search")}</p>`;
+  const words = queryWords(terms);
+  const allowed = new Set(filteredSessions().map((session) => session.id));
+  searchIndex(words)
+    .then((ranked) => {
+      const results = ranked.map((result) => ({ ...result, session: list.sessions[result.document] })).filter((result) => result.session && allowed.has(result.session.id));
+      if (turn !== searchTurn) return null;
+      if (!results.length) { target.innerHTML = `<p class="empty-state">${t("no_results")}</p>`; return null; }
+      const page = currentPage(results);
+      return Promise.all(page.visible.map((result) => loadItem(result.session.id))).then((items) => ({ results, page, items }));
+    })
+    .then((found) => {
+      if (!found || turn !== searchTurn || !document.body.contains(target)) return;
+      drawFoundPage(target, terms, words, found);
+    })
+    .catch(() => { if (turn === searchTurn && document.body.contains(target)) target.innerHTML = `<p class="empty-state">${t("search_error")}</p>`; });
+}
+
+// Passages of one session, checked in its text: every term in the same line or in two lines in a row, as in the
+// session page. Without any, and outside the summary, the lines of the blocks where the index found the words close
+// to each other.
+function sessionPassages(item, result, terms, words) {
+  const lines = item.lines;
+  const normalized = lineCache[item.id] ??= lines.map((line) => normalize(line[1]));
+  const passages = matchingLines(normalized, terms).map(({ position, whole }) => ({
+    seconds: lines[position][0],
+    text: whole ? lines[position][1] : lines[position][1] + " " + lines[position + 1][1],
+  }));
+  if (passages.length || result.inSummary) return { passages, nearby: false };
+  const seconds = list.config.index.block_seconds;
+  const blocks = new Set(result.blocks);
+  const nearby = lines.filter((line, position) => blocks.has(Math.floor(line[0] / seconds)) && words.some((word) => normalized[position].includes(word.text)))
+    .map((line) => ({ seconds: line[0], text: line[1] }));
+  return { passages: nearby, nearby: true };
+}
+
+function drawFoundPage(target, terms, words, { results, page, items }) {
+  const shown = page.visible.map((result, number) => ({ session: result.session, ...sessionPassages(items[number], result, terms, words) }));
+  const label = ({ passages, nearby }) => nearby ? t("nearby_terms") : passages.length ? passages.length + " " + t("passages") : t("summary_only");
+  target.innerHTML = `<p class="result-count">${t("results", { sessions: results.length })} <strong>${escapeHtml(state.query)}</strong>${page.position}</p>` +
+    shown.map((found, number) => card(found.session, terms, `
+        <p class="result-card__label">${label(found)}</p>
+        <ul class="passage-list" id="passages-${number}">${passagesHtml(found.session, found.passages.slice(0, 5), terms)}</ul>
+        ${found.passages.length > 5 ? `<button class="btn btn-link btn-sm passage-list__more" type="button" data-more="${number}">${t("show_all", { n: found.passages.length })}</button>` : ""}`)).join("") + page.navigation;
   bindPagination(target);
   target.querySelectorAll("[data-more]").forEach((button) => button.addEventListener("click", () => {
-    const { session, passages } = visible[Number(button.dataset.more)];
+    const { session, passages } = shown[Number(button.dataset.more)];
     document.getElementById(`passages-${button.dataset.more}`).innerHTML = passagesHtml(session, passages, terms);
     button.remove();
   }));
