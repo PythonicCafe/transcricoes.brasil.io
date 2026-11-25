@@ -6,6 +6,7 @@ import { youtubeId } from "./modules/ids.js";
 import { queryWords, rankDocuments, shardsFor } from "./modules/index.js";
 import { decodeList, pageSlice, visiblePages } from "./modules/list.js";
 import { parseRoute, routeHash } from "./modules/routes.js";
+import { startAnalytics, trackPage, trackSearch } from "./modules/analytics.js";
 
 function stored(key, fallback) {
   try { return localStorage.getItem(key) || fallback; } catch (error) { return fallback; }
@@ -224,6 +225,7 @@ function drawResults() {
     return;
   }
   const turn = ++searchTurn;
+  if (state.page === 1) trackSearch(state.query);
   target.innerHTML = `<p class="load-status" role="status">${t("loading_search")}</p>`;
   const words = queryWords(terms);
   const allowed = new Set(filteredSessions().map((session) => session.id));
@@ -327,6 +329,7 @@ function drawSession(id, seconds) {
 }
 
 function drawLoadedSession(session, seconds, turn) {
+  trackPage({ page: "session", id: session.id }, session.title);
   const id = session.id;
   const videoId = youtubeId(session.url);
   const issue = `${list.config.repository}/issues/new?title=${encodeURIComponent("Erro em " + session.url + ": " + session.title)}`;
@@ -467,6 +470,7 @@ function draw() {
   if (route.page === "session") drawSession(route.id, route.seconds);
   else if (route.page === "about") drawAbout();
   else drawHome();
+  if (route.page !== "session") trackPage(route, document.title);
 }
 
 window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", applyColorTheme);
@@ -491,6 +495,7 @@ document.addEventListener("click", (event) => {
 });
 window.addEventListener("hashchange", draw);
 applyColorTheme();
+startAnalytics();
 draw();
 // On a direct link to a session, its file starts downloading together with the list, without waiting for it.
 const firstRoute = parseRoute(location.hash);
