@@ -1,4 +1,5 @@
-/* Transcript with its own scroll; the current line has a background and a thin outline. */
+/* Transcript with its own scroll; the current line has a background and a thin outline, and a line found only
+ * because the terms are close by has a bar on the left. */
 .transcript-search {
   display: flex;
   align-items: center;
@@ -32,6 +33,10 @@
 .transcript-list__line {
   padding: var(--space-xs);
   border-radius: var(--radius-sm);
+}
+
+.transcript-list__line--nearby {
+  box-shadow: inset 3px 0 0 var(--color-border);
 }
 
 .transcript-list__line.is-current {

@@ -1,6 +1,6 @@
 // Entry point of the site: state, routes (in the URL fragment) and the drawing of the pages.
 import { TEXTS } from "./modules/texts.js";
-import { escapeHtml, highlight, matchingLines, normalize, queryTerms } from "./modules/search.js";
+import { escapeHtml, findPassages, highlight, normalize, queryTerms } from "./modules/search.js";
 import { clock, readableDate, readableDuration } from "./modules/format.js";
 import { youtubeId } from "./modules/ids.js";
 import { queryWords, rankDocuments, shardsFor } from "./modules/index.js";
@@ -218,31 +218,27 @@ function drawResults() {
     })
     .then((found) => {
       if (!found || turn !== searchTurn || !document.body.contains(target)) return;
-      drawFoundPage(target, terms, words, found);
+      drawFoundPage(target, terms, found);
     })
     .catch(() => { if (turn === searchTurn && document.body.contains(target)) target.innerHTML = `<p class="empty-state">${t("search_error")}</p>`; });
 }
 
-// Passages of one session, checked in its text: every term in the same line or in two lines in a row, as in the
-// session page. Without any, and outside the summary, the lines of the blocks where the index found the words close
-// to each other.
-function sessionPassages(item, result, terms, words) {
+// Passages of one session, checked in its text with the same rule of the session page (`findPassages`). Without
+// passages, and outside the summary, the lines where the terms are close to each other.
+function sessionPassages(item, result, terms) {
   const lines = item.lines;
   const normalized = lineCache[item.id] ??= lines.map((line) => normalize(line[1]));
-  const passages = matchingLines(normalized, terms).map(({ position, whole }) => ({
+  const found = findPassages(lines, normalized, terms, list.config.index.block_seconds);
+  const passages = found.passages.map(({ position, whole }) => ({
     seconds: lines[position][0],
     text: whole ? lines[position][1] : lines[position][1] + " " + lines[position + 1][1],
   }));
   if (passages.length || result.inSummary) return { passages, nearby: false };
-  const seconds = list.config.index.block_seconds;
-  const blocks = new Set(result.blocks);
-  const nearby = lines.filter((line, position) => blocks.has(Math.floor(line[0] / seconds)) && words.some((word) => normalized[position].includes(word.text)))
-    .map((line) => ({ seconds: line[0], text: line[1] }));
-  return { passages: nearby, nearby: true };
+  return { passages: found.nearby.map((position) => ({ seconds: lines[position][0], text: lines[position][1] })), nearby: true };
 }
 
-function drawFoundPage(target, terms, words, { results, page, items }) {
-  const shown = page.visible.map((result, number) => ({ session: result.session, ...sessionPassages(items[number], result, terms, words) }));
+function drawFoundPage(target, terms, { results, page, items }) {
+  const shown = page.visible.map((result, number) => ({ session: result.session, ...sessionPassages(items[number], result, terms) }));
   const label = ({ passages, nearby }) => nearby ? t("nearby_terms") : passages.length ? passages.length + " " + t("passages") : t("summary_only");
   target.innerHTML = `<p class="result-count">${t("results", { sessions: results.length })} <strong>${escapeHtml(state.query)}</strong>${page.position}</p>` +
     shown.map((found, number) => card(found.session, terms, `
@@ -349,18 +345,23 @@ function drawLoadedSession(session, seconds, turn) {
     if (scroll && !target.matches(":hover")) target.scrollTop = next.offsetTop - target.offsetTop - 60;
   };
   // With terms in the field, the list shows only the matching lines (and the next one, when the passage spans two).
+  // With terms in the field, the list shows only what the search of the site finds in this session: the passages
+  // (and the next line, when a passage spans two) and the lines where the terms are close to each other.
   const drawLines = () => {
     const terms = queryTerms(field.value);
     let positions = lines.map((_, position) => position);
+    let nearby = new Set();
     if (terms.length) {
-      const found = matchingLines(normalized, terms);
-      positions = found.flatMap(({ position, whole }) => whole ? [position] : [position, position + 1]);
-      count.textContent = t("matches", { n: found.length });
+      const found = findPassages(lines, normalized, terms, list.config.index.block_seconds);
+      nearby = new Set(found.nearby);
+      positions = [...new Set([...found.passages.flatMap(({ position, whole }) => whole ? [position] : [position, position + 1]), ...found.nearby])]
+        .sort((first, second) => first - second);
+      count.textContent = t("matches", { n: found.passages.length }) + (nearby.size ? ` · ${t("nearby_lines", { n: nearby.size })}` : "");
     } else {
       count.textContent = "";
     }
     target.innerHTML = positions.length
-      ? positions.map((position) => `<li class="transcript-list__line" data-line="${position}"><button class="time-link" type="button" data-seconds="${lines[position][0]}" data-position="${position}">▶ ${clock(lines[position][0])}</button> ${highlight(lines[position][1], terms)}</li>`).join("")
+      ? positions.map((position) => `<li class="transcript-list__line${nearby.has(position) ? " transcript-list__line--nearby" : ""}" data-line="${position}"><button class="time-link" type="button" data-seconds="${lines[position][0]}" data-position="${position}">▶ ${clock(lines[position][0])}</button> ${highlight(lines[position][1], terms)}</li>`).join("")
       : `<li>${t("no_session_matches")}</li>`;
     target.scrollTop = 0;
     mark(current, true);

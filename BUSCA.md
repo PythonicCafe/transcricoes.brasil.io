@@ -113,14 +113,23 @@ pesa menos, e um termo raro pesa mais que um comum.
 
 ## Conferência dos trechos
 
-Os trechos mostrados nos cards vêm do texto, não do índice. Para as 20 sessões da página, o site baixa os arquivos
-`data/items/<uuid>.json` e procura os termos como na página da sessão: todos na mesma fala ou em duas falas
-seguidas, ignorando acento e caixa, com a frase entre aspas inteira. Cada card mostra:
+Os trechos mostrados vêm do texto, não do índice, com uma regra só (`findPassages`, em
+`site/js/modules/search.js`) para os cards da busca e para a busca dentro da página da sessão:
 
-- "N trechos", quando acha;
-- "termo no título ou no resumo", quando não acha na fala mas o índice achou no resumo;
-- "termos próximos, fora da mesma fala", quando as palavras estão a até um bloco de distância mas não na mesma
-  fala nem em duas seguidas; o card mostra as falas daqueles blocos que têm alguma das palavras.
+- o termo casa onde uma palavra começa com ele, ignorando acento e caixa, como no índice; a frase entre aspas tem
+  de aparecer inteira;
+- trecho: todos os termos na mesma fala ou em duas falas seguidas;
+- fala próxima: uma fala com algum dos termos, fora dos trechos, num bloco de 60 s em que todos os termos aparecem
+  no mesmo bloco ou num vizinho. É a regra pela qual o índice escolhe as sessões.
+
+Para as 20 sessões da página de resultados, o site baixa `data/items/<uuid>.json` e cada card mostra:
+
+- "N trechos", quando acha trechos;
+- "termo no título ou no resumo", quando não acha trechos mas o índice achou os termos no resumo;
+- "termos próximos, fora da mesma fala", com as falas próximas, quando só há falas próximas.
+
+Na página da sessão, a busca mostra os trechos e as falas próximas, estas com uma barra à esquerda, e conta os dois
+separados ("2 trechos · 7 falas com os termos próximos").
 
 As sessões da página ficam em memória para trocar de página e abrir uma sessão sem novo _download_ (as últimas 60).
 
@@ -128,7 +137,8 @@ As sessões da página ficam em memória para trocar de página e abrir uma sess
 
 A busca anterior baixava todas as transcrições (40 MB) na primeira busca e procurava cada termo como pedaço de texto.
 
-- Casamento pelo começo da palavra, não pelo meio: "lombola" não acha mais "quilombola".
+- Casamento pelo começo da palavra, não pelo meio: "lombola" não acha mais "quilombola". Vale também para a busca dentro
+  da sessão e para o destaque dos termos.
 - O topo mostra o número de sessões, sem o total de trechos: contar trechos exigiria o texto de todas as sessões.
 - Com duas ou mais palavras, o número de sessões é maior que o da busca anterior: entram sessões em que as palavras
   estão a até um bloco de distância, mesmo fora da mesma fala.
