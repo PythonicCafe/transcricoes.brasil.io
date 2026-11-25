@@ -1,6 +1,6 @@
 // Entry point of the site: state, routes (in the URL fragment) and the drawing of the pages.
 import { TEXTS } from "./modules/texts.js";
-import { escapeHtml, highlight, matchingLines, normalize, queryTerms } from "./modules/search.js";
+import { escapeHtml, findPassages, highlight, normalize, queryTerms } from "./modules/search.js";
 import { clock, readableDate, readableDuration } from "./modules/format.js";
 import { youtubeId } from "./modules/ids.js";
 import { queryWords, rankDocuments, shardsFor } from "./modules/index.js";
@@ -19,8 +19,12 @@ if (!TEXTS[language]) language = "en";
 let colorTheme = stored("color-theme", "system");
 let list = null;            // {config, sessions: [...]}: the slim list of `data/items.json`, decoded
 let searchTurn = 0;         // changes on every search drawn, to drop answers meant for a previous one
-const fullItems = new Map();    // id -> promise of `data/items/<id>.json` (the complete session)
-const lineCache = {};
+const fullItems = new Map();    // id -> promise of `data/items/<id>.json`, the complete session, for the session page
+const lineCache = {};           // id -> normalized lines, of the sessions in `fullItems`
+// What the search found in each session, by query and session: only the passages, not the transcript, so the
+// pages of many searches fit in a few MB. The PASSAGES_KEPT used last are kept.
+const foundPassages = new Map();
+const PASSAGES_KEPT = 500;
 const state = { query: "", houses: new Set(), theme: "", from: "", to: "", page: 1 };
 const PER_PAGE = 20;       // cards drawn at a time, in the list and in the search results
 
@@ -65,8 +69,10 @@ async function searchIndex(words, retry = true) {
 }
 
 // The complete session (metadata, summary, participants, decisions and lines); the promise fails if the id is unknown.
-// Each search keeps the sessions of its page, so only the last ITEMS_KEPT stay in memory.
-const ITEMS_KEPT = 60;
+const fetchItem = (id) => fetch(`data/items/${encodeURIComponent(id)}.json`).then((response) => { if (!response.ok) throw new Error(String(response.status)); return response.json(); });
+
+// Only the session open and the ones before it in the history are kept whole.
+const ITEMS_KEPT = 3;
 function loadItem(id) {
   if (fullItems.has(id)) {
     const item = fullItems.get(id);
@@ -74,7 +80,7 @@ function loadItem(id) {
     fullItems.set(id, item);
     return item;
   }
-  fullItems.set(id, fetch(`data/items/${encodeURIComponent(id)}.json`).then((response) => { if (!response.ok) throw new Error(String(response.status)); return response.json(); }));
+  fullItems.set(id, fetchItem(id));
   while (fullItems.size > ITEMS_KEPT) {
     const oldest = fullItems.keys().next().value;
     fullItems.delete(oldest);
@@ -115,19 +121,25 @@ function housesLabel() {
   return state.houses.size === 1 ? escapeHtml([...state.houses][0]) : t("chosen_houses", { n: state.houses.size });
 }
 
+const activeFilters = () => (state.houses.size ? 1 : 0) + (state.theme ? 1 : 0) + (state.from ? 1 : 0) + (state.to ? 1 : 0);
+const filtersLabel = () => activeFilters() ? t("filters_active", { n: activeFilters() }) : t("filters");
+let filtersOpen = false;
+
 function drawHome() {
+  filtersOpen ||= activeFilters() > 0;
   const houses = [...new Set(list.sessions.map((session) => session.house))].sort((first, second) => first.localeCompare(second, "pt"));
   const themes = [...new Set(list.sessions.flatMap((session) => session.themes))].sort((first, second) => first.localeCompare(second, "pt"));
   const hours = Math.round(list.sessions.reduce((sum, session) => sum + session.duration, 0) / 3600);
   app().innerHTML = `
     <h1 class="page-title">${t("title")}</h1>
     <p class="page-lead">${t("lead", { sessions: list.sessions.length, houses: houses.length, hours })}</p>
-    <form class="search-form" id="search-form" role="search">
+    <form class="search-form${filtersOpen ? " is-filtering" : ""}" id="search-form" role="search">
       <div class="search-form__query">
         <label class="visually-hidden" for="query">${t("search_label")}</label>
         <input id="query" class="form-control form-control-lg" type="search" placeholder="${escapeHtml(t("search_placeholder"))}" value="${escapeHtml(state.query)}">
       </div>
       <button class="btn btn-lg search-form__submit" type="submit">${t("search_button")}</button>
+      <button class="btn btn-outline-secondary search-form__toggle" id="filters-toggle" type="button" aria-expanded="${filtersOpen}" aria-controls="search-form">${filtersLabel()}</button>
       <details class="multi-select search-form__filter" id="houses">
         <summary class="form-select multi-select__summary" id="houses-label">${housesLabel()}</summary>
         <fieldset class="multi-select__options">
@@ -152,10 +164,17 @@ function drawHome() {
     state.houses = new Set([...document.querySelectorAll("#houses input:checked")].map((box) => box.value));
     state.page = 1;
     document.getElementById("houses-label").innerHTML = housesLabel();
+    document.getElementById("filters-toggle").textContent = filtersLabel();
     drawResults();
   };
   document.getElementById("search-form").addEventListener("submit", apply);
   for (const id of ["theme", "from", "to", "houses"]) document.getElementById(id).addEventListener("change", apply);
+  // On narrow screens the filters stay folded behind a button, so the results come right after the search field.
+  document.getElementById("filters-toggle").addEventListener("click", (event) => {
+    filtersOpen = !filtersOpen;
+    document.getElementById("search-form").classList.toggle("is-filtering", filtersOpen);
+    event.currentTarget.setAttribute("aria-expanded", String(filtersOpen));
+  });
   drawResults();
 }
 
@@ -214,35 +233,48 @@ function drawResults() {
       if (turn !== searchTurn) return null;
       if (!results.length) { target.innerHTML = `<p class="empty-state">${t("no_results")}</p>`; return null; }
       const page = currentPage(results);
-      return Promise.all(page.visible.map((result) => loadItem(result.session.id))).then((items) => ({ results, page, items }));
+      return Promise.all(page.visible.map((result) => passagesOf(result, terms))).then((shown) => ({ results, page, shown }));
     })
     .then((found) => {
       if (!found || turn !== searchTurn || !document.body.contains(target)) return;
-      drawFoundPage(target, terms, words, found);
+      drawFoundPage(target, terms, found);
     })
     .catch(() => { if (turn === searchTurn && document.body.contains(target)) target.innerHTML = `<p class="empty-state">${t("search_error")}</p>`; });
 }
 
-// Passages of one session, checked in its text: every term in the same line or in two lines in a row, as in the
-// session page. Without any, and outside the summary, the lines of the blocks where the index found the words close
-// to each other.
-function sessionPassages(item, result, terms, words) {
+// Passages of one search result, from `foundPassages` or from the session's file, which is read and dropped.
+function passagesOf(result, terms) {
+  const key = `${terms.join("\u0000")}\u0000${result.session.id}`;
+  if (foundPassages.has(key)) {
+    const found = foundPassages.get(key);
+    foundPassages.delete(key);
+    foundPassages.set(key, found);
+    return Promise.resolve({ session: result.session, ...found });
+  }
+  const item = fullItems.get(result.session.id) ?? fetchItem(result.session.id);
+  return item.then((loaded) => {
+    const found = sessionPassages(loaded, result, terms);
+    foundPassages.set(key, found);
+    while (foundPassages.size > PASSAGES_KEPT) foundPassages.delete(foundPassages.keys().next().value);
+    return { session: result.session, ...found };
+  });
+}
+
+// Passages of one session, checked in its text with the same rule of the session page (`findPassages`). Without
+// passages, and outside the summary, the lines where the terms are close to each other.
+function sessionPassages(item, result, terms) {
   const lines = item.lines;
-  const normalized = lineCache[item.id] ??= lines.map((line) => normalize(line[1]));
-  const passages = matchingLines(normalized, terms).map(({ position, whole }) => ({
+  const normalized = lines.map((line) => normalize(line[1]));
+  const found = findPassages(lines, normalized, terms, list.config.index.block_seconds);
+  const passages = found.passages.map(({ position, whole }) => ({
     seconds: lines[position][0],
     text: whole ? lines[position][1] : lines[position][1] + " " + lines[position + 1][1],
   }));
   if (passages.length || result.inSummary) return { passages, nearby: false };
-  const seconds = list.config.index.block_seconds;
-  const blocks = new Set(result.blocks);
-  const nearby = lines.filter((line, position) => blocks.has(Math.floor(line[0] / seconds)) && words.some((word) => normalized[position].includes(word.text)))
-    .map((line) => ({ seconds: line[0], text: line[1] }));
-  return { passages: nearby, nearby: true };
+  return { passages: found.nearby.map((position) => ({ seconds: lines[position][0], text: lines[position][1] })), nearby: true };
 }
 
-function drawFoundPage(target, terms, words, { results, page, items }) {
-  const shown = page.visible.map((result, number) => ({ session: result.session, ...sessionPassages(items[number], result, terms, words) }));
+function drawFoundPage(target, terms, { results, page, shown }) {
   const label = ({ passages, nearby }) => nearby ? t("nearby_terms") : passages.length ? passages.length + " " + t("passages") : t("summary_only");
   target.innerHTML = `<p class="result-count">${t("results", { sessions: results.length })} <strong>${escapeHtml(state.query)}</strong>${page.position}</p>` +
     shown.map((found, number) => card(found.session, terms, `
@@ -349,18 +381,23 @@ function drawLoadedSession(session, seconds, turn) {
     if (scroll && !target.matches(":hover")) target.scrollTop = next.offsetTop - target.offsetTop - 60;
   };
   // With terms in the field, the list shows only the matching lines (and the next one, when the passage spans two).
+  // With terms in the field, the list shows only what the search of the site finds in this session: the passages
+  // (and the next line, when a passage spans two) and the lines where the terms are close to each other.
   const drawLines = () => {
     const terms = queryTerms(field.value);
     let positions = lines.map((_, position) => position);
+    let nearby = new Set();
     if (terms.length) {
-      const found = matchingLines(normalized, terms);
-      positions = found.flatMap(({ position, whole }) => whole ? [position] : [position, position + 1]);
-      count.textContent = t("matches", { n: found.length });
+      const found = findPassages(lines, normalized, terms, list.config.index.block_seconds);
+      nearby = new Set(found.nearby);
+      positions = [...new Set([...found.passages.flatMap(({ position, whole }) => whole ? [position] : [position, position + 1]), ...found.nearby])]
+        .sort((first, second) => first - second);
+      count.textContent = t("matches", { n: found.passages.length }) + (nearby.size ? ` · ${t("nearby_lines", { n: nearby.size })}` : "");
     } else {
       count.textContent = "";
     }
     target.innerHTML = positions.length
-      ? positions.map((position) => `<li class="transcript-list__line" data-line="${position}"><button class="time-link" type="button" data-seconds="${lines[position][0]}" data-position="${position}">▶ ${clock(lines[position][0])}</button> ${highlight(lines[position][1], terms)}</li>`).join("")
+      ? positions.map((position) => `<li class="transcript-list__line${nearby.has(position) ? " transcript-list__line--nearby" : ""}" data-line="${position}"><button class="time-link" type="button" data-seconds="${lines[position][0]}" data-position="${position}">▶ ${clock(lines[position][0])}</button> ${highlight(lines[position][1], terms)}</li>`).join("")
       : `<li>${t("no_session_matches")}</li>`;
     target.scrollTop = 0;
     mark(current, true);
