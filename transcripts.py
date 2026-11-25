@@ -1111,8 +1111,10 @@ class Stage:
     def run(self, ids: list[str], metadata: dict[str, dict], stop: threading.Event) -> None:
         from tqdm import tqdm
 
-        pending = [document for document in ids if not self.done(document)]
-        total = round(sum(video_minutes(metadata, document) for document in pending), 1)
+        # Minutes of each pending video, summed and counted with the same values: rounding each one apart made the
+        # count pass the total, and tqdm then fails to draw the bar.
+        minutes = {document: video_minutes(metadata, document) for document in ids if not self.done(document)}
+        total = sum(minutes.values())
         failures_in_a_row = 0
         bar_format = "{desc}: {percentage:3.0f}%|{bar}| {n:.0f}/{total:.0f} min [{elapsed}<{remaining}{postfix}]"
         with tqdm(
@@ -1134,10 +1136,10 @@ class Stage:
                     self.skipped += 1
                 elif not self.ready(document):
                     # The previous stage failed for this video (or was not asked for and the file does not exist).
-                    progress.update(round(video_minutes(metadata, document), 1))
+                    progress.update(minutes.get(document, 0))
                     continue
                 elif self.max_failures_in_a_row is not None and failures_in_a_row >= self.max_failures_in_a_row:
-                    progress.update(round(video_minutes(metadata, document), 1))
+                    progress.update(minutes.get(document, 0))
                     continue
                 else:
                     label = metadata.get(document, {}).get("url") or document
@@ -1152,7 +1154,7 @@ class Stage:
                         status(f"ERROR in {self.name} of {label}: {error}")
                         if failures_in_a_row == self.max_failures_in_a_row:
                             status(f"{self.name}: {failures_in_a_row} failures in a row, stage stopped")
-                    progress.update(round(video_minutes(metadata, document), 1))
+                    progress.update(minutes.get(document, 0))
                     progress.set_postfix_str("")
                 if self.next is not None:
                     self.next.inbox.put(document)

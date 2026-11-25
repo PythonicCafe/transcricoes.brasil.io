@@ -938,3 +938,15 @@ def test_write_index_cuts_files_by_size_and_names_the_version_by_content(tmp_pat
 def test_shard_terms_gives_a_big_term_a_file_of_its_own():
     postings = {"a": [0] * 50, "b": [0], "c": [0]}
     assert transcripts.shard_terms(postings, 30) == [["a"], ["b", "c"]]
+
+
+def test_stage_counts_minutes_without_passing_the_total():
+    # 700 videos of 63 s: each 1.05 min, which rounded alone would be 1.1 and pass the total of 735 min.
+    ids = [f"v{number}" for number in range(700)]
+    metadata = {document: {"duration": 63} for document in ids}
+    stage = transcripts.Stage("summary", 0, done=lambda document: False, ready=lambda document: False, work=None)
+    for document in ids:
+        stage.inbox.put(document)
+    stage.inbox.put(transcripts.END)
+    stage.run(ids, metadata, threading.Event())
+    assert (stage.finished, stage.failures) == (0, 0)
