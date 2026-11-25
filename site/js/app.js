@@ -121,19 +121,25 @@ function housesLabel() {
   return state.houses.size === 1 ? escapeHtml([...state.houses][0]) : t("chosen_houses", { n: state.houses.size });
 }
 
+const activeFilters = () => (state.houses.size ? 1 : 0) + (state.theme ? 1 : 0) + (state.from ? 1 : 0) + (state.to ? 1 : 0);
+const filtersLabel = () => activeFilters() ? t("filters_active", { n: activeFilters() }) : t("filters");
+let filtersOpen = false;
+
 function drawHome() {
+  filtersOpen ||= activeFilters() > 0;
   const houses = [...new Set(list.sessions.map((session) => session.house))].sort((first, second) => first.localeCompare(second, "pt"));
   const themes = [...new Set(list.sessions.flatMap((session) => session.themes))].sort((first, second) => first.localeCompare(second, "pt"));
   const hours = Math.round(list.sessions.reduce((sum, session) => sum + session.duration, 0) / 3600);
   app().innerHTML = `
     <h1 class="page-title">${t("title")}</h1>
     <p class="page-lead">${t("lead", { sessions: list.sessions.length, houses: houses.length, hours })}</p>
-    <form class="search-form" id="search-form" role="search">
+    <form class="search-form${filtersOpen ? " is-filtering" : ""}" id="search-form" role="search">
       <div class="search-form__query">
         <label class="visually-hidden" for="query">${t("search_label")}</label>
         <input id="query" class="form-control form-control-lg" type="search" placeholder="${escapeHtml(t("search_placeholder"))}" value="${escapeHtml(state.query)}">
       </div>
       <button class="btn btn-lg search-form__submit" type="submit">${t("search_button")}</button>
+      <button class="btn btn-outline-secondary search-form__toggle" id="filters-toggle" type="button" aria-expanded="${filtersOpen}" aria-controls="search-form">${filtersLabel()}</button>
       <details class="multi-select search-form__filter" id="houses">
         <summary class="form-select multi-select__summary" id="houses-label">${housesLabel()}</summary>
         <fieldset class="multi-select__options">
@@ -158,10 +164,17 @@ function drawHome() {
     state.houses = new Set([...document.querySelectorAll("#houses input:checked")].map((box) => box.value));
     state.page = 1;
     document.getElementById("houses-label").innerHTML = housesLabel();
+    document.getElementById("filters-toggle").textContent = filtersLabel();
     drawResults();
   };
   document.getElementById("search-form").addEventListener("submit", apply);
   for (const id of ["theme", "from", "to", "houses"]) document.getElementById(id).addEventListener("change", apply);
+  // On narrow screens the filters stay folded behind a button, so the results come right after the search field.
+  document.getElementById("filters-toggle").addEventListener("click", (event) => {
+    filtersOpen = !filtersOpen;
+    document.getElementById("search-form").classList.toggle("is-filtering", filtersOpen);
+    event.currentTarget.setAttribute("aria-expanded", String(filtersOpen));
+  });
   drawResults();
 }
 

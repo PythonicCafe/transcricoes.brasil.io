@@ -84,3 +84,32 @@
     flex: 0 0 240px;
   }
 }
+
+/* Narrow screens: a small thumbnail next to the title and the meta line; the rest takes the whole width. */
+@media (max-width: 767.98px) {
+  .result-card {
+    display: grid;
+    grid-template-columns: 7.5rem minmax(0, 1fr);
+    gap: 0 var(--space-sm);
+  }
+
+  .result-card__thumb {
+    grid-row: span 2;
+  }
+
+  .result-card__body {
+    display: contents;
+  }
+
+  .result-card__body > :not(.result-card__title, .result-card__meta) {
+    grid-column: 1 / -1;
+  }
+
+  .result-card__label:first-of-type {
+    margin-top: var(--space-sm);
+  }
+
+  .result-card__title {
+    font-size: 1rem;
+  }
+}

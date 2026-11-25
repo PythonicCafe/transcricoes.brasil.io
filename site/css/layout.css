@@ -57,3 +57,23 @@
     top: var(--space-sm);
   }
 }
+
+/* Narrow screens: the transcript comes right after the video, before the summary. */
+@media (max-width: 991.98px) {
+  .session-layout {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .session-layout__main {
+    display: contents;
+  }
+
+  .session-layout__side {
+    order: 1;
+  }
+
+  .session-layout__main > .machine-box {
+    order: 2;
+  }
+}

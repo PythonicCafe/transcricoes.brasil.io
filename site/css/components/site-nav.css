@@ -32,3 +32,49 @@
 .site-nav :focus-visible {
   outline-color: var(--color-brand-contrast);
 }
+
+/* Narrow screens: brand and language on the first row; the links and the color theme on the second. */
+@media (max-width: 767.98px) {
+  .site-nav__inner {
+    gap: var(--space-xs) var(--space-sm);
+  }
+
+  .site-nav__inner::after {
+    content: "";
+    flex-basis: 100%;
+    order: 2;
+  }
+
+  .site-nav__logo {
+    height: 28px;
+  }
+
+  .site-nav .option-group:not(.option-group--pill) {
+    order: 1;
+  }
+
+  .site-nav__link,
+  .site-nav .option-group--pill {
+    order: 3;
+    font-size: var(--font-size-sm);
+  }
+
+  .site-nav .option-group--pill {
+    margin-left: auto;
+  }
+
+  .site-nav .option-group--pill .option-group__option {
+    min-width: 0;
+    padding: 0 0.4rem;
+  }
+}
+
+@media (max-width: 399.98px) {
+  .site-nav__logo {
+    height: 24px;
+  }
+
+  .site-nav__name {
+    font-size: var(--font-size-sm);
+  }
+}

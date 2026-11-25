@@ -39,3 +39,21 @@
     grid-column: span 2;
   }
 }
+
+/* Button that shows the filters: only on narrow screens, where they are folded until asked for. */
+.search-form__toggle {
+  justify-self: start;
+}
+
+@media (max-width: 991.98px) {
+  .search-form:not(.is-filtering) .search-form__filter,
+  .search-form:not(.is-filtering) .search-form__date {
+    display: none;
+  }
+}
+
+@media (min-width: 992px) {
+  .search-form__toggle {
+    display: none;
+  }
+}
