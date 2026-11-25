@@ -131,7 +131,10 @@ Para as 20 sessões da página de resultados, o site baixa `data/items/<uuid>.js
 Na página da sessão, a busca mostra os trechos e as falas próximas, estas com uma barra à esquerda, e conta os dois
 separados ("2 trechos · 7 falas com os termos próximos").
 
-As sessões da página ficam em memória para trocar de página e abrir uma sessão sem novo _download_ (as últimas 60).
+Depois da conferência, o site guarda só o que achou em cada sessão (trechos e falas próximas), por consulta, e
+descarta a transcrição. Voltar a uma página ou repetir uma busca não baixa nada de novo (até 500 resultados
+guardados). A sessão completa só fica em memória na página da sessão (as 3 últimas abertas). Medido em 10 buscas
+seguidas: a memória do JavaScript ficou em 3,6 MB, contra 28 MB guardando as transcrições.
 
 ## O que muda em relação à busca anterior
 

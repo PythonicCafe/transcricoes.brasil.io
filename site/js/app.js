@@ -19,8 +19,12 @@ if (!TEXTS[language]) language = "en";
 let colorTheme = stored("color-theme", "system");
 let list = null;            // {config, sessions: [...]}: the slim list of `data/items.json`, decoded
 let searchTurn = 0;         // changes on every search drawn, to drop answers meant for a previous one
-const fullItems = new Map();    // id -> promise of `data/items/<id>.json` (the complete session)
-const lineCache = {};
+const fullItems = new Map();    // id -> promise of `data/items/<id>.json`, the complete session, for the session page
+const lineCache = {};           // id -> normalized lines, of the sessions in `fullItems`
+// What the search found in each session, by query and session: only the passages, not the transcript, so the
+// pages of many searches fit in a few MB. The PASSAGES_KEPT used last are kept.
+const foundPassages = new Map();
+const PASSAGES_KEPT = 500;
 const state = { query: "", houses: new Set(), theme: "", from: "", to: "", page: 1 };
 const PER_PAGE = 20;       // cards drawn at a time, in the list and in the search results
 
@@ -65,8 +69,10 @@ async function searchIndex(words, retry = true) {
 }
 
 // The complete session (metadata, summary, participants, decisions and lines); the promise fails if the id is unknown.
-// Each search keeps the sessions of its page, so only the last ITEMS_KEPT stay in memory.
-const ITEMS_KEPT = 60;
+const fetchItem = (id) => fetch(`data/items/${encodeURIComponent(id)}.json`).then((response) => { if (!response.ok) throw new Error(String(response.status)); return response.json(); });
+
+// Only the session open and the ones before it in the history are kept whole.
+const ITEMS_KEPT = 3;
 function loadItem(id) {
   if (fullItems.has(id)) {
     const item = fullItems.get(id);
@@ -74,7 +80,7 @@ function loadItem(id) {
     fullItems.set(id, item);
     return item;
   }
-  fullItems.set(id, fetch(`data/items/${encodeURIComponent(id)}.json`).then((response) => { if (!response.ok) throw new Error(String(response.status)); return response.json(); }));
+  fullItems.set(id, fetchItem(id));
   while (fullItems.size > ITEMS_KEPT) {
     const oldest = fullItems.keys().next().value;
     fullItems.delete(oldest);
@@ -214,7 +220,7 @@ function drawResults() {
       if (turn !== searchTurn) return null;
       if (!results.length) { target.innerHTML = `<p class="empty-state">${t("no_results")}</p>`; return null; }
       const page = currentPage(results);
-      return Promise.all(page.visible.map((result) => loadItem(result.session.id))).then((items) => ({ results, page, items }));
+      return Promise.all(page.visible.map((result) => passagesOf(result, terms))).then((shown) => ({ results, page, shown }));
     })
     .then((found) => {
       if (!found || turn !== searchTurn || !document.body.contains(target)) return;
@@ -223,11 +229,29 @@ function drawResults() {
     .catch(() => { if (turn === searchTurn && document.body.contains(target)) target.innerHTML = `<p class="empty-state">${t("search_error")}</p>`; });
 }
 
+// Passages of one search result, from `foundPassages` or from the session's file, which is read and dropped.
+function passagesOf(result, terms) {
+  const key = `${terms.join("\u0000")}\u0000${result.session.id}`;
+  if (foundPassages.has(key)) {
+    const found = foundPassages.get(key);
+    foundPassages.delete(key);
+    foundPassages.set(key, found);
+    return Promise.resolve({ session: result.session, ...found });
+  }
+  const item = fullItems.get(result.session.id) ?? fetchItem(result.session.id);
+  return item.then((loaded) => {
+    const found = sessionPassages(loaded, result, terms);
+    foundPassages.set(key, found);
+    while (foundPassages.size > PASSAGES_KEPT) foundPassages.delete(foundPassages.keys().next().value);
+    return { session: result.session, ...found };
+  });
+}
+
 // Passages of one session, checked in its text with the same rule of the session page (`findPassages`). Without
 // passages, and outside the summary, the lines where the terms are close to each other.
 function sessionPassages(item, result, terms) {
   const lines = item.lines;
-  const normalized = lineCache[item.id] ??= lines.map((line) => normalize(line[1]));
+  const normalized = lines.map((line) => normalize(line[1]));
   const found = findPassages(lines, normalized, terms, list.config.index.block_seconds);
   const passages = found.passages.map(({ position, whole }) => ({
     seconds: lines[position][0],
@@ -237,8 +261,7 @@ function sessionPassages(item, result, terms) {
   return { passages: found.nearby.map((position) => ({ seconds: lines[position][0], text: lines[position][1] })), nearby: true };
 }
 
-function drawFoundPage(target, terms, { results, page, items }) {
-  const shown = page.visible.map((result, number) => ({ session: result.session, ...sessionPassages(items[number], result, terms) }));
+function drawFoundPage(target, terms, { results, page, shown }) {
   const label = ({ passages, nearby }) => nearby ? t("nearby_terms") : passages.length ? passages.length + " " + t("passages") : t("summary_only");
   target.innerHTML = `<p class="result-count">${t("results", { sessions: results.length })} <strong>${escapeHtml(state.query)}</strong>${page.position}</p>` +
     shown.map((found, number) => card(found.session, terms, `
