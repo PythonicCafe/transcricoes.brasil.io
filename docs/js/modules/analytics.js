@@ -1,5 +1,10 @@
-// Google Analytics (GA4), only on the published site: `make serve` and the tests send nothing. The page views are
-// sent by the site, one per route, because the routes live in the URL fragment, which GA does not follow by itself.
+// Google Analytics (GA4), only on the published site: `make serve` and the tests send nothing.
+//
+// The routes live in the URL fragment, which GA does not follow, so the site sends a page view per route, with a
+// path made from the route. The exception is the first page of a visit: the Google tag (a Tag Manager container,
+// GTM-56NKB5HF) sends its own page view when it loads, whatever the configuration on the page says, always as "/"
+// (seen in production in November 2026). So the site counts "/" as already sent: a visit that starts at the home
+// page gets one page view, and one that starts at a session gets "/" and the session.
 
 const MEASUREMENT_ID = "G-6PYSXGSSEE";
 const PUBLISHED_HOST = "transcricoes.brasil.io";
@@ -16,7 +21,8 @@ export function startAnalytics() {
   if (!enabled()) return;
   window.dataLayer = window.dataLayer || [];
   gtag("js", new Date());
-  gtag("config", MEASUREMENT_ID, { send_page_view: false });
+  gtag("config", MEASUREMENT_ID);
+  lastPage = "/";
   const script = document.createElement("script");
   script.async = true;
   script.src = `https://www.googletagmanager.com/gtag/js?id=${MEASUREMENT_ID}`;
